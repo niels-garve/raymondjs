@@ -1,0 +1,75 @@
+<html>
+<head>
+
+    <title>CG2 Test/Warmup</title>
+    
+    <!-- include gl-matrix directly since it is not a module -->
+    <!-- <script type="text/javascript" src="../lib/gl-matrix-1.3.7.js"></script> -->
+    
+    <!-- import main JavaScript module using RequireJS -->
+    <script data-main="main.js" src="../lib/require.js"></script>
+    
+    
+    
+    <!-- import style sheet -->
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css">
+    
+<!-- fragment shader for WebGL test -->
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec2 vTextureCoord;
+
+    uniform sampler2D uSampler;
+
+    void main(void) {
+        gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    }
+</script>
+
+<!-- vertex shader for WebGL test -->
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec2 aTextureCoord;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+
+    varying vec2 vTextureCoord;
+
+
+    void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vTextureCoord = aTextureCoord;
+    }
+</script>
+
+</head>
+
+<body>
+
+  <!-- this element will be used to diplay exceptions -->
+  <pre id="error"></pre>
+
+    <!-- 2D Canvas -->  
+    <canvas id="drawing_area" width="400" height="400" style="position:relative;">
+        <!-- NOTE: the "position:relative" is required due to the current  
+             implementation of mouse coordinate processing. -->
+        If you see this text, your browser probably does not 
+        support the HTML5 canvas 2D drawing context. 
+    </canvas>
+
+    <!-- 3D WebGL Canvas -->
+    <canvas id="lesson05-canvas" style="border: none;" width="400" height="400"></canvas>
+    <div style="float:none;">
+    </div>
+
+    <p>  
+  
+    <div id="param_area" >
+        <input id="showDraggers" type="checkbox" checked>Anfasser zeigen<br>
+    </div>
+
+
+</body>
+</html>
