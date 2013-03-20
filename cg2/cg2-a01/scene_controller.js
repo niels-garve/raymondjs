@@ -67,9 +67,9 @@ define(["util", "scene"],
         // create event handlers with a closure containing 
         // "tool" as a reference to this dragger
         var _controller = this;
-        this.canvas.addEventListener('mousedown', (function(ev) { _controller.mousedown(ev); }), false);
-        this.canvas.addEventListener('mousemove', (function(ev) { _controller.mousemove(ev); }), false);
-        this.canvas.addEventListener('mouseup',   (function(ev) { _controller.mouseup(ev);   }), false);
+        this.canvas.addEventListener('mousedown', (function(ev) { ev.preventDefault(); _controller.mousedown(ev); }), false);
+        this.canvas.addEventListener('mousemove', (function(ev) { ev.preventDefault(); _controller.mousemove(ev); }), false);
+        this.canvas.addEventListener('mouseup',   (function(ev) { ev.preventDefault(); _controller.mouseup(ev);   }), false);
                                 
     };
     
