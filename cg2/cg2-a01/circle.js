@@ -24,8 +24,8 @@ define(["util", "vec2", "scene", "point_dragger"],
             // Kreisgleichung
             var term = (pos[0] - this.point[0]) * (pos[0] - this.point[0]) +
                     (pos[1] - this.point[1]) * (pos[1] - this.point[1]),
-                minSquaredRadius = (this.radius - this.circleStyle.width / 2 - 2) * (this.radius - this.circleStyle.width / 2 - 2),
-                maxSquaredRadius = (this.radius + this.circleStyle.width / 2 + 2) * (this.radius + this.circleStyle.width / 2 + 2);
+                minSquaredRadius = ((2 * this.radius - parseInt(this.circleStyle.width) - 4) / 2) * ((2 * this.radius - parseInt(this.circleStyle.width) - 4) / 2),
+                maxSquaredRadius = ((2 * this.radius + parseInt(this.circleStyle.width) + 4) / 2) * ((2 * this.radius + parseInt(this.circleStyle.width) + 4) / 2);
 
             return minSquaredRadius <= term && term <= maxSquaredRadius;
         };
