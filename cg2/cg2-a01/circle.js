@@ -24,8 +24,10 @@ define(["util", "vec2", "scene", "point_dragger"],
             // Kreisgleichung
             var term = (pos[0] - this.point[0]) * (pos[0] - this.point[0]) +
                     (pos[1] - this.point[1]) * (pos[1] - this.point[1]),
-                minSquaredRadius = ((2 * this.radius - parseInt(this.circleStyle.width) - 4) / 2) * ((2 * this.radius - parseInt(this.circleStyle.width) - 4) / 2),
-                maxSquaredRadius = ((2 * this.radius + parseInt(this.circleStyle.width) + 4) / 2) * ((2 * this.radius + parseInt(this.circleStyle.width) + 4) / 2);
+                minSquaredRadius = ((2 * this.radius - parseInt(this.circleStyle.width) - 4) / 2)
+                    * ((2 * this.radius - parseInt(this.circleStyle.width) - 4) / 2),
+                maxSquaredRadius = ((2 * this.radius + parseInt(this.circleStyle.width) + 4) / 2)
+                    * ((2 * this.radius + parseInt(this.circleStyle.width) + 4) / 2);
 
             return minSquaredRadius <= term && term <= maxSquaredRadius;
         };
@@ -35,15 +37,31 @@ define(["util", "vec2", "scene", "point_dragger"],
                 draggerStyle = {radius: 4, color: this.circleStyle.color, width: 0, fill: true},
                 _circle = this,
 
-                getPoint = function () {
+                getPointCallback1 = function () {
                     return _circle.point;
                 },
 
-                setPoint = function (dragEvent) {
+                setPointCallback1 = function (dragEvent) {
                     _circle.point = dragEvent.position;
+                },
+
+                getPointCallback2 = function () {
+                    return [_circle.point[0], _circle.point[1] + _circle.radius];
+                },
+
+                setPointCallback2 = function (dragEvent) {
+                    var newRadius = dragEvent.position[1] - _circle.point[1],
+                        minRadius = 2 * (draggerStyle.radius + draggerStyle.width);
+
+                    if (newRadius > minRadius) {
+                        _circle.radius = newRadius;
+                    } else {
+                        _circle.radius = minRadius;
+                    }
                 };
 
-            draggers.push(new PointDragger(getPoint, setPoint, draggerStyle));
+            draggers.push(new PointDragger(getPointCallback1, setPointCallback1, draggerStyle));
+            draggers.push(new PointDragger(getPointCallback2, setPointCallback2, draggerStyle));
 
             return draggers;
         };
