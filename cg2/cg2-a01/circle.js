@@ -20,8 +20,14 @@ define(["util", "vec2", "scene", "point_dragger"],
             context.stroke();
         };
 
-        Circle.prototype.isHit = function (pos) {
+        Circle.prototype.isHit = function (context, pos) {
+            // Kreisgleichung
+            var term = (pos[0] - this.point[0]) * (pos[0] - this.point[0]) +
+                    (pos[1] - this.point[1]) * (pos[1] - this.point[1]),
+                minSquaredRadius = (this.radius - this.circleStyle.width / 2 - 2) * (this.radius - this.circleStyle.width / 2 - 2),
+                maxSquaredRadius = (this.radius + this.circleStyle.width / 2 + 2) * (this.radius + this.circleStyle.width / 2 + 2);
 
+            return minSquaredRadius <= term && term <= maxSquaredRadius;
         };
 
         Circle.prototype.createDraggers = function () {
