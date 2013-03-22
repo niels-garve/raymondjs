@@ -197,7 +197,7 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                 
                 // draw the objects
                 if(this.drawOptions["Triangle"]) {
-                    this.triangle.draw(gl, this.prog_red);
+                    this.triangle.draw(gl, this.prog_vertexColor);
                 };
                 if(this.drawOptions["Cube"]) {
                     this.cube.draw(gl, this.prog_red);
