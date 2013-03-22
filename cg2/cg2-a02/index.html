@@ -1,0 +1,64 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>CG2 A2: WebGL</title>
+    
+    <!-- import main module using RequireJS -->
+    <script data-main="main.js" src="../lib/require.js"></script>
+    
+    <!-- import style sheet -->
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css">
+    
+</head>
+
+<body>
+
+  <!-- this element will be used to diplay errors -->
+  <pre id="error"></pre>
+  
+  <!-- centered region with drawing canvas and parameter area -->
+  <div align="center">
+  
+<!--
+    <div>
+        <button id="btnSomething" type="button"   >Do Something!</button>
+    </div>
+
+    <br>
+-->
+  
+    <canvas id="drawing_area" width="500" height="400" style="position:relative;">
+        <!-- NOTE: the "position:relative" is required due to the current  
+             implementation of mouse coordinate processing in module "util". -->
+        If you see this text, your browser probably does not 
+        support HTML5. 
+    </canvas>
+    
+    <div id="param_area" >
+                
+        <table id="param_table">
+          <tr class="animParam">
+            <td>Animation:</td>
+            <td>
+                <input id="anim_Toggle" class="inputParam" type="checkbox"></input>
+            </td>
+          </tr>
+            <td>Speed:</td>
+            <td>
+                <input id="anim_Speed" class="inputParam" type="number"></input>
+                °/sec
+            </td>
+          </tr>
+          <!-- please note: more rows will be added automatically by html_controller.js -->
+
+        </table>
+    </div>
+    
+    <div style="float:clear;">
+    </div>
+    
+  </div>
+  
+</body>
+</html>
