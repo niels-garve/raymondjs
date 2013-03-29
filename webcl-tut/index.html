@@ -65,8 +65,28 @@
 <!-- Le javascript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript">
+    // usage: log('inside coolFunc',this,arguments);
+    // http://paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
+    window.log=function(){log.history=log.history||[];log.history.push(arguments);if(this.console){console.log(Array.prototype.slice.call(arguments))}};
+</script>
 <script data-main="js/main.js" src="js/lib/require.js"></script>
 
+<!-- OpenCL C-->
+<script id="clProgramVectorAdd" type="text/x-opencl">
+__kernel void ckVectorAdd(__global unsigned int* vectorIn1, __global unsigned int* vectorIn2,
+    __global unsigned int* vectorOut, unsigned int uiVectorWidth) {
+
+    unsigned int x = get_global_id(0);
+
+    if (x >= (uiVectorWidth)) {
+        return;
+    }
+
+    // add the vector elements
+    vectorOut[x] = vectorIn1[x] + vectorIn2[x];
+}
+</script>
 
 </body>
 </html>
