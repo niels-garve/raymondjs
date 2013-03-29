@@ -31,8 +31,9 @@ requirejs.config({
     }
 });
 
-define(["jquery", "underscore", "parallel", "bootstrap"],
-    (function ($, _, Parallel) {
-
+define(
+    ["jquery", "underscore", "parallel", "utils", "bootstrap"],
+    (function ($, _, Parallel, Utils) {
+        Utils.webClInfo();
     })
 );
