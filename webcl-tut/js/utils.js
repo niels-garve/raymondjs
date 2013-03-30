@@ -57,50 +57,51 @@ define(
          * @constructor
          */
         function CL_vectorAdd(context, UIvec1, UIvec2, vectorLength) {
-            var program = null,
-                devices = null;
+            var bufSize = 0,
+                bufIn1 = null,
+                bufIn2 = null,
+                bufOut = null,
+                bufRes = null,
+                kernelSrc = null,
+                program = null,
+                devices = null,
+                kernel = null,
+                cmdQueue = null,
+                localWS = null,
+                globalWS = null;
 
             try {
-                if (window.WebCL === undefined) {
-                    alert("Unfortunately your system does not support WebCL. " +
-                        "Make sure that you have both the OpenCL driver " +
-                        "and the WebCL browser extension installed.");
-                    return null;
-                }
-
-                log("Vector length = " + vectorLength);
-
-                // Create Context, reserve buffers & create and build program for the first device
-                var bufSize = vectorLength * 4, // size in bytes
-                    bufIn1 = context.createBuffer(WebCL.CL_MEM_READ_ONLY, bufSize),
-                    bufIn2 = context.createBuffer(WebCL.CL_MEM_READ_ONLY, bufSize),
-                    bufOut = context.createBuffer(WebCL.CL_MEM_WRITE_ONLY, bufSize),
-                    kernelSrc = loadKernel("clProgramVectorAdd");
+                // Reserve buffers
+                bufSize = vectorLength * 4; // for UINT got 4 byte
+                bufIn1 = context.createBuffer(WebCL.CL_MEM_READ_ONLY, bufSize);
+                bufIn2 = context.createBuffer(WebCL.CL_MEM_READ_ONLY, bufSize);
+                bufOut = context.createBuffer(WebCL.CL_MEM_WRITE_ONLY, bufSize);
 
                 log("Buffer size: " + bufSize + " bytes");
 
+                // Create and build program for the first device
+                kernelSrc = loadKernel("clProgramVectorAdd");
                 program = context.createProgramWithSource(kernelSrc);
                 devices = context.getContextInfo(WebCL.CL_CONTEXT_DEVICES);
-
                 program.buildProgram([devices[0]], ""); // TODO throws what?
 
                 // Create kernel and set arguments
-                var kernel = program.createKernel("ckVectorAdd");
+                kernel = program.createKernel("ckVectorAdd");
                 kernel.setKernelArg(0, bufIn1);
                 kernel.setKernelArg(1, bufIn2);
                 kernel.setKernelArg(2, bufOut);
                 kernel.setKernelArg(3, vectorLength, WebCL.types.UINT);
 
                 // Create command queue using the first available device
-                var cmdQueue = context.createCommandQueue(devices[0], 0);
+                cmdQueue = context.createCommandQueue(devices[0], 0);
 
                 // Write the buffer to OpenCL device memory
                 cmdQueue.enqueueWriteBuffer(bufIn1, false, 0, bufSize, UIvec1, []);
                 cmdQueue.enqueueWriteBuffer(bufIn2, false, 0, bufSize, UIvec2, []);
 
                 // Init ND-range
-                var localWS = [8],
-                    globalWS = [Math.ceil(vectorLength / localWS) * localWS];
+                localWS = [8];
+                globalWS = [Math.ceil(vectorLength / localWS) * localWS];
 
                 log("Global work item size: " + globalWS);
                 log("Local work item size: " + localWS);
@@ -109,11 +110,11 @@ define(
                 cmdQueue.enqueueNDRangeKernel(kernel, globalWS.length, [], globalWS, localWS, []);
 
                 // Read the result buffer from OpenCL device
-                var resBuffer = new Uint32Array(vectorLength);
-                cmdQueue.enqueueReadBuffer(bufOut, false, 0, bufSize, resBuffer, []);
-                cmdQueue.finish(); //Finish all the operations
+                bufRes = new Uint32Array(vectorLength);
+                cmdQueue.enqueueReadBuffer(bufOut, false, 0, bufSize, bufRes, []);
+                cmdQueue.finish(); // Finish all the operations
 
-                return resBuffer;
+                return bufRes;
 
             } catch (e) {
                 return e.message + "\n" +

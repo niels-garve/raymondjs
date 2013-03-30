@@ -36,6 +36,13 @@ define(
     (function ($, _, Parallel, Utils) {
         "use strict";
 
+        if (window.WebCL === undefined) {
+            alert("Unfortunately your system does not support WebCL. " +
+                "Make sure that you have both the OpenCL driver " +
+                "and the WebCL browser extension installed.");
+            return;
+        }
+
         // Setup WebCL context using the default device of the first platform
         var platforms = WebCL.getPlatformIDs(),
             context = WebCL.createContextFromType([WebCL.CL_CONTEXT_PLATFORM, platforms[0]],
