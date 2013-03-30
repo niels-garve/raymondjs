@@ -36,6 +36,11 @@ define(
     (function ($, _, Parallel, Utils) {
         "use strict";
 
+        // Setup WebCL context using the default device of the first platform
+        var platforms = WebCL.getPlatformIDs(),
+            context = WebCL.createContextFromType([WebCL.CL_CONTEXT_PLATFORM, platforms[0]],
+                WebCL.CL_DEVICE_TYPE_DEFAULT);
+
         // Generate input vectors
         var vectorLength = 30,
             UIvector1 = new Uint32Array(vectorLength),
@@ -49,6 +54,6 @@ define(
 
         log(UIvector1);
         log(UIvector2);
-        log(Utils.CL_vectorAdd(UIvector1, UIvector2, vectorLength));
+        log(Utils.CL_vectorAdd(context, UIvector1, UIvector2, vectorLength));
     })
 );

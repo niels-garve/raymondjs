@@ -48,25 +48,15 @@ define(
         }
 
         /**
-         * Setup WebCL context using the default device of the first platform
-         * @return IWebCLContext
-         */
-        function createContext() {
-            var platforms = WebCL.getPlatformIDs();
-
-            return WebCL.createContextFromType([WebCL.CL_CONTEXT_PLATFORM, platforms[0]],
-                WebCL.CL_DEVICE_TYPE_DEFAULT);
-        }
-
-        /**
          *
+         * @param context
          * @param UIvec1
          * @param UIvec2
          * @param vectorLength
          * @return {*|null|String}
          * @constructor
          */
-        function CL_vectorAdd(UIvec1, UIvec2, vectorLength) {
+        function CL_vectorAdd(context, UIvec1, UIvec2, vectorLength) {
             var program = null,
                 devices = null;
 
@@ -81,17 +71,16 @@ define(
                 log("Vector length = " + vectorLength);
 
                 // Create Context, reserve buffers & create and build program for the first device
-                var ctx = createContext(),
-                    bufSize = vectorLength * 4, // size in bytes
-                    bufIn1 = ctx.createBuffer(WebCL.CL_MEM_READ_ONLY, bufSize),
-                    bufIn2 = ctx.createBuffer(WebCL.CL_MEM_READ_ONLY, bufSize),
-                    bufOut = ctx.createBuffer(WebCL.CL_MEM_WRITE_ONLY, bufSize),
+                var bufSize = vectorLength * 4, // size in bytes
+                    bufIn1 = context.createBuffer(WebCL.CL_MEM_READ_ONLY, bufSize),
+                    bufIn2 = context.createBuffer(WebCL.CL_MEM_READ_ONLY, bufSize),
+                    bufOut = context.createBuffer(WebCL.CL_MEM_WRITE_ONLY, bufSize),
                     kernelSrc = loadKernel("clProgramVectorAdd");
 
                 log("Buffer size: " + bufSize + " bytes");
 
-                program = ctx.createProgramWithSource(kernelSrc);
-                devices = ctx.getContextInfo(WebCL.CL_CONTEXT_DEVICES);
+                program = context.createProgramWithSource(kernelSrc);
+                devices = context.getContextInfo(WebCL.CL_CONTEXT_DEVICES);
 
                 program.buildProgram([devices[0]], ""); // TODO throws what?
 
@@ -103,7 +92,7 @@ define(
                 kernel.setKernelArg(3, vectorLength, WebCL.types.UINT);
 
                 // Create command queue using the first available device
-                var cmdQueue = ctx.createCommandQueue(devices[0], 0);
+                var cmdQueue = context.createCommandQueue(devices[0], 0);
 
                 // Write the buffer to OpenCL device memory
                 cmdQueue.enqueueWriteBuffer(bufIn1, false, 0, bufSize, UIvec1, []);
