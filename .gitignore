@@ -1,3 +1,2 @@
 .DS_Store
-cg2/.idea/*
-webcl-tut/.idea/*
+*/.idea/*
