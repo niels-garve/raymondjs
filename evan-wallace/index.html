@@ -1,154 +1,170 @@
 <!DOCTYPE html>
-<html><script id="bug.surrogate">var urchinTracker=function(){},_gaq={push:function(){try {if(arguments[0][0]=='_link')window.location.href=arguments[0][1]}catch(er){}}},_gat={_createTracker:function(){}, _getTracker:function(){return{__noSuchMethod__:function(){},_link:function(o){if(o)location.href=o;},_linkByPost:function(){return true;},_getLinkerUrl:function(o){return o;},_trackEvent:function(){}}}}; if (document.location.host == 'www.salon.com') {var _ga_ = document.querySelectorAll('script[src$=ga\\.js]')[0], ga_e = document.createEvent('Event'); ga_e.initEvent('load', true, true);_ga_.dispatchEvent(ga_e);}</script><head>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-  <title>WebGL Path Tracing</title>
-  <style type="text/css"><!--
+<html>
 
-body {
-  max-width: 900px;
-  padding: 30px;
-  margin: 0 auto;
-  font: 14px/19px 'Lucida Grande', sans-serif;
-}
+<script id="bug.surrogate">var urchinTracker=function(){},_gaq={push:function(){try {if(arguments[0][0]=='_link')window.location.href=arguments[0][1]}catch(er){}}},_gat={_createTracker:function(){}, _getTracker:function(){return{__noSuchMethod__:function(){},_link:function(o){if(o)location.href=o;},_linkByPost:function(){return true;},_getLinkerUrl:function(o){return o;},_trackEvent:function(){}}}}; if (document.location.host == 'www.salon.com') {var _ga_ = document.querySelectorAll('script[src$=ga\\.js]')[0], ga_e = document.createEvent('Event'); ga_e.initEvent('load', true, true);_ga_.dispatchEvent(ga_e);}</script>
 
-#main {
-  margin: 80px 0;
-  padding-left: 542px;
-  height: 512px;
-  position: relative;
-}
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <title>WebGL Path Tracing</title>
 
-#error {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 412px;
-  height: 412px;
-  padding: 50px;
-  text-align: center;
-  background: #DFDFDF;
-}
+    <style type="text/css"><!--
+    body {
+        max-width: 900px;
+        padding: 30px;
+        margin: 0 auto;
+        font: 14px/19px 'Lucida Grande', sans-serif;
+    }
 
-canvas {
-  position: absolute;
-  left: 0;
-  top: 0;
-}
+    #main {
+        margin: 80px 0;
+        padding-left: 542px;
+        height: 512px;
+        position: relative;
+    }
 
-p, ul {
-  margin: 0 0 30px 0;
-}
+    #error {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 412px;
+        height: 412px;
+        padding: 50px;
+        text-align: center;
+        background: #DFDFDF;
+    }
 
-h1 {
-  font: bold italic 50px Georgia;
-  margin: 0 0 60px 0;
-  text-align: center;
-}
+    canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
 
-a {
-  color: inherit;
-}
+    p, ul {
+        margin: 0 0 30px 0;
+    }
 
-#footer {
-  text-align: center;
-  margin: 100px 0 0 0;
-}
+    h1 {
+        font: bold italic 50px Georgia;
+        margin: 0 0 60px 0;
+        text-align: center;
+    }
 
-#glossiness-factor {
-  display: none;
-  font-size: 12px;
-}
+    a {
+        color: inherit;
+    }
 
-#glossiness-factor input {
-  width: 40px;
-  text-align: center;
-}
+    #footer {
+        text-align: center;
+        margin: 100px 0 0 0;
+    }
 
-  --></style>
-  <script type="text/javascript" src="js/sylvester.js"></script>
-  <script type="text/javascript" src="js/glUtils.js"></script>
-  <script type="text/javascript" src="js/webgl-path-tracing.js"></script>
-</head><body>
-  <h1>WebGL Path Tracing</h1>
+    #glossiness-factor {
+        display: none;
+        font-size: 12px;
+    }
 
-  <p>Path tracing is a realistic lighting algorithm that simulates light
- bouncing around a scene.&nbsp; This path tracer uses WebGL for realtime
- performance and supports diffuse, mirrored, and glossy surfaces.&nbsp; 
-The path tracer is continually rendering, so the scene will start off 
-grainy and become smoother over time.&nbsp; Here's how to interact with 
-it:</p>
+    #glossiness-factor input {
+        width: 40px;
+        text-align: center;
+    }
+    --></style>
 
-  <ul>
+    <script type="text/javascript" src="js/sylvester.js"></script>
+    <script type="text/javascript" src="js/glUtils.js"></script>
+    <script type="text/javascript" src="js/webgl-path-tracing.js"></script>
+
+</head>
+<body>
+<h1>WebGL Path Tracing</h1>
+
+<p>Path tracing is a realistic lighting algorithm that simulates light
+    bouncing around a scene.&nbsp; This path tracer uses WebGL for realtime
+    performance and supports diffuse, mirrored, and glossy surfaces.&nbsp;
+    The path tracer is continually rendering, so the scene will start off
+    grainy and become smoother over time.&nbsp; Here's how to interact with
+    it:</p>
+
+<ul>
     <li>Add an object using the "Add Sphere" or "Add Cube" buttons</li>
     <li>Select an object by clicking on it</li>
     <li>Move the selection along the face of its selection box by dragging around on that face</li>
     <li>Delete the selection using the backspace key</li>
     <li>Rotate the camera by dragging the background</li>
-  </ul>
+</ul>
 
-  <div id="main">
+<div id="main">
     <canvas id="canvas" width="512" height="512"></canvas>
     <div style="z-index: -1;" id="error">Loading...</div>
 
     <p>
-      <button onclick="javascript:ui.selectLight()">Select Light</button>
-      <button onclick="javascript:ui.addSphere()">Add Sphere</button>
-      <button onclick="javascript:ui.addCube()">Add Cube</button>
+        <button onclick="javascript:ui.selectLight()">Select Light</button>
+        <button onclick="javascript:ui.addSphere()">Add Sphere</button>
+        <button onclick="javascript:ui.addCube()">Add Cube</button>
     </p>
 
     <p>
-      <b>Material:</b>
-      <select id="material">
-        <option value="0" selected="selected">Diffuse</option>
-        <option value="1">Mirror</option>
-        <option value="2">Glossy</option>
-      </select>
+        <b>Material:</b>
+        <select id="material">
+            <option value="0" selected="selected">Diffuse</option>
+            <option value="1">Mirror</option>
+            <option value="2">Glossy</option>
+        </select>
       <span style="display: none;" id="glossiness-factor">
         <br>with glossiness factor: 0 &lt; <input id="glossiness" value="0.6"> &lt; 1
       </span>
-      <br>
+        <br>
 
-      <b>Environment:</b>
-      <select id="environment">
-        <option value="0" selected="selected">Cornell Box - Yellow and Blue</option>
-        <option value="1">Cornell Box - Red and Green</option>
-      </select>
+        <b>Environment:</b>
+        <select id="environment">
+            <option value="0" selected="selected">Cornell Box - Yellow and Blue</option>
+            <option value="1">Cornell Box - Red and Green</option>
+        </select>
     </p>
 
     <p>
-      <b>Load preset scene:</b>
-      <br><button onclick="javascript:ui.setObjects(makeSphereColumn())">Sphere Column</button>
-      <br><button onclick="javascript:ui.setObjects(makeSpherePyramid())">Sphere Pyramid</button>
-      <br><button onclick="javascript:ui.setObjects(makeSphereAndCube())">Sphere and Cube</button>
-      <br><button onclick="javascript:ui.setObjects(makeCubeAndSpheres())">Cube and Spheres</button>
-      <br><button onclick="javascript:ui.setObjects(makeTableAndChair())">Table and Chair</button>
-      <br><button onclick="javascript:ui.setObjects(makeStacks())">Stacks</button>
+        <b>Load preset scene:</b>
+        <br>
+        <button onclick="javascript:ui.setObjects(makeSphereColumn())">Sphere Column</button>
+        <br>
+        <button onclick="javascript:ui.setObjects(makeSpherePyramid())">Sphere Pyramid</button>
+        <br>
+        <button onclick="javascript:ui.setObjects(makeSphereAndCube())">Sphere and Cube</button>
+        <br>
+        <button onclick="javascript:ui.setObjects(makeCubeAndSpheres())">Cube and Spheres</button>
+        <br>
+        <button onclick="javascript:ui.setObjects(makeTableAndChair())">Table and Chair</button>
+        <br>
+        <button onclick="javascript:ui.setObjects(makeStacks())">Stacks</button>
     </p>
-  </div>
+</div>
 
-  <p>The entire scene is dynamically compiled into a GLSL shader.&nbsp; 
-Everything can be repositioned using the current shader, but any 
-geometry or material change means a recompilation.&nbsp; To calculate a 
-pixel color, a ray is shot into the scene and allowed to bounce around 
-five times.&nbsp; At each bounce, the direct light incoming at that 
-point (including shadows) is multiplied by all previous material colors 
-and accumulated.&nbsp; Soft shadows are achieved by randomly jittering 
-the light position per-pixel.&nbsp; The path tracing solution will only 
-completely converge if your browser supports the OES_texture_float 
-extension.</p>
-  <p id="footer">Made by <a href="http://madebyevan.com/">Evan Wallace</a> in 2010</p>
-  <script type="text/javascript"><!--
+<p>The entire scene is dynamically compiled into a GLSL shader.&nbsp;
+    Everything can be repositioned using the current shader, but any
+    geometry or material change means a recompilation.&nbsp; To calculate a
+    pixel color, a ray is shot into the scene and allowed to bounce around
+    five times.&nbsp; At each bounce, the direct light incoming at that
+    point (including shadows) is multiplied by all previous material colors
+    and accumulated.&nbsp; Soft shadows are achieved by randomly jittering
+    the light position per-pixel.&nbsp; The path tracing solution will only
+    completely converge if your browser supports the OES_texture_float
+    extension.</p>
 
+<p id="footer">Made by <a href="http://madebyevan.com/">Evan Wallace</a> in 2010</p>
+
+<script type="text/javascript"><!--
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-17521220-1']);
 _gaq.push(['_trackPageview']);
-  
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
-    
-  // --></script>
 
-</body></html>
+(function () {
+    var ga = document.createElement('script');
+    ga.type = 'text/javascript';
+    ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(ga, s);
+})();
+// --></script>
+
+</body>
+</html>
