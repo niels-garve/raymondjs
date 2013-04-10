@@ -153,6 +153,11 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                                                     shaders.vs_PerVertexColor(),
                                                     shaders.fs_PerVertexColor() );
 
+                this.prog_pathtracing = new Program(gl,
+                    shaders.vs_Pathtracing(),
+                    shaders.fs_Pathtracing()
+                );
+
                 // create some objects to be drawn
                 this.triangle = new Triangle(gl);
                 this.cube     = new Cube(gl);
@@ -186,6 +191,7 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                 setUniforms(this.prog_red, this.transformation);
                 setUniforms(this.prog_black, this.transformation);
                 setUniforms(this.prog_vertexColor, this.transformation);
+                setUniforms(this.prog_pathtracing, this.transformation);
 
                 // shortcut
                 var gl = this.gl;
@@ -208,7 +214,7 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                     this.band.draw(gl, this.prog_red);
                 }
                 if(this.drawOptions["Stage"]) {
-                    this.stage.draw(gl, this.prog_red);
+                    this.stage.draw(gl, this.prog_pathtracing);
                 }
             };
 
