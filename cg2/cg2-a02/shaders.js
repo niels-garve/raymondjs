@@ -17,7 +17,14 @@ define(["util"],
     
     var mod = {};
     
-    /* 
+    mod.vs_Pathtracing = function() {
+        return [
+
+
+        ].join("\n");
+    };
+
+    /*
      * vertex shader applying a modelview as well as
      * a projection matrix, expecting an attribute "vertexPosition" 
      * of type vec3.
@@ -58,7 +65,14 @@ define(["util"],
             ].join("\n");
     };
 
-    /* 
+    mod.fs_Pathtracing = function() {
+        return [
+
+
+        ].join("\n");
+    };
+
+    /*
      * simplest possible fragment shader rendering everything using a constant color 
      * (RGBA four floats [0:1]) that defaults to red if not specified.
      */ 
