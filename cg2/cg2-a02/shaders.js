@@ -76,14 +76,25 @@ define(["util"],
     mod.fs_Pathtracing = function() {
         return [
             "precision mediump float;",
+            "uniform vec3 sphere1Center;",
+            "uniform float sphere1Radius;",
+            "uniform vec3 eyePosition;",
             "varying vec3 rayDirection;",
             "",
-            "vec4 intersect() {",
-            "   return vec4(1,0,0,1);",
+            "vec4 intersectSphere() {",
+            "   vec3 toSphere = eyePosition - sphere1Center;",
+            "   float a = dot(rayDirection, rayDirection);",
+            "   float b = 2.0 * dot(toSphere, rayDirection);",
+            "   float c = dot(toSphere, toSphere) - sphere1Radius * sphere1Radius;",
+            "   float discriminant = b * b - 4.0 * a * c;",
+            "   if(discriminant > 0.0) {",
+            "      return vec4(1, 0, 0, 1);",
+            "   }",
+            "   return vec4(0,0,0,1);",
             "}",
             "",
             "void main() {",
-            "   gl_FragColor = intersect();",
+            "   gl_FragColor = intersectSphere();",
             "}"
         ].join("\n");
     };

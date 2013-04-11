@@ -193,6 +193,8 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                 setUniforms(this.prog_vertexColor, this.transformation);
                 setUniforms(this.prog_pathtracing, this.transformation);
                 this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 5]);
+                this.prog_pathtracing.setUniform("sphere1Center", "vec3", [0, 0 , -5]);
+                this.prog_pathtracing.setUniform("sphere1Radius", "float", 0.5);
 
                 // shortcut
                 var gl = this.gl;
