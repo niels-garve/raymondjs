@@ -17,7 +17,22 @@ define(["util"],
     
     var mod = {};
     
-    /* 
+    mod.vs_Pathtracing = function() {
+        return [
+            "attribute vec3 vertexPosition;" ,
+            "uniform mat4 modelViewMatrix;" ,
+            "uniform mat4 projectionMatrix;" ,
+            "uniform vec3 eyePosition;",
+            "varying vec3 rayDirection;",
+            "",
+            "void main() {",
+            "   gl_Position = projectionMatrix * modelViewMatrix * vec4(vertexPosition,1.0);",
+            "   rayDirection = vertexPosition - eyePosition;",
+            "}"
+        ].join("\n");
+    };
+
+    /*
      * vertex shader applying a modelview as well as
      * a projection matrix, expecting an attribute "vertexPosition" 
      * of type vec3.
@@ -58,7 +73,33 @@ define(["util"],
             ].join("\n");
     };
 
-    /* 
+    mod.fs_Pathtracing = function() {
+        return [
+            "precision mediump float;",
+            "uniform vec3 sphere1Center;",
+            "uniform float sphere1Radius;",
+            "uniform vec3 eyePosition;",
+            "varying vec3 rayDirection;",
+            "",
+            "vec4 intersectSphere() {",
+            "   vec3 toSphere = eyePosition - sphere1Center;",
+            "   float a = dot(rayDirection, rayDirection);",
+            "   float b = 2.0 * dot(toSphere, rayDirection);",
+            "   float c = dot(toSphere, toSphere) - sphere1Radius * sphere1Radius;",
+            "   float discriminant = b * b - 4.0 * a * c;",
+            "   if(discriminant > 0.0) {",
+            "      return vec4(1, 0, 0, 1);",
+            "   }",
+            "   return vec4(0,0,0,1);",
+            "}",
+            "",
+            "void main() {",
+            "   gl_FragColor = intersectSphere();",
+            "}"
+        ].join("\n");
+    };
+
+    /*
      * simplest possible fragment shader rendering everything using a constant color 
      * (RGBA four floats [0:1]) that defaults to red if not specified.
      */ 
