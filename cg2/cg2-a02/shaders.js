@@ -19,8 +19,16 @@ define(["util"],
     
     mod.vs_Pathtracing = function() {
         return [
-
-
+            "attribute vec3 vertexPosition;" ,
+            "uniform mat4 modelViewMatrix;" ,
+            "uniform mat4 projectionMatrix;" ,
+            "uniform vec3 eyePosition;",
+            "varying vec3 rayDirection;",
+            "",
+            "void main() {",
+            "   gl_Position = projectionMatrix * modelViewMatrix * vec4(vertexPosition,1.0);",
+            "   rayDirection = vertexPosition - eyePosition;",
+            "}"
         ].join("\n");
     };
 
@@ -67,8 +75,16 @@ define(["util"],
 
     mod.fs_Pathtracing = function() {
         return [
-
-
+            "precision mediump float;",
+            "varying vec3 rayDirection;",
+            "",
+            "vec4 intersect() {",
+            "   return vec4(1,0,0,1);",
+            "}",
+            "",
+            "void main() {",
+            "   gl_FragColor = intersect();",
+            "}"
         ].join("\n");
     };
 
