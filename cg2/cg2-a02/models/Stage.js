@@ -35,10 +35,10 @@ define(["util", "vbo"],
 
             // generate vertex coordinates and store in an array
             var coords = [
-                -0.5, -0.5, 0, // coordinates of A
-                0.5, -0.5, 0, // coordinates of B
-                -0.5, 0.5, 0, // coordinates of D
-                0.5, 0.5, 0 // coordinates of C
+                -8, -5, 0, // coordinates of A
+                8, -5, 0, // coordinates of B
+                -8, 5, 0, // coordinates of D
+                8, 5, 0 // coordinates of C
             ];
 
             // create vertex buffer object (VBO) for the coordinates

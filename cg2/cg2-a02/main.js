@@ -91,9 +91,8 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
         // create animation to rotate the scene
         var animation = new Animation( (function(t) {
 
-            // rotate by 25° around the X axis to get a tilted perspective
-            var matrix = mat4.identity()
-            mat4.rotate(matrix, 25 * Math.PI/180, [1,0,0]);
+            var matrix = mat4.identity();
+            // mat4.rotate(matrix, 25 * Math.PI/180, [1,0,0]); // rotate by 25° around the X axis to get a tilted perspective
 
             // rotation around Y axis, depending on animation time
             var angle = t/1000 * animation.customSpeed / 180*Math.PI; // 10 deg/sec, in radians
@@ -181,8 +180,8 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                     // you have to use a program before you set uniforms in it
                     program.use();
 
-                    // set up the projection matrix: just Identity for now
-                    program.setUniform("projectionMatrix", "mat4", mat4.ortho(-1,1, -1,1, -1, 1));
+                    // set up the projection matrix: orthographic projection, aspect ratio: 16:10
+                    program.setUniform("projectionMatrix", "mat4", mat4.ortho(-8,8, -5,5, -1, 1));
 
                     // set up the modelview matrix
                     program.setUniform("modelViewMatrix", "mat4", transformation);
@@ -194,7 +193,7 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                 setUniforms(this.prog_pathtracing, this.transformation);
                 this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 5]);
                 this.prog_pathtracing.setUniform("sphere1Center", "vec3", [0, 0 , -5]);
-                this.prog_pathtracing.setUniform("sphere1Radius", "float", 0.5);
+                this.prog_pathtracing.setUniform("sphere1Radius", "float", 3);
 
                 // shortcut
                 var gl = this.gl;
@@ -221,9 +220,9 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                 }
             };
 
-            // initial transformation - tilt view by 25° from above
+            // initial transformation
             var matrix = mat4.identity();
-            mat4.rotate(matrix, 25 * Math.PI/180, [1,0,0]);
+            // mat4.rotate(matrix, 25 * Math.PI/180, [1,0,0]); // tilt view by 25° from above
 
             // create scene and animation, and start drawing
             var scene = new MyScene(gl, matrix);
