@@ -38,15 +38,10 @@ define(["util"],
     /* "global" counter counting how many texture are to be loaded */
     var _numTexturesToBeLoaded = 0;
     
-    /* "global" callback function to be triggered once all textures have been loaded */
-    var _allTexturesLoadedCallback = function() {
-        window.console.log("all textures have been loaded");
-    };
-    
     /* function to set up an event handler once all textures have been loaded */
     var onAllTexturesLoaded = function(callbackFunc) {
-        _allTexturesLoadedCallback = callackFunc;
-    }
+        _allTexturesLoadedCallback = callbackFunc;
+    };
     
     /* 
         Object: 2D Texture
@@ -66,11 +61,14 @@ define(["util"],
         // store configuration parameters
         this.gl = gl;
         this.filename = filename;
-        this.useMipMap = useMipMap;
+        this.useMipMap = useMipMap===undefined? false : useMipMap; 
         this.callback = callback;
         
         // create a WebGL texture object
         this.gltex = gl.createTexture();
+        if(!this.gltex) {
+            throw "could not create WebGL texture";
+        };
         
         // flag indicating whether loading has been completed
         this.loadingCompleted = false;
@@ -166,8 +164,11 @@ define(["util"],
         window.console.log("TextureCube not implemented.");
     };
     
-
-
+    /* default callback function to be triggered once all textures have been loaded */
+    var _allTexturesLoadedCallback = function() {
+        window.console.log("all textures have been loaded");
+    };
+ 
     // this module exports two constructor functions and a 
     return { "onAllTexturesLoaded": onAllTexturesLoaded,
              "Texture2D": Texture2D, 

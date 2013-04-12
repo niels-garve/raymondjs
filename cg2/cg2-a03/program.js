@@ -249,8 +249,8 @@ define(["util"],
         };
         
         // find location of texture's uniform variable
-        var location = this.gl.getUniformLocation(glProgram, uniformName);
-        if(location === null) {
+        var location = this.gl.getUniformLocation(this.glProgram, uniformName);
+        if(location === null || location < 0) {
             logWarning("uniform sampler " + uniformName + " not used in shader.");
             return;
         };
