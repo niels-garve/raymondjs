@@ -57,6 +57,7 @@ define(["util"],
         specific rendering context.
        
         Parameters to the constructor function:
+        - progName             : string containing the name of the program for UI purposes
         - gl                   : WebGL rendering context created via initWebGL()
         - vertexShaderSource   : string containing source code of the vertex shader. 
         - fragmentShaderSource : string containing source code of the fragment shader. 
@@ -92,6 +93,13 @@ define(["util"],
 
         // link the program so it can be used
         gl.linkProgram(this.glProgram);
+        
+        // check for linking errors
+        
+        if (!gl.getProgramParameter(this.glProgram, gl.LINK_STATUS)) {
+            throw "linking error: " + gl.getProgramInfoLog(this.glProgram);
+            return null;
+        }
 
     }; 
 
@@ -113,7 +121,7 @@ define(["util"],
     };
     
     /* 
-     * method getAttributeLocation() is a wrapper for the WebGL getAttribLocation. 
+     * method getAttributeLocation() is a wrapper for the WebGL getAttributeLocation. 
      *
      */
     Program.prototype.getAttribLocation = function(name) {
@@ -221,7 +229,7 @@ define(["util"],
         };
 
         // does the texture object have an isLoaded() method?
-        if( !texture.isLoaded || !texture.glTexture ) {
+        if( !texture.isLoaded ) {
             throw new util.RuntimeError("setTexture(): not a valid texture wrapper object.");
             return false; 
         };
@@ -241,8 +249,8 @@ define(["util"],
         };
         
         // find location of texture's uniform variable
-        var location = this.gl.getUniformLocation(glProgram, uniformName);
-        if(location === null) {
+        var location = this.gl.getUniformLocation(this.glProgram, uniformName);
+        if(location === null || location < 0) {
             logWarning("uniform sampler " + uniformName + " not used in shader.");
             return;
         };
@@ -260,7 +268,7 @@ define(["util"],
       
     }; // setTexture()
                              
-    // this module only returns the Ring constructor function    
+    // this module only returns the Program constructor function    
     return Program;
 
 })); // define
