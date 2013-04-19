@@ -37,10 +37,12 @@ requirejs.config({
 /* requireJS module definition */
 define(["jquery", "gl-matrix", "util", "webgl-debug",
         "program", "shaders", "animation", "html_controller",
-        "models/triangle", "models/cube", "models/band", "models/Stage"],
+        "models/triangle", "models/cube", "models/band", "models/Stage",
+        "texture"],
        (function($, glmatrix, util, WebGLDebugUtils,
                     Program, shaders, Animation, HtmlController,
-                    Triangle, Cube, Band, Stage) {
+                    Triangle, Cube, Band, Stage,
+                    Texture) {
 
     "use strict";
 
@@ -128,7 +130,11 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
             console.log("document ready - starting!");
 
             // create WebGL context object for the named canvas object
-            var gl = makeWebGLContext("drawing_area");
+            var gl = makeWebGLContext("drawing_area"),
+                tex = new Texture.Texture2D(gl, "textures/earth_month04.jpg");
+
+            tex.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            tex.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
             // a simple scene is an object with a few objects and a draw() method
             var MyScene = function(gl, transformation) {
@@ -190,10 +196,13 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                 setUniforms(this.prog_red, this.transformation);
                 setUniforms(this.prog_black, this.transformation);
                 setUniforms(this.prog_vertexColor, this.transformation);
+
                 setUniforms(this.prog_pathtracing, this.transformation);
                 this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 5]);
                 this.prog_pathtracing.setUniform("sphere1Center", "vec3", [0, 0 , -5]);
                 this.prog_pathtracing.setUniform("sphere1Radius", "float", 3);
+                this.prog_pathtracing.setUniform("sceneSize", "vec2", [4096, 2048]); // px
+                this.prog_pathtracing.setTexture("scene", 0, tex); // this is being called on all textures loaded
 
                 // shortcut
                 var gl = this.gl;
@@ -220,18 +229,20 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                 }
             };
 
-            // initial transformation
-            var matrix = mat4.identity();
-            // mat4.rotate(matrix, 25 * Math.PI/180, [1,0,0]); // tilt view by 25° from above
+            Texture.onAllTexturesLoaded(function () {
+                // initial transformation
+                var matrix = mat4.identity();
+                // mat4.rotate(matrix, 25 * Math.PI/180, [1,0,0]); // tilt view by 25° from above
 
-            // create scene and animation, and start drawing
-            var scene = new MyScene(gl, matrix);
-            var animation = makeAnimation(scene); // do not start yet
-            scene.draw();
+                // create scene and animation, and start drawing
+                var scene = new MyScene(gl, matrix);
+                var animation = makeAnimation(scene); // do not start yet
+                scene.draw();
 
-            // create HTML controller that handles all the interaction of
-            // HTML elements with the scene and the animation
-            var controller = new HtmlController(scene,animation);
+                // create HTML controller that handles all the interaction of
+                // HTML elements with the scene and the animation
+                var controller = new HtmlController(scene,animation);
+            });
 
         // end of try block
         } catch(err) {
