@@ -147,20 +147,19 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
 
                 // create WebGL programs using constant red / black color
                 this.prog_red = new Program(gl,
-                                            shaders.vs_NoColor(),
-                                            shaders.fs_ConstantColor([1,0,0,1]) );
-                this.prog_black = new Program(gl,
-                                              shaders.vs_NoColor(),
-                                              shaders.fs_ConstantColor([0,0,0,1]) );
+                    shaders("noColor_vert"),
+                    shaders("constantColor_frag")
+                );
 
                 // create WebGL program using per-vertex-color
                 this.prog_vertexColor = new Program(gl,
-                                                    shaders.vs_PerVertexColor(),
-                                                    shaders.fs_PerVertexColor() );
+                    shaders("perVertexColor_vert"),
+                    shaders("perVertexColor_frag")
+                );
 
                 this.prog_pathtracing = new Program(gl,
-                    shaders.vs_Pathtracing(),
-                    shaders.fs_Pathtracing()
+                    shaders("pathtracing_vert"),
+                    shaders("pathtracing_frag")
                 );
 
                 // create some objects to be drawn
@@ -194,7 +193,6 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
 
                 };
                 setUniforms(this.prog_red, this.transformation);
-                setUniforms(this.prog_black, this.transformation);
                 setUniforms(this.prog_vertexColor, this.transformation);
 
                 setUniforms(this.prog_pathtracing, this.transformation);

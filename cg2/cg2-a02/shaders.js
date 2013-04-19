@@ -1,146 +1,40 @@
 /*
- * WebGL core teaching framwork 
+ * WebGL core teaching framework 
  * (C)opyright Hartmut Schirmacher, hschirmacher.beuth-hochschule.de 
  *
  * Module: Shaders
  *
- * This module provides some basic shaders as source code.
+ * This module loads required shaders using the require.js text plugin, 
+ * see https://github.com/requirejs/text 
  *
  */
 
 
 /* requireJS module definition */
-define(["util"], 
-       (function(Util) {
-       
+define([
+    "text!shaders/noColor.vert",        "text!shaders/constantColor.frag",
+    "text!shaders/perVertexColor.vert", "text!shaders/perVertexColor.frag",
+    "text!shaders/pathtracing.vert",    "text!shaders/pathtracing.frag"
+    ], (function(
+    noColor_vert,           constantColor_frag,
+    perVertexColor_vert,    perVertexColor_frag,
+    pathtracing_vert,       pathtracing_frag
+    ) {
+
     "use strict";
     
-    var mod = {};
-    
-    mod.vs_Pathtracing = function() {
-        return [
-            "attribute vec3 vertexPosition;" ,
-            "uniform mat4 modelViewMatrix;" ,
-            "uniform mat4 projectionMatrix;" ,
-            "uniform vec3 eyePosition;",
-            "varying vec3 rayDirection;",
-            "",
-            "void main() {",
-            "   gl_Position = projectionMatrix * modelViewMatrix * vec4(vertexPosition,1.0);",
-            "   rayDirection = vertexPosition - eyePosition;",
-            "}"
-        ].join("\n");
+    // return source code of a vertex shader
+    var shaders = function(name) {
+        var shader = eval(name);
+        if(!shader) {
+            throw "module shaders: shader " + name + " undefined.";
+        }
+        return shader;
     };
-
-    /*
-     * vertex shader applying a modelview as well as
-     * a projection matrix, expecting an attribute "vertexPosition" 
-     * of type vec3.
-     */ 
-    mod.vs_NoColor = function() {
     
-        return [
-            "attribute vec3 vertexPosition;" ,
-            "uniform mat4 modelViewMatrix;" ,
-            "uniform mat4 projectionMatrix;" ,
-            "" ,
-            "void main() {" ,
-            "  gl_Position = projectionMatrix * modelViewMatrix * vec4(vertexPosition,1.0);" ,
-            "  gl_PointSize = 3.0;" ,
-            "}" 
-            ].join("\n");
-    };
-
-    /* 
-     * vertex shader applying a modelview as well as
-     * a projection matrix, expecting an attribute "vertexPosition" 
-     * of type vec3 and a per-vertex color of type vec4.
-     */ 
-    mod.vs_PerVertexColor = function() {
+    // module returns the function shaders
+    return shaders;    
     
-        return [
-            "attribute vec3 vertexPosition;" ,
-            "attribute vec4 vertexColor;" ,
-            "uniform mat4 modelViewMatrix;" ,
-            "uniform mat4 projectionMatrix;" ,
-            "varying vec4 fragColor;",
-            "" ,
-            "void main() {" ,
-            "  gl_Position = projectionMatrix * modelViewMatrix * vec4(vertexPosition,1.0);" ,
-            "  gl_PointSize = 3.0;" ,
-            "  fragColor = vertexColor;" ,
-            "}" 
-            ].join("\n");
-    };
-
-    mod.fs_Pathtracing = function() {
-        return [
-            "precision mediump float;",
-            "uniform sampler2D scene;",
-            "uniform vec2 sceneSize;",
-            "uniform vec3 sphere1Center;",
-            "uniform float sphere1Radius;",
-            "uniform vec3 eyePosition;",
-            "varying vec3 rayDirection;",
-            "vec2 onePixel;",
-            "",
-            "vec4 intersectSphere() {",
-            "   vec3 toSphere = eyePosition - sphere1Center;",
-            "   float a = dot(rayDirection, rayDirection);",
-            "   float b = 2.0 * dot(toSphere, rayDirection);",
-            "   float c = dot(toSphere, toSphere) - sphere1Radius * sphere1Radius;",
-            "   float discriminant = b * b - 4.0 * a * c;",
-            "   if(discriminant > 0.0) {",
-            "      float t1 = (-b - sqrt(discriminant)) / (2.0 * a);",
-            "      vec2 coord = vec2(0, 0) * onePixel;",
-            "      return texture2D(scene, coord);",
-            "   }",
-            "   return vec4(0,0,0,1);",
-            "}",
-            "",
-            "void main() {",
-            "   onePixel = vec2(1.0, 1.0) / sceneSize;",
-            "   gl_FragColor = intersectSphere();",
-            "}"
-        ].join("\n");
-    };
-
-    /*
-     * simplest possible fragment shader rendering everything using a constant color 
-     * (RGBA four floats [0:1]) that defaults to red if not specified.
-     */ 
-     
-    mod.fs_ConstantColor = function(color) {
-    
-        color = color || [1.0,0.0,0.0,1.0];
-    
-        return [
-            "precision mediump float;" ,
-            "void main() {" ,
-            "  gl_FragColor = vec4("+color.join(",")+");" ,
-            "}" 
-            ].join("\n");
-    };
-
-    /* 
-     * fragment shader expecting a varying "fragColor" containing an 
-     * RGBA color of type vec4. 
-     */ 
-     
-    mod.fs_PerVertexColor = function() {
+})); // define module
         
-        return [
-            "precision mediump float;" ,
-            "varying vec4 fragColor;" ,
-            "void main() {" ,
-            "  gl_FragColor = fragColor;" ,
-            "}" ].join("\n");
-    };
-
-                             
-    // this module returns an interface containing multiple functions    
-    return mod;
-
-})); // define
-
 
