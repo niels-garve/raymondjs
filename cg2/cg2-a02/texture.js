@@ -29,8 +29,7 @@
  */
 
 /* requireJS module definition */
-define(["util"], 
-       (function(util) {
+define(["util"], (function(util) {
 
     "use strict";
     
@@ -42,53 +41,98 @@ define(["util"],
     var onAllTexturesLoaded = function(callbackFunc) {
         _allTexturesLoadedCallback = callbackFunc;
     };
-    
-    /* 
-        Object: 2D Texture
-        
-        Parameters to the constructor:
-        - gl        : WebGL context object
-        - filename  : name of the image file holding the texture 
-        - useMipMap : whether or not to use an automatic Mip-Map 
-        - callback  : (optional) function to be called after texture is loaded
-        
-        TODO: global counter and callback once ALL requested textures
-              have been loaded
-    */ 
 
-    var Texture2D = function(gl, filename, useMipMap, callback) {
-
+    /**
+     * Object: 2D Texture
+     *
+     * Parameters to the constructor:
+     * @param gl        WebGL context object
+     * @param useMipMap whether or not to use an automatic Mip-Map
+     * @param callback  (optional) function to be called after texture is loaded
+     * @constructor
+     * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+     * @author Niels Garve, niels.garve.yahoo.de
+     *
+     * TODO: global counter and callback once ALL requested textures have been loaded
+     */
+    var Texture2D = function (gl, useMipMap, callback) {
         // store configuration parameters
         this.gl = gl;
-        this.filename = filename;
-        this.useMipMap = useMipMap===undefined? false : useMipMap; 
+        this.useMipMap = useMipMap === undefined ? false : useMipMap;
         this.callback = callback;
-        
+
         // create a WebGL texture object
         this.gltex = gl.createTexture();
-        if(!this.gltex) {
+        if (!this.gltex) {
             throw "could not create WebGL texture";
-        };
-        
-        // flag indicating whether loading has been completed
-        this.loadingCompleted = false;
-                    
-        // increase global counter
-        _numTexturesToBeLoaded++;
+        }
 
         // default texture parameters
         this.resetTexParameters();
-        
+    };
+
+    /**
+     * multiple constructors by chaining the new call
+     *
+     * @param filename  name of the image file holding the texture
+     * @return {Texture2D}
+     * @constructor
+     * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+     * @author Niels Garve, niels.garve.yahoo.de
+     */
+    Texture2D.prototype.init_1 = function (filename) {
+        // flag indicating whether loading has been completed
+        this.loadingCompleted = false;
+
+        // increase global counter
+        _numTexturesToBeLoaded++;
+
         // the image object including the file name
-        var _image = new Image();
-        var _texture = this;
-        
+        var _image = new Image(),
+            _texture = this;
+
         // event handler to set up the texture once it is loaded
-        _image.onload = function() { _texture.handleLoadedImage(_image); }
-        
+        _image.onload = function () {
+            _texture.handleLoadedImage(_image);
+        };
+
         // file to be loaded - now loading will start asynchronously
         _image.src = filename;
-        
+
+        return this;
+    };
+
+    /**
+     * multiple constructors by chaining the new call
+     *
+     * @param width
+     * @param height
+     * @param aData
+     * @return {Texture2D}
+     * @constructor
+     * @author Niels Garve, niels.garve.yahoo.de
+     */
+    Texture2D.prototype.init_2 = function (width, height, aData) {
+        // shortcut
+        var gl = this.gl;
+
+        // mark texture as loaded
+        this.loadingCompleted = true;
+
+        gl.bindTexture(gl.TEXTURE_2D, this.gltex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, aData);
+
+        // now is the right time to generate a MIP-MAP, if desired
+        if (this.useMipMap) {
+            gl.generateMipmap(gl.TEXTURE_2D);
+        }
+
+        // trigger the callback if desired
+        if (this.callback) {
+            this.callback();
+        }
+
+        return this;
     };
 
     // method to set the default parameters for 2D textures

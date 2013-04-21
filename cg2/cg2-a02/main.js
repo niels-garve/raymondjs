@@ -131,10 +131,15 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
 
             // create WebGL context object for the named canvas object
             var gl = makeWebGLContext("drawing_area"),
-                tex = new Texture.Texture2D(gl, "textures/earth_month04.jpg");
+                framebuffer = gl.createFramebuffer();
 
-            tex.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            tex.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            framebuffer.width = 512;
+            framebuffer.height = 512;
+
+            var texture = new Texture.Texture2D(gl).init_2(framebuffer.width, framebuffer.height, null);
+            texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
             // a simple scene is an object with a few objects and a draw() method
             var MyScene = function(gl, transformation) {
@@ -162,6 +167,11 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                     shaders("pathtracing_frag")
                 );
 
+                this.prog_texture = new Program(gl,
+                    shaders("texture_vert"),
+                    shaders("texture_frag")
+                );
+
                 // create some objects to be drawn
                 this.triangle = new Triangle(gl);
                 this.cube     = new Cube(gl);
@@ -185,8 +195,8 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                     // you have to use a program before you set uniforms in it
                     program.use();
 
-                    // set up the projection matrix: orthographic projection, aspect ratio: 16:10
-                    program.setUniform("projectionMatrix", "mat4", mat4.ortho(-8,8, -5,5, -1, 1));
+                    // set up the projection matrix: orthographic projection, aspect ratio: 1:1
+                    program.setUniform("projectionMatrix", "mat4", mat4.ortho(-1, 1, -1, 1, -1, 1));
 
                     // set up the modelview matrix
                     program.setUniform("modelViewMatrix", "mat4", transformation);
@@ -196,11 +206,12 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                 setUniforms(this.prog_vertexColor, this.transformation);
 
                 setUniforms(this.prog_pathtracing, this.transformation);
-                this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 5]);
-                this.prog_pathtracing.setUniform("sphere1Center", "vec3", [0, 0 , -5]);
+                this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 1]);
+                this.prog_pathtracing.setUniform("sphere1Center", "vec3", [0, 0 , -10]);
                 this.prog_pathtracing.setUniform("sphere1Radius", "float", 3);
-                this.prog_pathtracing.setUniform("sceneSize", "vec2", [4096, 2048]); // px
-                this.prog_pathtracing.setTexture("scene", 0, tex); // this is being called on all textures loaded
+
+                setUniforms(this.prog_texture, this.transformation);
+                this.prog_texture.setTexture("texture0", 0, texture);
 
                 // shortcut
                 var gl = this.gl;
@@ -223,24 +234,31 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                     this.band.draw(gl, this.prog_red);
                 }
                 if(this.drawOptions["Stage"]) {
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
                     this.stage.draw(gl, this.prog_pathtracing);
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+                    this.stage.draw(gl, this.prog_texture);
                 }
             };
 
-            Texture.onAllTexturesLoaded(function () {
-                // initial transformation
-                var matrix = mat4.identity();
-                // mat4.rotate(matrix, 25 * Math.PI/180, [1,0,0]); // tilt view by 25° from above
+            // Texture.onAllTexturesLoaded(function () {
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.glTextureObject(), 0);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-                // create scene and animation, and start drawing
-                var scene = new MyScene(gl, matrix);
-                var animation = makeAnimation(scene); // do not start yet
-                scene.draw();
+            // initial transformation
+            var matrix = mat4.identity();
+            // mat4.rotate(matrix, 25 * Math.PI/180, [1,0,0]); // tilt view by 25° from above
 
-                // create HTML controller that handles all the interaction of
-                // HTML elements with the scene and the animation
-                var controller = new HtmlController(scene,animation);
-            });
+            // create scene and animation, and start drawing
+            var scene = new MyScene(gl, matrix);
+            var animation = makeAnimation(scene); // do not start yet
+            scene.draw();
+
+            // create HTML controller that handles all the interaction of
+            // HTML elements with the scene and the animation
+            var controller = new HtmlController(scene,animation);
+            // });
 
         // end of try block
         } catch(err) {

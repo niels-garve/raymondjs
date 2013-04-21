@@ -14,11 +14,13 @@
 define([
     "text!shaders/noColor.vert",        "text!shaders/constantColor.frag",
     "text!shaders/perVertexColor.vert", "text!shaders/perVertexColor.frag",
-    "text!shaders/pathtracing.vert",    "text!shaders/pathtracing.frag"
+    "text!shaders/pathtracing.vert",    "text!shaders/pathtracing.frag",
+    "text!shaders/texture.vert",        "text!shaders/texture.frag"
     ], (function(
     noColor_vert,           constantColor_frag,
     perVertexColor_vert,    perVertexColor_frag,
-    pathtracing_vert,       pathtracing_frag
+    pathtracing_vert,       pathtracing_frag,
+    texture_vert,           texture_frag
     ) {
 
     "use strict";
