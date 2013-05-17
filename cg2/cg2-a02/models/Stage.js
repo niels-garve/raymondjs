@@ -35,16 +35,27 @@ define(["util", "vbo"],
 
             // generate vertex coordinates and store in an array
             var coords = [
-                -8, -5, 0, // coordinates of A
-                8, -5, 0, // coordinates of B
-                -8, 5, 0, // coordinates of D
-                8, 5, 0 // coordinates of C
-            ];
+                    -1, -1, 0, // coordinates of A
+                    1, -1, 0, // coordinates of B
+                    -1, 1, 0, // coordinates of D
+                    1, 1, 0 // coordinates of C
+                ],
+                texCoords = [
+                    0, 0,
+                    1, 0,
+                    0, 1,
+                    1, 1
+                ];
 
             // create vertex buffer object (VBO) for the coordinates
-            this.coordsBuffer = new vbo.Attribute(gl, { "numComponents": 3,
+            this.coordsBuffer = new vbo.Attribute(gl, {"numComponents": 3,
                 "dataType": gl.FLOAT,
                 "data": coords
+            });
+
+            this.texCoordsBuffer = new vbo.Attribute(gl, {"numComponents": 2,
+                "dataType": gl.FLOAT,
+                "data": texCoords
             });
         };
 
@@ -56,6 +67,7 @@ define(["util", "vbo"],
         Stage.prototype.draw = function (gl, program) {
             // bind the attribute buffers
             this.coordsBuffer.bind(gl, program, "vertexPosition");
+            this.texCoordsBuffer.bind(gl, program, "vertexTexCoords");
 
             // connect the vertices with triangles
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, this.coordsBuffer.numVertices());
