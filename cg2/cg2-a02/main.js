@@ -207,8 +207,10 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
 
                 setUniforms(this.prog_pathtracing, this.transformation);
                 this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 1]);
-                this.prog_pathtracing.setUniform("sphere1Center", "vec3", [0, 0 , -10]);
-                this.prog_pathtracing.setUniform("sphere1Radius", "float", 3);
+                this.prog_pathtracing.setUniform("spheres[0].center", "vec3", [0, 0 , -10]);
+                this.prog_pathtracing.setUniform("spheres[0].radius", "float", 3);
+                this.prog_pathtracing.setUniform("spheres[1].center", "vec3", [-4, 4 , -8]);
+                this.prog_pathtracing.setUniform("spheres[1].radius", "float", 1);
 
                 setUniforms(this.prog_texture, this.transformation);
                 this.prog_texture.setTexture("texture0", 0, texture);
