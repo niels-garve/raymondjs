@@ -131,7 +131,8 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
 
             // create WebGL context object for the named canvas object
             var gl = makeWebGLContext("drawing_area"),
-                framebuffer = gl.createFramebuffer();
+                framebuffer = gl.createFramebuffer(),
+                start = new Date();
 
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
             framebuffer.width = 512;
@@ -206,11 +207,32 @@ define(["jquery", "gl-matrix", "util", "webgl-debug",
                 setUniforms(this.prog_vertexColor, this.transformation);
 
                 setUniforms(this.prog_pathtracing, this.transformation);
-                this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 1]);
-                this.prog_pathtracing.setUniform("spheres[0].center", "vec3", [0, 0 , -10]);
-                this.prog_pathtracing.setUniform("spheres[0].radius", "float", 3);
-                this.prog_pathtracing.setUniform("spheres[1].center", "vec3", [-4, 4 , -8]);
+                this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 2.0]);
+                this.prog_pathtracing.setUniform("secondsSinceStart", "float", (new Date() - start) * 0.001);
+
+                this.prog_pathtracing.setUniform("spheres[0].center", "vec3", [0, 0, -10]);
+                this.prog_pathtracing.setUniform("spheres[0].radius", "float", 1);
+                this.prog_pathtracing.setUniform("sphereMaterials[0].isLight", "bool", true);
+                this.prog_pathtracing.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
+                this.prog_pathtracing.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
+
+                this.prog_pathtracing.setUniform("spheres[1].center", "vec3", [-2.5, 0, -10]);
                 this.prog_pathtracing.setUniform("spheres[1].radius", "float", 1);
+                this.prog_pathtracing.setUniform("sphereMaterials[1].isLight", "bool", false);
+                this.prog_pathtracing.setUniform("sphereMaterials[1].isPerfectMirror", "bool", true);
+                this.prog_pathtracing.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
+
+                this.prog_pathtracing.setUniform("spheres[2].center", "vec3", [2.5, 0 , -10]);
+                this.prog_pathtracing.setUniform("spheres[2].radius", "float", 1);
+                this.prog_pathtracing.setUniform("sphereMaterials[2].isLight", "bool", false);
+                this.prog_pathtracing.setUniform("sphereMaterials[2].isPerfectMirror", "bool", true);
+                this.prog_pathtracing.setUniform("sphereMaterials[2].isDiffuse", "bool", false);
+
+                this.prog_pathtracing.setUniform("cornellBox.minCorner", "vec3", [-4.0, -2.0, -12.0]);
+                this.prog_pathtracing.setUniform("cornellBox.maxCorner", "vec3", [4.0, 2.0, 12.0]);
+                this.prog_pathtracing.setUniform("cornellBoxMaterial.isLight", "bool", false);
+                this.prog_pathtracing.setUniform("cornellBoxMaterial.isPerfectMirror", "bool", false);
+                this.prog_pathtracing.setUniform("cornellBoxMaterial.isDiffuse", "bool", true);
 
                 setUniforms(this.prog_texture, this.transformation);
                 this.prog_texture.setTexture("texture0", 0, texture);
