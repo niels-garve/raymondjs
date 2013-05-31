@@ -190,8 +190,8 @@ bool sceneFirstHit(inout Ray ray, inout vec3 brdf, int bounce) {
       Hit cornellBoxHit = hitCornellBox(ray);
       if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
 
-      // Schnittpunkt?
-      if (hit.t == T_MAX) {
+      // kein Schnittpunkt? Oder "path" zu Ende?
+      if (hit.t == T_MAX || bounce == DEPTH) {
             brdf = vec3(0.0, 0.0, 0.0); // Hintergrundfarbe
             return false;
       }
@@ -230,7 +230,7 @@ vec3 pathTrace() {
       Ray ray = Ray(eyePosition, rayDirection);
       vec3 brdf = vec3(1.0, 1.0, 1.0);
 
-      for (int i = 0; i < DEPTH; i++) {
+      for (int i = 1; i <= DEPTH; i++) {
             bool continueWalk = sceneFirstHit(ray, brdf, i);
             if (!continueWalk) break;
       }
