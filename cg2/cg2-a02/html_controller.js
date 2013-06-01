@@ -44,9 +44,6 @@ define(["jquery"],
                 animation.resume();
             };
 
-            // set animation speed
-            animation.customSpeed = parseFloat($("#anim_Speed").attr("value"));
-            
             // modify the drawOptions attribute depending on checkboxes
             for(var o in scene.drawOptions) {
                 var element_selector = "#"+drawOptionId(o);
@@ -60,8 +57,7 @@ define(["jquery"],
         
         // set initial values for the input elements
         $("#anim_Toggle").attr("checked", undefined);
-        $("#anim_Speed").attr("value", 20);
-        
+
         // create one input element for each object in "objects"
         for(var o in scene.drawOptions) {
             

@@ -4,7 +4,7 @@ precision mediump float;
 const float T_MIN = 0.0001;
 const float T_MAX = 1000000.0;
 // Anzahl "bounces"
-const int DEPTH = 10;
+const int DEPTH = 5;
 // Standard-Konstanten
 const float M_PI = 3.14159265359;
 const float EPSILON = 0.0001;
