@@ -47,9 +47,11 @@ uniform Material cornellBoxMaterial;
 
 uniform vec3 eyePosition;
 uniform float secondsSinceStart;
+uniform sampler2D texture0;
 
 // varyings
 varying vec3 rayDirection;
+varying vec2 texCoords;
 
 // lokale Variablen
 Plane cornellBoxPlanes[6];
@@ -248,5 +250,5 @@ void main() {
       cornellBoxPlanes[5] = Plane(vec3( 0.0,  0.0, -1.0), -cornellBox.maxCorner.z); // near
 
       // kickoff
-      gl_FragColor = vec4(pathTrace(), 1);
+      gl_FragColor = (texture2D(texture0, texCoords) + vec4(pathTrace(), 1)) / 2.0;
 }

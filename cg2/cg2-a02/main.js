@@ -160,6 +160,7 @@ define([
                     setUniforms(this.prog_pathtracing, this.transformation);
                     this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 2.0]);
                     this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001);
+                    this.prog_pathtracing.setTexture("texture0", 0, texture);
 
                     this.prog_pathtracing.setUniform("spheres[0].center", "vec3", [0, 0, -10]);
                     this.prog_pathtracing.setUniform("spheres[0].radius", "float", 1);
