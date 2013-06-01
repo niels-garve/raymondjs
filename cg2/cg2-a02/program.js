@@ -30,7 +30,7 @@ define(["util"],
      * for each rendering context
      *
      */
-    window.console.log("executing module program.js");
+    log("executing module program.js");
     var _currentProgramList = [];
     
     /* private function to check compilation status */
@@ -165,7 +165,7 @@ define(["util"],
         var location = this.gl.getUniformLocation(this.glProgram, name);
         if(location == null) {
             if(showWarning) {
-                window.console.log("WARNING: uniform variable " + name + " not used in shader.");
+                log("WARNING: uniform variable " + name + " not used in shader.");
             };
         } else {
         
@@ -236,7 +236,7 @@ define(["util"],
         
         // has the texture already been loaded?
         if( !texture.isLoaded() ) {
-            window.console.log("info: image file for texture "+uniformName+" not loaded yet.");
+            log("info: image file for texture "+uniformName+" not loaded yet.");
             return false;
         };
 
@@ -251,11 +251,11 @@ define(["util"],
         // find location of texture's uniform variable
         var location = this.gl.getUniformLocation(this.glProgram, uniformName);
         if(location === null || location < 0) {
-            console.log("uniform sampler " + uniformName + " not used in shader.");
+            log("uniform sampler " + uniformName + " not used in shader.");
             return;
         };
         
-        // window.console.log("using texture unit "+textureUnit+" for sampler "+samplerName);
+        // log("using texture unit "+textureUnit+" for sampler "+samplerName);
 
         // bind the texture unit to the sampler's location/name
         this.gl.uniform1i(location, textureUnit);

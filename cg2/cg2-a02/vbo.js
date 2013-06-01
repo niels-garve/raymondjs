@@ -102,7 +102,7 @@ define(["util"],
         var location = program.getAttribLocation(attribName);
         if(location < 0) {
             if(this.warnUnused) {
-                window.console.log("vertex attribute " + attribName + 
+                log("vertex attribute " + attribName +
                            " not used in vertex shader.");
             }
             return;

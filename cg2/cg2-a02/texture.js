@@ -180,7 +180,7 @@ define(["util"], (function(util) {
 
         // mark texture as loaded
         this.loadingCompleted = true;
-        window.console.log("texture " + image.src + " loaded.");
+        log("texture " + image.src + " loaded.");
 
         // assign image data 
         gl.bindTexture(gl.TEXTURE_2D, this.gltex);
@@ -205,12 +205,12 @@ define(["util"], (function(util) {
     
     // dummy for now
     var TextureCube = function() {
-        window.console.log("TextureCube not implemented.");
+        log("TextureCube not implemented.");
     };
     
     /* default callback function to be triggered once all textures have been loaded */
     var _allTexturesLoadedCallback = function() {
-        window.console.log("all textures have been loaded");
+        log("all textures have been loaded");
     };
  
     // this module exports two constructor functions and a 

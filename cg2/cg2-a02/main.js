@@ -102,7 +102,7 @@ define([
         $(document).ready((function () {
             // catch errors for debugging purposes
             try {
-                console.log("document ready - starting!");
+                log("document ready - starting!");
 
                 // create WebGL context object for the named canvas object
                 var gl = makeWebGLContext("drawing_area"),
@@ -227,7 +227,7 @@ define([
                     $error.text(err.message || err);
                     $error.css('display', 'block');
                 }
-                window.console.log("exception: " + (err.message || err));
+                log("exception: " + (err.message || err));
                 throw err;
             }
         })); // $(document).ready()
