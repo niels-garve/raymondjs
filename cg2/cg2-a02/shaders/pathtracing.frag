@@ -48,6 +48,7 @@ uniform Material cornellBoxMaterial;
 uniform vec3 eyePosition;
 uniform float secondsSinceStart;
 uniform sampler2D texture0;
+uniform float textureWeight;
 
 // varyings
 varying vec3 rayDirection;
@@ -216,7 +217,7 @@ bool sceneFirstHit(inout Ray ray, inout vec3 brdf, int bounce) {
       Ray newRay = Ray(hit.hitPoint, nextDirection);
 
       ray = newRay;
-      brdf *= vec3(0.5, 0.5, 0.5); // brdf akkumulieren
+      brdf *= vec3(0.7, 0.7, 0.7); // brdf akkumulieren
 
       // TODO Was mache ich mit der Wahrscheinlichkeit des Strahls (prob)?
       // TODO Wie bringe ich Farbe der Objekte mit ins Spiel? Ist vec3(0.5, 0.5, 0.5) schon eine feste Farbe (grau) für
@@ -249,6 +250,6 @@ void main() {
       cornellBoxPlanes[4] = Plane(vec3( 0.0,  0.0,  1.0),  cornellBox.minCorner.z); // far
       cornellBoxPlanes[5] = Plane(vec3( 0.0,  0.0, -1.0), -cornellBox.maxCorner.z); // near
 
-      // kickoff
-      gl_FragColor = (texture2D(texture0, texCoords) + vec4(pathTrace(), 1)) / 2.0;
+      // "blending" vgl. Evan Wallace
+      gl_FragColor = mix(vec4(pathTrace(), 1.0), texture2D(texture0, texCoords), textureWeight);
 }

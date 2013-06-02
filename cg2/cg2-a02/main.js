@@ -142,6 +142,8 @@ define([
                     this.drawOptions = {
                         "Stage": true
                     };
+
+                    this.sampleCounter = 0;
                 };
                 // the scene's draw method draws whatever the scene wants to draw
                 MyScene.prototype.draw = function (msSinceStart) {
@@ -159,8 +161,9 @@ define([
 
                     setUniforms(this.prog_pathtracing, this.transformation);
                     this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 2.0]);
-                    this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001);
+                    this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001); // vgl. Evan Wallace
                     this.prog_pathtracing.setTexture("texture0", 0, texture);
+                    this.prog_pathtracing.setUniform("textureWeight", "float", this.sampleCounter / (this.sampleCounter + 1)); // vgl. Evan Wallace
 
                     this.prog_pathtracing.setUniform("spheres[0].center", "vec3", [0, 0, -10]);
                     this.prog_pathtracing.setUniform("spheres[0].radius", "float", 1);
@@ -207,6 +210,8 @@ define([
 
                         this.stage.draw(gl, this.prog_texture);
                     }
+
+                    this.sampleCounter++;
                 };
 
                 // Texture.onAllTexturesLoaded(function () {

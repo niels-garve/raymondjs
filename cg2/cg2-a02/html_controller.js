@@ -41,6 +41,7 @@ define(["jquery"],
             if( $("#anim_Toggle").attr("checked") == undefined ) {
                 animation.stop();
             } else {
+                scene.sampleCounter = 0; // reset sampleCounter
                 animation.resume();
             };
 
@@ -77,7 +78,7 @@ define(["jquery"],
         
         // set up event handler and execute it once so everything is set consistently
         $(".inputParam").change( updateParams ); 
-        updateParams();
+        // updateParams();
         
     }; // end of HtmlController constructor function
         
