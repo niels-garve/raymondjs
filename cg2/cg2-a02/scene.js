@@ -64,14 +64,14 @@ define(["jquery", "gl-matrix",
                 this.gl = gl;
 
                 var canvas = gl.canvas,
-                    aspectRatio = canvas.width / canvas.height,
-                    framebuffer = gl.createFramebuffer();
+                    aspectRatio = canvas.width / canvas.height;
 
-                gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-                framebuffer.width = canvas.width;
-                framebuffer.height = canvas.height;
+                this.framebuffer = gl.createFramebuffer();
+                gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+                this.framebuffer.width = canvas.width;
+                this.framebuffer.height = canvas.height;
 
-                var texture = new Texture.Texture2D(gl).init_2(framebuffer.width, framebuffer.height, null);
+                var texture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null);
                 texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
                 texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
@@ -144,13 +144,11 @@ define(["jquery", "gl-matrix",
                 // start drawing with the root node
                 this.world.draw(gl, this.prog_pathtracing, modelView);
 
-                /*
-                 gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-                 this.stage.draw(gl, this.prog_pathtracing);
-                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+                this.world.draw(gl, this.prog_pathtracing, modelView);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-                 this.stage.draw(gl, this.prog_texture);
-                 */
+                this.world.draw(gl, this.prog_texture, modelView);
 
                 this.sampleCounter++;
             }; // Scene draw()
