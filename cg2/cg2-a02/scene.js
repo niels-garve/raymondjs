@@ -80,9 +80,10 @@ define(["jquery", "gl-matrix",
 
                 // initial camera parameters
                 this.camera = {};
-                this.camera.viewMatrix = mat4.lookAt([0,0.5,3], [0,0,0], [0,1,0]); // TODO
-                this.camera.projectionMatrix = mat4.perspective(45, aspectRatio, 0.01, 100); // TODO
-                // or mat4.ortho(-1, 1, -1, 1, -1, 1) // set up the projection matrix: orthographic projection, aspect ratio: 1:1
+                this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [0, 0, -2], [0, 1, 0]); // eye, center, up
+                // set up the projection matrix: orthographic projection, aspect ratio: 1:1
+                this.camera.projectionMatrix = mat4.ortho(-1, 1, -1, 1, 0.01, 100);
+                // or: mat4.perspective(45, aspectRatio, 0.01, 100)
 
                 // create WebGL programs
                 this.prog_pathtracing = new Program(gl,
@@ -101,7 +102,7 @@ define(["jquery", "gl-matrix",
 
                 this.prog_pathtracing.use();
                 this.prog_pathtracing.setTexture("texture0", 0, texture);
-                this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 2.0]); // TODO
+                this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 0]); // eye
                 setUniformScene(this.prog_pathtracing);
 
                 // create some objects to be drawn
