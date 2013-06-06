@@ -136,6 +136,7 @@ define(["util", "gl-matrix"],
             // set new program and new model view matrix for each child
             newProgram.use();
             newProgram.setUniform("modelViewMatrix", "mat4", newMatrix);
+            newProgram.setUniform("inverseModelViewMatrix", "mat4", mat4.inverse(newMatrix));
             newProgram.setUniform("normalMatrix",    "mat3", normalMatrix, false);
 
             // child may manipulate the program and/or matrix!
