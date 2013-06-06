@@ -135,7 +135,10 @@ define(["util", "gl-matrix"],
         for(var i=0; i<this.drawableObjects.length; ++i) {
             // set new program and new model view matrix for each child
             newProgram.use();
-            newProgram.setUniform("modelViewMatrix", "mat4", newMatrix);
+            // newProgram.setUniform("modelViewMatrix", "mat4", newMatrix);
+            /**
+             * @author Niels Garve, niels.garve.yahoo.de
+             */
             newProgram.setUniform("inverseModelViewMatrix", "mat4", mat4.inverse(newMatrix));
             newProgram.setUniform("normalMatrix",    "mat3", normalMatrix, false);
 

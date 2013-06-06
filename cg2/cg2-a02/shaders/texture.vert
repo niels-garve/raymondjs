@@ -1,6 +1,7 @@
 /*
  * WebGL core teaching framwork 
- * (C)opyright Hartmut Schirmacher, hschirmacher.beuth-hochschule.de 
+ * (C)opyright Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+ * (C)opyright Niels Garve, niels.garve.yahoo.de
  *
  * Vertex Shader: texture
  *
@@ -13,14 +14,15 @@
 attribute vec3 vertexPosition;
 attribute vec2 vertexTexCoords;
 
-uniform mat4 modelViewMatrix;
+// uniform mat4 modelViewMatrix;
+uniform mat4 inverseModelViewMatrix;
 uniform mat4 projectionMatrix;
 
 varying vec2 texCoords;
 
 void main() {
     gl_Position = projectionMatrix *
-                  modelViewMatrix *
+                  // modelViewMatrix *
                   vec4(vertexPosition, 1.0);
     gl_PointSize = 3.0;
     texCoords = vertexTexCoords;

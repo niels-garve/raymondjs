@@ -41,7 +41,12 @@ define(["jquery"],
             if( $("#anim_Toggle").attr("checked") == undefined ) {
                 animation.stop();
             } else {
-                scene.sampleCounter = 0; // reset sampleCounter
+                /**
+                 * reset sampleCounter
+                 * @author Niels Garve, niels.garve.yahoo.de
+                 * @type {number}
+                 */
+                scene.sampleCounter = 0;
                 animation.resume();
             };
 

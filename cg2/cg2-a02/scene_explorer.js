@@ -197,7 +197,13 @@ define(["gl-matrix" ],
     
     // method to redraw all affected scenes
     SceneExplorer.prototype.redraw = function() {
-    
+        /**
+         * reset sampleCounter
+         * @author Niels Garve, niels.garve.yahoo.de
+         * @type {number}
+         */
+        this.scene.sampleCounter = 0;
+
         // only redraw if this is desired at all
         if(!this.triggerRedraw)
             return;
