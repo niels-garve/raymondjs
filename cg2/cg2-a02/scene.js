@@ -31,7 +31,13 @@ define(["jquery", "gl-matrix",
 
         "use strict";
 
-
+        /**
+         * sets the uniform variables defining the scene to be "traced"
+         *
+         * @param prog
+         * @author Niels Garve, niels.garve.yahoo.de
+         * @private
+         */
         function setUniformScene(prog) {
             prog.setUniform("spheres[0].center", "vec3", [0, 0, -10]);
             prog.setUniform("spheres[0].radius", "float", 1);
@@ -58,13 +64,19 @@ define(["jquery", "gl-matrix",
             prog.setUniform("cornellBoxMaterial.isDiffuse", "bool", true);
         }
 
-        // a simple scene is an object with a few objects and a draw() method
+        /**
+         * a simple scene is an object with a few objects and a draw() method
+         *
+         * @param gl
+         * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+         * @author Niels Garve, niels.garve.yahoo.de
+         * @constructor
+         */
         var Scene = function (gl) {
             // store the WebGL rendering context
             this.gl = gl;
 
-            var canvas = gl.canvas,
-                aspectRatio = canvas.width / canvas.height;
+            var canvas = gl.canvas;
 
             this.framebuffer = gl.createFramebuffer();
             gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
@@ -83,7 +95,7 @@ define(["jquery", "gl-matrix",
             this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [0, 0, -2], [0, 1, 0]); // eye, center, up
             // set up the projection matrix: orthographic projection, aspect ratio: 1:1
             this.camera.projectionMatrix = mat4.ortho(-1, 1, -1, 1, 0.01, 100);
-            // or: mat4.perspective(45, aspectRatio, 0.01, 100)
+            // or: mat4.perspective(45, aspectRatio, 0.01, 100); with: aspectRatio = canvas.width / canvas.height;
 
             // create WebGL programs
             this.prog_pathtracing = new Program(gl,
@@ -120,7 +132,13 @@ define(["jquery", "gl-matrix",
             this.sampleCounter = 0;
         }; // Scene constructor
 
-        // draw the scene, starting at the root node
+        /**
+         * draw the scene, starting at the root node
+         *
+         * @param msSinceStart
+         * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+         * @author Niels Garve, niels.garve.yahoo.de
+         */
         Scene.prototype.draw = function (msSinceStart) {
 
             // shortcut
@@ -155,7 +173,7 @@ define(["jquery", "gl-matrix",
         }; // Scene draw()
 
         return Scene;
-
-    })); // define module
+    }) // self executing function
+); // define module
         
 
