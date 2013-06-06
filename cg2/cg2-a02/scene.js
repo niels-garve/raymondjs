@@ -24,82 +24,121 @@
 /* requireJS module definition */
 define(["jquery", "gl-matrix", 
         "program", "shaders", "scene_node", "texture", "light", "material",
-        "models/parametric"], 
+        "models/Stage"],
        (function($, glmatrix, 
-                 Program, shaders, SceneNode, texture, light, material,
-                 parametric ) {
+                 Program, shaders, SceneNode, Texture, light, material,
+                 Stage ) {
 
     "use strict";
-                                        
+
+
+            function setUniformScene(prog) {
+                prog.setUniform("spheres[0].center", "vec3", [0, 0, -10]);
+                prog.setUniform("spheres[0].radius", "float", 1);
+                prog.setUniform("sphereMaterials[0].isLight", "bool", true);
+                prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
+                prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
+
+                prog.setUniform("spheres[1].center", "vec3", [-2.5, 0, -10]);
+                prog.setUniform("spheres[1].radius", "float", 1);
+                prog.setUniform("sphereMaterials[1].isLight", "bool", false);
+                prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", true);
+                prog.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
+
+                prog.setUniform("spheres[2].center", "vec3", [2.5, 0 , -10]);
+                prog.setUniform("spheres[2].radius", "float", 1);
+                prog.setUniform("sphereMaterials[2].isLight", "bool", false);
+                prog.setUniform("sphereMaterials[2].isPerfectMirror", "bool", true);
+                prog.setUniform("sphereMaterials[2].isDiffuse", "bool", false);
+
+                prog.setUniform("cornellBox.minCorner", "vec3", [-4.0, -2.0, -12.0]);
+                prog.setUniform("cornellBox.maxCorner", "vec3", [4.0, 2.0, 12.0]);
+                prog.setUniform("cornellBoxMaterial.isLight", "bool", false);
+                prog.setUniform("cornellBoxMaterial.isPerfectMirror", "bool", false);
+                prog.setUniform("cornellBoxMaterial.isDiffuse", "bool", true);
+            }
+
             // a simple scene is an object with a few objects and a draw() method
             var Scene = function(gl) {
 
                 // store the WebGL rendering context 
-                this.gl = gl;  
-                
-                // create WebGL program using constant blue color
-                var prog_blue = new Program(gl, shaders("minimal_vs"), 
-                                                shaders("frag_color_fs") );
-                prog_blue.use();
-                prog_blue.setUniform("fragColor", "vec4", [0.0, 0.0, 1.0, 1.0]);
-                
-                // WebGL program for using phong illumination 
-                var prog_phong = new Program(gl, shaders("phong_vs"), 
-                                                 shaders("phong_fs")  );
-                prog_phong.use();
-                prog_phong.setUniform("ambientLight", "vec3", [0.4,0.4,0.4]);
-                                                 
-                // register all programs in this list for setting the projection matrix later
-                this.programs = [prog_blue, prog_phong];
-                
-                // light source 
-                this.sun       = new light.DirectionalLight("light",  {"direction": [-1,0,0], "color": [1,1,1] } ); 
-                this.sunNode   = new SceneNode("SunNode", [this.sun], prog_phong);
-                                
-                // equator ring for orientation
-                this.ringMaterial = new material.PhongMaterial("material", 
-                                                                    {"ambient":   [0.5,0.3,0.3],
-                                                                     "diffuse":   [0.8,0.2,0.2],
-                                                                     "specular":  [0.4,0.4,0.4],
-                                                                     "shininess": 80
-                                                                     });
-                this.ringGeometry = new parametric.Torus(gl, 1.2, 0.04, {"uSegments":80, "vSegments":40});
-                this.ringNode     = new SceneNode("EquatorNode", [this.ringMaterial, this.ringGeometry], prog_phong);
+                this.gl = gl;
 
-                // the poles are modeled on the Z axis, so swap z and y axes  
-                mat4.rotate(this.ringNode.transformation, Math.PI/2.0, [1,0,0]);
+                var canvas = gl.canvas,
+                    framebuffer = gl.createFramebuffer();
+
+                gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+                framebuffer.width = canvas.width;
+                framebuffer.height = canvas.height;
+
+                var texture = new Texture.Texture2D(gl).init_2(framebuffer.width, framebuffer.height, null);
+                texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.glTextureObject(), 0);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+                // create WebGL programs
+                var prog_pathtracing = new Program(gl,
+                        shaders("pathtracing_vert"),
+                        shaders("pathtracing_frag")
+                    ),
+                    prog_texture = new Program(gl,
+                        shaders("texture_vert"),
+                        shaders("texture_frag")
+                    );
+
+                prog_texture.use();
+                prog_texture.setTexture("texture0", 0, texture);
+
+                prog_pathtracing.use();
+                prog_pathtracing.setTexture("texture0", 0, texture);
+                prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 2.0]); // TODO
+                setUniformScene(prog_pathtracing);
+
+                // register all programs in this list for setting the projection matrix later
+                this.programs = [prog_pathtracing, prog_texture];
+                this.prog_pathtracing = prog_pathtracing;
+
+                // create some objects to be drawn
+                this.stage = new Stage(gl);
+                this.stageNode = new SceneNode("StageNode", [this.stage], prog_pathtracing);
 
                 // the world node - this is potentially going to be accessed from outside
-                this.world  = new SceneNode("world", [this.sunNode, this.ringNode], prog_blue); 
+                this.world  = new SceneNode("world", [this.stageNode], prog_pathtracing);
                 
                 // initial camera parameters
-                var c = gl.canvas;
-                var aspectRatio = c.width / c.height;
+                var aspectRatio = canvas.width / canvas.height;
                 this.camera = {};
-                this.camera.viewMatrix = mat4.lookAt([0,0.5,3], [0,0,0], [0,1,0]);
-                this.camera.projectionMatrix = mat4.perspective(45, aspectRatio, 0.01, 100);
-                
+                this.camera.viewMatrix = mat4.lookAt([0,0.5,3], [0,0,0], [0,1,0]); // TODO
+                this.camera.projectionMatrix = mat4.perspective(45, aspectRatio, 0.01, 100); // TODO
+                // or mat4.ortho(-1, 1, -1, 1, -1, 1) // set up the projection matrix: orthographic projection, aspect ratio: 1:1
+
                 // for the UI - this will be accessed directly by HtmlController
-                this.drawOptions = { "Planet": false, "Ring": true};
-                
+                this.drawOptions = {
+                    "Stage": true
+                };
+
+                this.sampleCounter = 0;
             }; // Scene constructor
             
             // draw the scene, starting at the root node
-            Scene.prototype.draw = function() {
+            Scene.prototype.draw = function(msSinceStart) {
             
                 // shortcut
                 var gl = this.gl;
-                
-                // switch grid on/off
-                this.ringNode.visible = this.drawOptions["Ring"];
                 
                 // set camera's projection matrix in all programs
                 for(var i=0; i<this.programs.length; i++) {
                     var p = this.programs[i];
                     p.use();
                     p.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
-                };
-                                    
+                }
+
+                this.prog_pathtracing.use();
+                this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001); // vgl. Evan Wallace
+                this.prog_pathtracing.setUniform("textureWeight", "float", this.sampleCounter / (this.sampleCounter + 1)); // vgl. Evan Wallace
+
                 // initially set model-view matrix to the camera's view matrix
                 var modelView = this.camera.viewMatrix;
                 
@@ -114,6 +153,15 @@ define(["jquery", "gl-matrix",
                 // start drawing with the root node
                 this.world.draw(gl, null, modelView);
 
+                /*
+                 gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+                 this.stage.draw(gl, this.prog_pathtracing);
+                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+                 this.stage.draw(gl, this.prog_texture);
+                 */
+
+                this.sampleCounter++;
             }; // Scene draw()
             
         return Scene;

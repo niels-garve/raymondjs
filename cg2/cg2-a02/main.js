@@ -38,11 +38,9 @@ requirejs.config({
  */
 define([
     "jquery", "gl-matrix", "util", "webgl-debug",
-    "program", "shaders", "animation", "html_controller",
-    "models/Stage", "texture"],
+    "program", "shaders", "animation", "html_controller", "scene"],
     (function ($, glmatrix, util, WebGLDebugUtils,
-               Program, shaders, Animation, HtmlController,
-               Stage, Texture) {
+               Program, shaders, Animation, HtmlController, Scene) {
 
         "use strict";
 
@@ -106,127 +104,14 @@ define([
 
                 // create WebGL context object for the named canvas object
                 var gl = makeWebGLContext("drawing_area"),
-                    framebuffer = gl.createFramebuffer();
-
-                gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-                framebuffer.width = 512;
-                framebuffer.height = 512;
-
-                var texture = new Texture.Texture2D(gl).init_2(framebuffer.width, framebuffer.height, null);
-                texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-                texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-
-                // a simple scene is an object with a few objects and a draw() method
-                var MyScene = function (gl, transformation) {
-                    // store the WebGL rendering context
-                    this.gl = gl;
-
-                    // for rotation - this will be accessed directly by Animation
-                    this.transformation = transformation || mat4.identity();
-
-                    // create WebGL programs
-                    this.prog_pathtracing = new Program(gl,
-                        shaders("pathtracing_vert"),
-                        shaders("pathtracing_frag")
-                    );
-
-                    this.prog_texture = new Program(gl,
-                        shaders("texture_vert"),
-                        shaders("texture_frag")
-                    );
-
-                    // create some objects to be drawn
-                    this.stage = new Stage(gl);
-
-                    // for the UI - this will be accessed directly by HtmlController
-                    this.drawOptions = {
-                        "Stage": true
-                    };
-
-                    this.sampleCounter = 0;
-                };
-                // the scene's draw method draws whatever the scene wants to draw
-                MyScene.prototype.draw = function (msSinceStart) {
-                    // set all the required uniform variables in all used programs
-                    var setUniforms = function (program, transformation) {
-                        // you have to use a program before you set uniforms in it
-                        program.use();
-
-                        // set up the projection matrix: orthographic projection, aspect ratio: 1:1
-                        program.setUniform("projectionMatrix", "mat4", mat4.ortho(-1, 1, -1, 1, -1, 1));
-
-                        // set up the modelview matrix
-                        program.setUniform("modelViewMatrix", "mat4", transformation);
-                    };
-
-                    setUniforms(this.prog_pathtracing, this.transformation);
-                    this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 2.0]);
-                    this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001); // vgl. Evan Wallace
-                    this.prog_pathtracing.setTexture("texture0", 0, texture);
-                    this.prog_pathtracing.setUniform("textureWeight", "float", this.sampleCounter / (this.sampleCounter + 1)); // vgl. Evan Wallace
-
-                    this.prog_pathtracing.setUniform("spheres[0].center", "vec3", [0, 0, -10]);
-                    this.prog_pathtracing.setUniform("spheres[0].radius", "float", 1);
-                    this.prog_pathtracing.setUniform("sphereMaterials[0].isLight", "bool", true);
-                    this.prog_pathtracing.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
-                    this.prog_pathtracing.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
-
-                    this.prog_pathtracing.setUniform("spheres[1].center", "vec3", [-2.5, 0, -10]);
-                    this.prog_pathtracing.setUniform("spheres[1].radius", "float", 1);
-                    this.prog_pathtracing.setUniform("sphereMaterials[1].isLight", "bool", false);
-                    this.prog_pathtracing.setUniform("sphereMaterials[1].isPerfectMirror", "bool", true);
-                    this.prog_pathtracing.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
-
-                    this.prog_pathtracing.setUniform("spheres[2].center", "vec3", [2.5, 0 , -10]);
-                    this.prog_pathtracing.setUniform("spheres[2].radius", "float", 1);
-                    this.prog_pathtracing.setUniform("sphereMaterials[2].isLight", "bool", false);
-                    this.prog_pathtracing.setUniform("sphereMaterials[2].isPerfectMirror", "bool", true);
-                    this.prog_pathtracing.setUniform("sphereMaterials[2].isDiffuse", "bool", false);
-
-                    this.prog_pathtracing.setUniform("cornellBox.minCorner", "vec3", [-4.0, -2.0, -12.0]);
-                    this.prog_pathtracing.setUniform("cornellBox.maxCorner", "vec3", [4.0, 2.0, 12.0]);
-                    this.prog_pathtracing.setUniform("cornellBoxMaterial.isLight", "bool", false);
-                    this.prog_pathtracing.setUniform("cornellBoxMaterial.isPerfectMirror", "bool", false);
-                    this.prog_pathtracing.setUniform("cornellBoxMaterial.isDiffuse", "bool", true);
-
-                    setUniforms(this.prog_texture, this.transformation);
-                    this.prog_texture.setTexture("texture0", 0, texture);
-
-                    // shortcut
-                    var gl = this.gl;
-
-                    // clear color and depth buffers
-                    gl.clearColor(0.7, 0.7, 0.7, 1.0);
-                    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-                    // enable depth testing
-                    gl.enable(gl.DEPTH_TEST);
-
-                    // draw the objects
-                    if (this.drawOptions["Stage"]) {
-                        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-                        this.stage.draw(gl, this.prog_pathtracing);
-                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-                        this.stage.draw(gl, this.prog_texture);
-                    }
-
-                    this.sampleCounter++;
-                };
-
-                // Texture.onAllTexturesLoaded(function () {
-                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.glTextureObject(), 0);
-                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
                 // create scene and animation, and start drawing
-                var scene = new MyScene(gl),
+                    scene = new Scene(gl),
                     animation = makeAnimation(scene), // do not start yet
                 // create HTML controller that handles all the interaction of
                 // HTML elements with the scene and the animation
                     controller = new HtmlController(scene, animation);
 
                 scene.draw(0.0);
-                // }); // Texture.onAllTexturesLoaded
             } catch (err) {
                 var $error = $("#error");
                 if ($error) {
