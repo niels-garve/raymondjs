@@ -60,11 +60,11 @@ define(["jquery", "gl-matrix",
 
             // a simple scene is an object with a few objects and a draw() method
             var Scene = function(gl) {
-
-                // store the WebGL rendering context 
+                // store the WebGL rendering context
                 this.gl = gl;
 
                 var canvas = gl.canvas,
+                    aspectRatio = canvas.width / canvas.height,
                     framebuffer = gl.createFramebuffer();
 
                 gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
@@ -78,42 +78,39 @@ define(["jquery", "gl-matrix",
                 gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.glTextureObject(), 0);
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-                // create WebGL programs
-                var prog_pathtracing = new Program(gl,
-                        shaders("pathtracing_vert"),
-                        shaders("pathtracing_frag")
-                    ),
-                    prog_texture = new Program(gl,
-                        shaders("texture_vert"),
-                        shaders("texture_frag")
-                    );
-
-                prog_texture.use();
-                prog_texture.setTexture("texture0", 0, texture);
-
-                prog_pathtracing.use();
-                prog_pathtracing.setTexture("texture0", 0, texture);
-                prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 2.0]); // TODO
-                setUniformScene(prog_pathtracing);
-
-                // register all programs in this list for setting the projection matrix later
-                this.programs = [prog_pathtracing, prog_texture];
-                this.prog_pathtracing = prog_pathtracing;
-
-                // create some objects to be drawn
-                this.stage = new Stage(gl);
-                this.stageNode = new SceneNode("StageNode", [this.stage], prog_pathtracing);
-
-                // the world node - this is potentially going to be accessed from outside
-                this.world  = new SceneNode("world", [this.stageNode], prog_pathtracing);
-                
                 // initial camera parameters
-                var aspectRatio = canvas.width / canvas.height;
                 this.camera = {};
                 this.camera.viewMatrix = mat4.lookAt([0,0.5,3], [0,0,0], [0,1,0]); // TODO
                 this.camera.projectionMatrix = mat4.perspective(45, aspectRatio, 0.01, 100); // TODO
                 // or mat4.ortho(-1, 1, -1, 1, -1, 1) // set up the projection matrix: orthographic projection, aspect ratio: 1:1
 
+                // create WebGL programs
+                this.prog_pathtracing = new Program(gl,
+                    shaders("pathtracing_vert"),
+                    shaders("pathtracing_frag")
+                );
+
+                this.prog_texture = new Program(gl,
+                    shaders("texture_vert"),
+                    shaders("texture_frag")
+                );
+
+                this.prog_texture.use();
+                this.prog_texture.setTexture("texture0", 0, texture);
+                this.prog_texture.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
+
+                this.prog_pathtracing.use();
+                this.prog_pathtracing.setTexture("texture0", 0, texture);
+                this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 2.0]); // TODO
+                setUniformScene(this.prog_pathtracing);
+
+                // create some objects to be drawn
+                this.stage = new Stage(gl);
+                this.stageNode = new SceneNode("StageNode", [this.stage], null);
+
+                // the world node - this is potentially going to be accessed from outside
+                this.world  = new SceneNode("world", [this.stageNode], null);
+                
                 // for the UI - this will be accessed directly by HtmlController
                 this.drawOptions = {
                     "Stage": true
@@ -127,15 +124,9 @@ define(["jquery", "gl-matrix",
             
                 // shortcut
                 var gl = this.gl;
-                
-                // set camera's projection matrix in all programs
-                for(var i=0; i<this.programs.length; i++) {
-                    var p = this.programs[i];
-                    p.use();
-                    p.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
-                }
 
                 this.prog_pathtracing.use();
+                this.prog_pathtracing.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
                 this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001); // vgl. Evan Wallace
                 this.prog_pathtracing.setUniform("textureWeight", "float", this.sampleCounter / (this.sampleCounter + 1)); // vgl. Evan Wallace
 
@@ -151,7 +142,7 @@ define(["jquery", "gl-matrix",
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); 
 
                 // start drawing with the root node
-                this.world.draw(gl, null, modelView);
+                this.world.draw(gl, this.prog_pathtracing, modelView);
 
                 /*
                  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
