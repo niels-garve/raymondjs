@@ -38,9 +38,9 @@ requirejs.config({
  */
 define([
     "jquery", "gl-matrix", "util", "webgl-debug",
-    "program", "shaders", "animation", "html_controller", "scene"],
+    "program", "shaders", "animation", "html_controller", "scene", "scene_explorer"],
     (function ($, glmatrix, util, WebGLDebugUtils,
-               Program, shaders, Animation, HtmlController, Scene) {
+               Program, shaders, Animation, HtmlController, Scene, SceneExplorer) {
 
         "use strict";
 
@@ -107,6 +107,7 @@ define([
                 // create scene and animation, and start drawing
                     scene = new Scene(gl),
                     animation = makeAnimation(scene), // do not start yet
+                    explorer = new SceneExplorer(gl.canvas, false, scene),
                 // create HTML controller that handles all the interaction of
                 // HTML elements with the scene and the animation
                     controller = new HtmlController(scene, animation);
