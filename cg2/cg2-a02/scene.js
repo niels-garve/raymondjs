@@ -78,15 +78,18 @@ define(["jquery", "gl-matrix",
 
             var canvas = gl.canvas;
 
+            // 1. framebuffer
             this.framebuffer = gl.createFramebuffer();
             gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
             this.framebuffer.width = canvas.width;
             this.framebuffer.height = canvas.height;
 
+            // 2. texture
             var texture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null);
             texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
+            // 3. framebufferTexture
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.glTextureObject(), 0);
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -95,7 +98,6 @@ define(["jquery", "gl-matrix",
             this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [0, 0, -2], [0, 1, 0]); // eye, center, up
             // set up the projection matrix: orthographic projection, aspect ratio: 1:1
             this.camera.projectionMatrix = mat4.ortho(-1, 1, -1, 1, 0.01, 100);
-            // or: mat4.perspective(45, aspectRatio, 0.01, 100); with: aspectRatio = canvas.width / canvas.height;
 
             // create WebGL programs
             this.prog_pathtracing = new Program(gl,
@@ -119,10 +121,10 @@ define(["jquery", "gl-matrix",
 
             // create some objects to be drawn
             this.stage = new Stage(gl);
-            this.stageNode = new SceneNode("StageNode", [this.stage], null);
+            this.stageNode = new SceneNode("StageNode", [this.stage], null); // program to null, it changes while drawing
 
             // the world node - this is potentially going to be accessed from outside
-            this.world = new SceneNode("world", [this.stageNode], null);
+            this.world = new SceneNode("world", [this.stageNode], null); // program to null, it changes while drawing
 
             // for the UI - this will be accessed directly by HtmlController
             this.drawOptions = {
