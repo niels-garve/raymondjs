@@ -86,7 +86,7 @@ define(["util", "gl-matrix"],
         // flag: draw this node and its children, or not?
         this.visible = visible===undefined? true : visible;
         
-        window.console.log("created " + (visible? "invisible " : "") + "node " + this.name +
+        log("created " + (visible? "invisible " : "") + "node " + this.name +
                            " with " + this.drawableObjects.length + " children.");
         
     };
@@ -163,7 +163,7 @@ define(["util", "gl-matrix"],
             }
             
         };
-        window.console.log("added " + objects.length + " objects to SceneNode " + this.name + ".");
+        log("added " + objects.length + " objects to SceneNode " + this.name + ".");
             
     };
     
@@ -176,7 +176,7 @@ define(["util", "gl-matrix"],
             // find obj in array
             var idx = this.drawableObjects.indexOf(objects[i]); 
             if(idx === -1) {
-                // window.console.log("warning: SceneNode.remove(): object not found.");
+                // log("warning: SceneNode.remove(): object not found.");
             } else {
                 // remove obj from array
                 this.drawableObjects.splice(idx,1);

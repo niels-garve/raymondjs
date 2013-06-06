@@ -80,7 +80,7 @@ define(["gl-matrix" ],
     // dragType: "rotate", "translate", "zoom"
     SceneExplorer.prototype.startDragging = function(x, y, dragType) {
     
-        //window.console.log("start dragging at " + x + "," + y);
+        //log("start dragging at " + x + "," + y);
         
         this.startX = x;
         this.startY = y;
@@ -162,7 +162,7 @@ define(["gl-matrix" ],
             mat4.rotate(rotX,degreesX,xAxis,rotX);
             mat4.rotate(rotY,degreesY,yAxis,rotY);
             
-            // window.console.log("rotate "+degreesX+" degrees around " + xAxis);
+            // log("rotate "+degreesX+" degrees around " + xAxis);
             
             // add to model-view transformation chain from the right
             mat4.multiply(rotX, this.scene.world.transformation, 
@@ -231,7 +231,7 @@ define(["gl-matrix" ],
             // shortcut to the explorer object stored in the closure
             var exp = _explorer;
         
-            // window.console.log("mouse down!");
+            // log("mouse down!");
             var button = "unknown";
             
             // translate mouse button events depending on browser
@@ -263,7 +263,7 @@ define(["gl-matrix" ],
             } else if(button == "middle") {
                 exp.startDragging(event.clientX, event.clientY, "translateZ");
             } else {
-                window.console.log("could not recognize mouse button!");
+                log("could not recognize mouse button!");
             };
         };
     
@@ -308,7 +308,7 @@ define(["gl-matrix" ],
             if(event.ctrlKey)  exp.activeModifierKeys += exp.KEY_CTRL;
             if(event.altKey)   exp.activeModifierKeys += exp.KEY_ALT;
             if(event.metaKey)  exp.activeModifierKeys += exp.KEY_META;
-            //window.console.log("key down, mods="+exp.activeModifierKeys);
+            //log("key down, mods="+exp.activeModifierKeys);
         };
         
         
@@ -333,7 +333,7 @@ define(["gl-matrix" ],
             if(event.ctrlKey)  exp.activeModifierKeys += exp.KEY_CTRL;
             if(event.altKey)   exp.activeModifierKeys += exp.KEY_ALT;
             if(event.metaKey)  exp.activeModifierKeys += exp.KEY_META;
-            //window.console.log("key up, mods="+exp.activeModifierKeys);
+            //log("key up, mods="+exp.activeModifierKeys);
         };
         
                 
