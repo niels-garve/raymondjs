@@ -1,13 +1,13 @@
 precision mediump float;
 
 // Intervallgrenzen für Werte von t (des Skalars) bei der Schnittpunktberechnung (Rundungsfehler abfangen). 
-const float T_MIN = 0.0001;
+const float T_MIN = 0.001;
 const float T_MAX = 1000000.0;
 // Anzahl "bounces"
-const int DEPTH = 5;
+const int DEPTH = 3;
 // Standard-Konstanten
 const float M_PI = 3.14159265359;
-const float EPSILON = 0.0001;
+const float EPSILON = 0.001;
 
 // structs
 struct Ray {
@@ -30,6 +30,8 @@ struct Material {
       bool isLight;
       bool isPerfectMirror;
       bool isDiffuse;
+      vec3 Le; // L_emit
+      vec3 Kd; // Farbe
 };
 struct Hit {
       float t;
@@ -39,6 +41,7 @@ struct Hit {
 };
 
 // uniforms
+uniform vec3 La; // Hintergrundfarbe
 uniform Sphere spheres[3];
 uniform Material sphereMaterials[3];
 
@@ -97,8 +100,7 @@ float intersectSphere(Sphere sphere, Ray ray) {
  * Schnittpunkt existiert.
  */
 Hit hitSphere(Sphere sphere, Ray ray, Material material) {
-      Hit hit;
-      hit.t = intersectSphere(sphere, ray);
+      Hit hit; hit.t = intersectSphere(sphere, ray);
 
       if (hit.t == T_MAX) { // kein Schnittpunkt
             return hit; // hit repräsentiert den Schnitt in der Unendlichkeit
@@ -114,8 +116,7 @@ Hit hitSphere(Sphere sphere, Ray ray, Material material) {
  * Schneidet ray mit der CornellBox und liefert ein "Hit-structure".
  */
 Hit hitCornellBox(Ray ray) {
-      Hit hit;
-      hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
+      Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
 
       for (int i = 0; i < 6; i ++) {
             float denominator = dot(cornellBoxPlanes[i].n, ray.direction); // z. dt. Nenner
@@ -133,11 +134,25 @@ Hit hitCornellBox(Ray ray) {
 }
 
 /**
+ * konstant
+ */
+vec3 perfectMirrorBRDF() {
+      return vec3(1.0, 1.0, 1.0);
+}
+
+/**
  * Liefert den perfekten Ausfallvektor. Achtung: i ist der "incident vector" --> Richtung beachten!
  */
 float perfectMirrorNextDirection(out vec3 L, vec3 i, vec3 n) {
-      L = reflect(i, n);
+      L = normalize(reflect(i, n)); // TODO already normalized?
       return 1.0;
+}
+
+/**
+ * konstant
+ */
+vec3 diffuseBRDF(Material material) {
+      return material.Kd;
 }
 
 /**
@@ -167,78 +182,72 @@ float diffuseNextDirection(out vec3 L, vec3 N, vec3 V, float seed) {
 
       vec3 P = cross(N, O);
 
-      L = N * cos(theta) + O * sin(theta) * cos(phi) + P * sin(theta) * sin(phi);
+      L = normalize(N * cos(theta) + O * sin(theta) * cos(phi) + P * sin(theta) * sin(phi)); // TODO already normalized?
 
       float prob = cos(theta) / M_PI;
       return prob;
 }
 
 /**
- * Liefert den neuen Strahl und die akkumulierte brdf als inout Parameter und ob der "path" weitergeführt werden soll 
- * als "return value" der Funktion.
- */
-bool sceneFirstHit(inout Ray ray, inout vec3 brdf, int bounce) {
-      Hit hit;
-      hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
-
-      // Kugeln
-      for (int i = 0; i < 3; i++) {
-            Hit tmpHit = hitSphere(spheres[i], ray, sphereMaterials[i]);
-            if (tmpHit.t < hit.t) {
-                  hit = tmpHit;
-            }
-      }
-
-      // "CornellBox"
-      Hit cornellBoxHit = hitCornellBox(ray);
-      if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
-
-      // kein Schnittpunkt? Oder "path" zu Ende?
-      if (hit.t == T_MAX || bounce == DEPTH) {
-            brdf = vec3(0.0, 0.0, 0.0); // Hintergrundfarbe
-            return false;
-      }
-
-      // Licht?
-      if (hit.material.isLight) {
-            return false;
-      }
-
-      // neue Richtung
-      vec3 nextDirection;
-      float prob;
-
-      if (hit.material.isPerfectMirror) {
-            prob = perfectMirrorNextDirection(nextDirection, normalize(ray.direction), hit.normal);
-      } else {
-            prob = diffuseNextDirection(nextDirection, hit.normal, normalize(-ray.direction), secondsSinceStart + float(bounce));
-      }
-
-      Ray newRay = Ray(hit.hitPoint, nextDirection);
-
-      ray = newRay;
-      brdf *= vec3(0.7, 0.7, 0.7); // brdf akkumulieren
-
-      // TODO Was mache ich mit der Wahrscheinlichkeit des Strahls (prob)?
-      // TODO Wie bringe ich Farbe der Objekte mit ins Spiel? Ist vec3(0.5, 0.5, 0.5) schon eine feste Farbe (grau) für
-      // alle Objekte?
-
-      return true;
-}
-
-/**
- * Startpunkt und Hauptschleife
+ * Hauptschleife
  */
 vec3 pathTrace() {
-      Ray ray = Ray(eyePosition, rayDirection);
-      vec3 brdf = vec3(1.0, 1.0, 1.0);
+      Ray ray = Ray(eyePosition, normalize(rayDirection)); // Primärstrahl
+      vec3 color = vec3(0.0, 0.0, 0.0);
+      int n = 1; // laut GLSL 1.0 kann hier nicht einfach die Schleifenvariable j stehen, nun also n...
 
-      for (int i = 1; i <= DEPTH; i++) {
-            bool continueWalk = sceneFirstHit(ray, brdf, i);
-            if (!continueWalk) break;
+      for (int j = 1; j <= DEPTH; j++) { // entspricht der Summe von j = 1 bis n
+            Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
+
+            // 1. Kugeln schneiden
+            for (int i = 0; i < 3; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Kugeln die Szene hat...
+                  Hit tmpHit = hitSphere(spheres[i], ray, sphereMaterials[i]);
+                  if (tmpHit.t < hit.t) { // der naheliegendste Schnittpunkt zählt
+                        hit = tmpHit;
+                  }
+            }
+
+            // 2. "CornellBox" schneiden
+            Hit cornellBoxHit = hitCornellBox(ray);
+            if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
+
+            // Schnittpunkt?
+            if (hit.t == T_MAX) return La;
+
+            // Le
+            color += hit.material.Le;
+
+            if (hit.material.isLight) break;
+
+            // BRDF und Co.
+            vec3 brdf; vec3 nextDirection;
+            float prob;
+
+            if (hit.material.isPerfectMirror) {
+                  brdf = perfectMirrorBRDF();
+                  prob = perfectMirrorNextDirection(nextDirection, ray.direction, hit.normal);
+            } else if (hit.material.isDiffuse) {
+                  brdf = diffuseBRDF(hit.material);
+                  prob = diffuseNextDirection(nextDirection, hit.normal, -ray.direction, secondsSinceStart + float(j));
+            }
+
+            if (prob < EPSILON) break;
+
+            float cost = dot(nextDirection, hit.normal);
+            if (cost < 0.0) cost = -cost;
+            if (cost < EPSILON) break;
+
+            // color akkumulieren
+            color += brdf * cost / prob; // TODO Li?
+
+            ray = Ray(hit.hitPoint, nextDirection); // new ray
+
+            if (j == DEPTH) return La; // entspricht if (j > DEPTH) return La; 
+
+            n++; // zweite Schleifenvariable
       }
 
-      return brdf;
+      return color / float(n); // * (1 / n)
 }
 
 void main() {
