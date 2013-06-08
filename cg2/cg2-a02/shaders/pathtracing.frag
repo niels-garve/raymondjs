@@ -26,12 +26,16 @@ struct CornellBox {
       vec3 minCorner;
       vec3 maxCorner;
 };
+struct Light {
+      vec3 position;
+      vec3 color;
+};
 struct Material {
       bool isLight;
       bool isPerfectMirror;
       bool isDiffuse;
       vec3 Le; // L_emit
-      vec3 Kd; // Farbe
+      vec3 Kd; // Farbe 
 };
 struct Hit {
       float t;
@@ -47,6 +51,8 @@ uniform Material sphereMaterials[3];
 
 uniform CornellBox cornellBox;
 uniform Material cornellBoxMaterial;
+
+uniform Light lights[1];
 
 uniform vec3 eyePosition;
 uniform float secondsSinceStart;
@@ -131,6 +137,18 @@ Hit hitCornellBox(Ray ray) {
             hit = Hit(tmpT, ray.start + tmpT * ray.direction, cornellBoxMaterial, cornellBoxPlanes[i].n);
       }
       return hit;
+}
+
+vec3 Li(vec3 n, vec3 x) {
+      vec3 res = vec3(0.0, 0.0, 0.0);
+
+      for (int i = 0; i < 1; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Lichter die Szene hat...
+            vec3 s = normalize(lights[i].position - x); // to light source
+            float theCos = dot(n, s);
+
+            if (theCos >= 0.0) res += lights[i].color * theCos;
+      }
+      return res;
 }
 
 /**
@@ -218,6 +236,9 @@ vec3 pathTrace() {
             color += hit.material.Le;
 
             if (hit.material.isLight) break;
+
+            // Li
+            color += Li(hit.normal, hit.hitPoint);
 
             // BRDF und Co.
             vec3 brdf; vec3 nextDirection;
