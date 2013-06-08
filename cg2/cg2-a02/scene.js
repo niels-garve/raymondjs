@@ -32,7 +32,8 @@ define(["jquery", "gl-matrix",
         "use strict";
 
         /**
-         * sets the uniform variables defining the scene to be "traced"
+         * sets the uniform variables defining the scene to be "traced". !!! Attention: lights are scene objects as well
+         * and must be added at the beginning of the corresponding arrays!!!
          *
          * @param prog
          * @author Niels Garve, niels.garve.yahoo.de
@@ -47,9 +48,6 @@ define(["jquery", "gl-matrix",
             prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
             prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
             prog.setUniform("sphereMaterials[0].Le", "vec3", [1.0, 1.0, 1.0]);
-
-            prog.setUniform("lights[0].position", "vec3", [0, 0, -10]);
-            prog.setUniform("lights[0].color", "vec3", [1.0, 1.0, 1.0]);
 
             prog.setUniform("spheres[1].center", "vec3", [-2.5, 0, -10]);
             prog.setUniform("spheres[1].radius", "float", 1);

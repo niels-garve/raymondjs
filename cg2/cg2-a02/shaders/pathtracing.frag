@@ -26,10 +26,6 @@ struct CornellBox {
       vec3 minCorner;
       vec3 maxCorner;
 };
-struct Light {
-      vec3 position;
-      vec3 color;
-};
 struct Material {
       bool isLight;
       bool isPerfectMirror;
@@ -51,8 +47,6 @@ uniform Material sphereMaterials[3];
 
 uniform CornellBox cornellBox;
 uniform Material cornellBoxMaterial;
-
-uniform Light lights[1];
 
 uniform vec3 eyePosition;
 uniform float secondsSinceStart;
@@ -139,14 +133,42 @@ Hit hitCornellBox(Ray ray) {
       return hit;
 }
 
+/**
+ * Schneidet alle Szeneobjekte mit ray und liefert den naheliegendsten Hit.
+ */
+Hit sceneFirstHit(Ray ray) {
+      Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
+
+      // 1. Kugeln schneiden
+      for (int i = 0; i < 3; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Kugeln die Szene hat...
+            Hit tmpHit = hitSphere(spheres[i], ray, sphereMaterials[i]);
+            if (tmpHit.t < hit.t) { // der naheliegendste Schnittpunkt zählt
+                  hit = tmpHit;
+            }
+      }
+
+      // 2. "CornellBox" schneiden
+      Hit cornellBoxHit = hitCornellBox(ray);
+      if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
+
+      return hit;
+}
+
 vec3 Li(vec3 n, vec3 x) {
       vec3 res = vec3(0.0, 0.0, 0.0);
 
       for (int i = 0; i < 1; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Lichter die Szene hat...
-            vec3 s = normalize(lights[i].position - x); // to light source
-            float theCos = dot(n, s);
+            // die Lichter befinden sich am Anfang der Reihungen
+            vec3 lightPosition = spheres[i].center; // kein Sampling
+            vec3 lightColor = sphereMaterials[i].Le;
+            vec3 s = normalize(lightPosition - x); // to light source
 
-            if (theCos >= 0.0) res += lights[i].color * theCos;
+            // ist Licht sichtbar?
+            Hit hit = sceneFirstHit(Ray(x, s));
+            if (hit.t < T_MAX && !hit.material.isLight) break;
+
+            float theCos = dot(n, s);
+            if (theCos >= 0.0) res += lightColor * theCos;
       }
       return res;
 }
@@ -215,19 +237,7 @@ vec3 pathTrace() {
       int n = 1; // laut GLSL 1.0 kann hier nicht einfach die Schleifenvariable j stehen, nun also n...
 
       for (int j = 1; j <= DEPTH; j++) { // entspricht der Summe von j = 1 bis n
-            Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
-
-            // 1. Kugeln schneiden
-            for (int i = 0; i < 3; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Kugeln die Szene hat...
-                  Hit tmpHit = hitSphere(spheres[i], ray, sphereMaterials[i]);
-                  if (tmpHit.t < hit.t) { // der naheliegendste Schnittpunkt zählt
-                        hit = tmpHit;
-                  }
-            }
-
-            // 2. "CornellBox" schneiden
-            Hit cornellBoxHit = hitCornellBox(ray);
-            if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
+            Hit hit = sceneFirstHit(ray);
 
             // Schnittpunkt?
             if (hit.t == T_MAX) return La;
@@ -252,14 +262,14 @@ vec3 pathTrace() {
                   prob = diffuseNextDirection(nextDirection, hit.normal, -ray.direction, secondsSinceStart + float(j));
             }
 
-            if (prob < EPSILON) break;
+            if (prob < EPSILON) break; // Russian Roulette
 
             float cost = dot(nextDirection, hit.normal);
             if (cost < 0.0) cost = -cost;
             if (cost < EPSILON) break;
 
             // color akkumulieren
-            color += brdf * cost / prob; // TODO Li?
+            color += brdf * cost / prob;
 
             ray = Ray(hit.hitPoint, nextDirection); // new ray
 
