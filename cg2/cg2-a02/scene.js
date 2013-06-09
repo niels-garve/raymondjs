@@ -42,34 +42,80 @@ define(["jquery", "gl-matrix",
         function setUniformScene(prog) {
             prog.setUniform("La", "vec3", [0.1, 0.1, 0.1]);
 
-            prog.setUniform("spheres[0].center", "vec3", [0, 0, -10]);
-            prog.setUniform("spheres[0].radius", "float", 1);
+            /*
+             * spheres
+             */
+            prog.setUniform("spheres[0].center", "vec3", [-2.99, -0.99, -10.99]);
+            prog.setUniform("spheres[0].radius", "float", 1.0);
             prog.setUniform("sphereMaterials[0].isLight", "bool", true);
             prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
             prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
-            prog.setUniform("sphereMaterials[0].Le", "vec3", [1.0, 1.0, 1.0]);
+            prog.setUniform("sphereMaterials[0].Le", "vec3", [0.98, 0.98, 0.94]);
+            prog.setUniform("sphereMaterials[1].Kd", "vec3", [0.0, 0.0, 0.0]); // TODO Lichtfarbe?
 
-            prog.setUniform("spheres[1].center", "vec3", [-2.5, 0, -10]);
-            prog.setUniform("spheres[1].radius", "float", 1);
+            prog.setUniform("spheres[1].center", "vec3", [0.0, -0.99, -9.0]);
+            prog.setUniform("spheres[1].radius", "float", 1.0);
             prog.setUniform("sphereMaterials[1].isLight", "bool", false);
-            prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", true);
-            prog.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
+            prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", false);
+            prog.setUniform("sphereMaterials[1].isDiffuse", "bool", true);
             prog.setUniform("sphereMaterials[1].Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("sphereMaterials[1].Kd", "vec3", [0.5, 0.5, 0.5]);
 
-            prog.setUniform("spheres[2].center", "vec3", [2.5, 0 , -10]);
-            prog.setUniform("spheres[2].radius", "float", 1);
+            prog.setUniform("spheres[2].center", "vec3", [2.0, 0.99, -10.0]);
+            prog.setUniform("spheres[2].radius", "float", 1.0);
             prog.setUniform("sphereMaterials[2].isLight", "bool", false);
             prog.setUniform("sphereMaterials[2].isPerfectMirror", "bool", true);
             prog.setUniform("sphereMaterials[2].isDiffuse", "bool", false);
             prog.setUniform("sphereMaterials[2].Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("sphereMaterials[2].Kd", "vec3", [0.0, 0.0, 0.0]);
 
+            /*
+             * Cornell Box
+             */
             prog.setUniform("cornellBox.minCorner", "vec3", [-4.0, -2.0, -12.0]);
-            prog.setUniform("cornellBox.maxCorner", "vec3", [4.0, 2.0, 0.0]);
-            prog.setUniform("cornellBoxMaterial.isLight", "bool", false);
-            prog.setUniform("cornellBoxMaterial.isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterial.isDiffuse", "bool", true);
-            prog.setUniform("cornellBoxMaterial.Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("cornellBoxMaterial.Kd", "vec3", [0.9, 0.9, 0.9]);
+            prog.setUniform("cornellBox.maxCorner", "vec3", [4.0, 2.0, 0.09]);
+
+            // left
+            prog.setUniform("cornellBoxMaterials[0].isLight", "bool", false);
+            prog.setUniform("cornellBoxMaterials[0].isPerfectMirror", "bool", false);
+            prog.setUniform("cornellBoxMaterials[0].isDiffuse", "bool", true);
+            prog.setUniform("cornellBoxMaterials[0].Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("cornellBoxMaterials[0].Kd", "vec3", [0.5, 0.0, 0.0]);
+
+            // right
+            prog.setUniform("cornellBoxMaterials[1].isLight", "bool", false);
+            prog.setUniform("cornellBoxMaterials[1].isPerfectMirror", "bool", false);
+            prog.setUniform("cornellBoxMaterials[1].isDiffuse", "bool", true);
+            prog.setUniform("cornellBoxMaterials[1].Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("cornellBoxMaterials[1].Kd", "vec3", [0.0, 0.5, 0.0]);
+
+            // bottom
+            prog.setUniform("cornellBoxMaterials[2].isLight", "bool", false);
+            prog.setUniform("cornellBoxMaterials[2].isPerfectMirror", "bool", false);
+            prog.setUniform("cornellBoxMaterials[2].isDiffuse", "bool", true);
+            prog.setUniform("cornellBoxMaterials[2].Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("cornellBoxMaterials[2].Kd", "vec3", [0.03, 0.06, 0.1]);
+
+            // top
+            prog.setUniform("cornellBoxMaterials[3].isLight", "bool", true);
+            prog.setUniform("cornellBoxMaterials[3].isPerfectMirror", "bool", false);
+            prog.setUniform("cornellBoxMaterials[3].isDiffuse", "bool", false);
+            prog.setUniform("cornellBoxMaterials[3].Le", "vec3", [0.98, 0.98, 0.94]);
+            prog.setUniform("cornellBoxMaterials[3].Kd", "vec3", [0.0, 0.0, 0.0]); // TODO Lichtfarbe?
+
+            // far
+            prog.setUniform("cornellBoxMaterials[4].isLight", "bool", false);
+            prog.setUniform("cornellBoxMaterials[4].isPerfectMirror", "bool", false);
+            prog.setUniform("cornellBoxMaterials[4].isDiffuse", "bool", true);
+            prog.setUniform("cornellBoxMaterials[4].Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("cornellBoxMaterials[4].Kd", "vec3", [0.8, 0.8, 0.8]);
+
+            // near
+            prog.setUniform("cornellBoxMaterials[5].isLight", "bool", false);
+            prog.setUniform("cornellBoxMaterials[5].isPerfectMirror", "bool", false);
+            prog.setUniform("cornellBoxMaterials[5].isDiffuse", "bool", true);
+            prog.setUniform("cornellBoxMaterials[5].Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("cornellBoxMaterials[5].Kd", "vec3", [0.8, 0.8, 0.8]);
         }
 
         /**

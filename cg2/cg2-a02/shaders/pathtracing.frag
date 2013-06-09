@@ -46,7 +46,7 @@ uniform Sphere spheres[3];
 uniform Material sphereMaterials[3];
 
 uniform CornellBox cornellBox;
-uniform Material cornellBoxMaterial;
+uniform Material cornellBoxMaterials[6];
 
 uniform vec3 eyePosition;
 uniform float secondsSinceStart;
@@ -128,7 +128,7 @@ Hit hitCornellBox(Ray ray) {
             // Intervallgrenzen checken und kleinstes t suchen (siehe CornellBox)
             if (tmpT <= T_MIN || T_MAX <= tmpT || hit.t < tmpT) continue;
 
-            hit = Hit(tmpT, ray.start + tmpT * ray.direction, cornellBoxMaterial, cornellBoxPlanes[i].n);
+            hit = Hit(tmpT, ray.start + tmpT * ray.direction, cornellBoxMaterials[i], cornellBoxPlanes[i].n);
       }
       return hit;
 }
