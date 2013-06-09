@@ -171,8 +171,6 @@ define(["jquery", "gl-matrix",
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
             // start drawing with the root node
-            this.world.draw(gl, this.prog_pathtracing, modelView);
-
             gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
             this.world.draw(gl, this.prog_pathtracing, modelView);
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
