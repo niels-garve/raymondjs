@@ -248,7 +248,7 @@ vec3 pathTrace() {
             if (hit.material.isLight) break;
 
             // Li
-            color += Li(hit.normal, hit.hitPoint);
+            // color += Li(hit.normal, hit.hitPoint);
 
             // BRDF und Co.
             vec3 brdf; vec3 nextDirection;
