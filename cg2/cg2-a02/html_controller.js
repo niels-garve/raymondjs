@@ -66,14 +66,20 @@ define(["jquery"],
 
         // create one input element for each object in "objects"
         for(var o in scene.drawOptions) {
-            
-            // put together valid HTML code for a new table row 
-            var newRow = '<tr><td>'+o+'</td>'+
-                         '<td><input id="'+drawOptionId(o)+'" type="checkbox" class="inputParam"></input></td></tr>\n';
-                         
-            // insert HTML code after the last table row so far.
-            $('#param_table tr:last').after(newRow);
-            
+            /**
+             * put together valid HTML code for a new checkbox
+             * @author Niels Garve, niels.garve.yahoo.de
+             * @type {string}
+             */
+            var sNewLabel = '<label class="checkbox inline">' +
+                '<input type="checkbox" id="' +
+                drawOptionId(o) +
+                '" class="inputParam">' +
+                o +
+                '</label>';
+
+            $('label:last', '#param_area').after(sNewLabel);
+
             // if object is in the scene now, check it
             if(scene.drawOptions[o] == true) {
                 $("#"+drawOptionId(o)).attr("checked","checked");
