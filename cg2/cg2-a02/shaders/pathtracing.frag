@@ -172,21 +172,24 @@ void Li(vec3 x, vec3 s, vec3 n, vec3 lightColor, inout vec3 res) {
 vec3 prepareLiCalculation(Hit hit) {
       vec3 res = vec3(0.0, 0.0, 0.0);
 
-      // Kugel-Lichter
+      // 1. Kugel-Lichter
       for (int i = 0; i < 1; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Lichter die Szene hat...
             // die Lichter befinden sich am Anfang der Reihungen
-            vec3 toSource = normalize(spheres[i].center - hit.hitPoint); // kein Sampling
+            vec3 toSource = normalize(spheres[i].center - hit.hitPoint); // TODO Sampling!
             vec3 lightColor = sphereMaterials[i].Le;
 
             Li(hit.hitPoint, toSource, hit.normal, lightColor, res);
       }
 
-      // TODO "hard coded" Cornell Box-Wand-Licht; und zwar leuchtet die "far plane"
-      vec3 toCornellBoxFarSource = normalize(vec3(3.0, 0.5, cornellBox.minCorner.z) - hit.hitPoint); // kein Sampling
+      // 2. Cornell Box-Wand-Lichter
+      vec2 centerXY = vec2((cornellBox.minCorner.x + cornellBox.maxCorner.x) / 2.0,
+                           (cornellBox.minCorner.y + cornellBox.maxCorner.y) / 2.0); // TODO Sampling
+
+      // TODO noch "hard coded"! Und zwar leuchtet die "far plane" und die "near plane"
+      vec3 toCornellBoxFarSource = normalize(vec3(centerXY, cornellBox.minCorner.z) - hit.hitPoint);
       Li(hit.hitPoint, toCornellBoxFarSource, hit.normal, cornellBoxMaterials[4].Le, res);
 
-      // TODO ebenfalls "hard coded"
-      vec3 toCornellBoxNearSource = normalize(vec3(3.0, 0.5, cornellBox.maxCorner.z) - hit.hitPoint); // kein Sampling
+      vec3 toCornellBoxNearSource = normalize(vec3(centerXY, cornellBox.maxCorner.z) - hit.hitPoint);
       Li(hit.hitPoint, toCornellBoxNearSource, hit.normal, cornellBoxMaterials[5].Le, res);
 
       return res;
