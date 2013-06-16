@@ -42,8 +42,8 @@ struct Hit {
 
 // uniforms
 uniform vec3 La; // Hintergrundfarbe
-uniform Sphere spheres[3];
-uniform Material sphereMaterials[3];
+uniform Sphere spheres[4];
+uniform Material sphereMaterials[4];
 
 uniform CornellBox cornellBox;
 uniform Material cornellBoxMaterials[6];
@@ -140,7 +140,7 @@ Hit sceneFirstHit(Ray ray) {
       Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
 
       // 1. Kugeln schneiden
-      for (int i = 0; i < 3; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Kugeln die Szene hat...
+      for (int i = 0; i < 4; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Kugeln die Szene hat...
             Hit tmpHit = hitSphere(spheres[i], ray, sphereMaterials[i]);
             if (tmpHit.t < hit.t) { // der naheliegendste Schnittpunkt zählt
                   hit = tmpHit;
@@ -154,22 +154,41 @@ Hit sceneFirstHit(Ray ray) {
       return hit;
 }
 
-vec3 Li(vec3 n, vec3 x) {
+/**
+ * Berechnet die lokale Beleuchtung in x, mit s ist der Vektor zur Lichtquelle und n die Normale.
+ */
+void Li(vec3 x, vec3 s, vec3 n, vec3 lightColor, inout vec3 res) {
+      // ist Licht sichtbar?
+      Hit hit = sceneFirstHit(Ray(x, s));
+      if (hit.t < T_MAX && !hit.material.isLight) return;
+
+      float theCos = dot(n, s);
+      if (theCos >= 0.0) res += lightColor * theCos;
+}
+
+/**
+ * Berechnet die lokale Beleuchtung in hit.
+ */
+vec3 prepareLiCalculation(Hit hit) {
       vec3 res = vec3(0.0, 0.0, 0.0);
 
+      // Kugel-Lichter
       for (int i = 0; i < 1; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Lichter die Szene hat...
             // die Lichter befinden sich am Anfang der Reihungen
-            vec3 lightPosition = spheres[i].center; // kein Sampling
+            vec3 toSource = normalize(spheres[i].center - hit.hitPoint); // kein Sampling
             vec3 lightColor = sphereMaterials[i].Le;
-            vec3 s = normalize(lightPosition - x); // to light source
 
-            // ist Licht sichtbar?
-            Hit hit = sceneFirstHit(Ray(x, s));
-            if (hit.t < T_MAX && !hit.material.isLight) break;
-
-            float theCos = dot(n, s);
-            if (theCos >= 0.0) res += lightColor * theCos;
+            Li(hit.hitPoint, toSource, hit.normal, lightColor, res);
       }
+
+      // TODO "hard coded" Cornell Box-Wand-Licht; und zwar leuchtet die "far plane"
+      vec3 toCornellBoxFarSource = normalize(vec3(3.0, 0.5, cornellBox.minCorner.z) - hit.hitPoint); // kein Sampling
+      Li(hit.hitPoint, toCornellBoxFarSource, hit.normal, cornellBoxMaterials[4].Le, res);
+
+      // TODO ebenfalls "hard coded"
+      vec3 toCornellBoxNearSource = normalize(vec3(3.0, 0.5, cornellBox.maxCorner.z) - hit.hitPoint); // kein Sampling
+      Li(hit.hitPoint, toCornellBoxNearSource, hit.normal, cornellBoxMaterials[5].Le, res);
+
       return res;
 }
 
@@ -229,26 +248,23 @@ float diffuseNextDirection(out vec3 L, vec3 N, vec3 V, float seed) {
 }
 
 /**
- * Hauptschleife
+ * Path tracing (vgl. Szirmay-Kalos, S. 112; Kevin Suffern S. 547 - 549)
  */
 vec3 pathTrace() {
       Ray ray = Ray(eyePosition, normalize(rayDirection)); // Primärstrahl
-      vec3 color = vec3(0.0, 0.0, 0.0);
-      int n = 1; // laut GLSL 1.0 kann hier nicht einfach die Schleifenvariable j stehen, nun also n...
+      vec3 color = vec3(1.0, 1.0, 1.0);
 
-      for (int j = 1; j <= DEPTH; j++) { // entspricht der Summe von j = 1 bis n
+      for (int j = 0; j < DEPTH; j++) { // entspricht der Summe von j = 0 bis unendlich
             Hit hit = sceneFirstHit(ray);
 
-            // Schnittpunkt?
+            // Fall: kein Schnittpunkt
             if (hit.t == T_MAX) return La;
 
-            // Le
-            color += hit.material.Le;
+            // Fall: Licht geschnitten
+            if (hit.material.isLight) return color * hit.material.Le;
 
-            if (hit.material.isLight) break;
-
-            // Li
-            // color += Li(hit.normal, hit.hitPoint);
+            // L_i
+            // color += prepareLiCalculation(hit);
 
             // BRDF und Co.
             vec3 brdf; vec3 nextDirection;
@@ -262,23 +278,20 @@ vec3 pathTrace() {
                   prob = diffuseNextDirection(nextDirection, hit.normal, -ray.direction, secondsSinceStart + float(j));
             }
 
-            if (prob < EPSILON) break; // Russian Roulette
+            if (prob < EPSILON) return La; // Russian Roulette
 
             float cost = dot(nextDirection, hit.normal);
             if (cost < 0.0) cost = -cost;
-            if (cost < EPSILON) break;
+            if (cost < EPSILON) return La;
 
             // color akkumulieren
-            color += brdf * cost / prob;
+            color *= brdf * cost / prob;
 
-            ray = Ray(hit.hitPoint, nextDirection); // new ray
-
-            if (j == DEPTH) return La; // entspricht if (j > DEPTH) return La; 
-
-            n++; // zweite Schleifenvariable
+            // Iteration
+            ray = Ray(hit.hitPoint, nextDirection); // neuer Strahl
       }
 
-      return color / float(n); // * (1 / n)
+      return La; // Fall: maximale "depth" erreicht
 }
 
 void main() {
