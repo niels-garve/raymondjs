@@ -48,8 +48,8 @@ define(["jquery", "gl-matrix",
             prog.setUniform("sphereMaterials[0].isLight", "bool", true);
             prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
             prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
-            prog.setUniform("sphereMaterials[0].Le", "vec3", [1.0, 1.0, 1.0]);
-            prog.setUniform("sphereMaterials[1].Kd", "vec3", [0.0, 0.0, 0.0]); // TODO Lichtfarbe?
+            prog.setUniform("sphereMaterials[0].Le", "vec3", [0.66, 0.66, 0.66]);
+            prog.setUniform("sphereMaterials[0].Kd", "vec3", [1.0, 1.0, 1.0]); // TODO Lichtfarbe?
 
             prog.setUniform("spheres[1].center", "vec3", [1.0, -0.5, -2.0]); // Kamera-Zentrum
             prog.setUniform("spheres[1].radius", "float", 0.499);
@@ -113,15 +113,15 @@ define(["jquery", "gl-matrix",
             prog.setUniform("cornellBoxMaterials[4].isLight", "bool", true);
             prog.setUniform("cornellBoxMaterials[4].isPerfectMirror", "bool", false);
             prog.setUniform("cornellBoxMaterials[4].isDiffuse", "bool", false);
-            prog.setUniform("cornellBoxMaterials[4].Le", "vec3", [1.0, 1.0, 1.0]);
-            prog.setUniform("cornellBoxMaterials[4].Kd", "vec3", [0.0, 0.0, 0.0]); // TODO Lichtfarbe?
+            prog.setUniform("cornellBoxMaterials[4].Le", "vec3", [0.66, 0.66, 0.66]);
+            prog.setUniform("cornellBoxMaterials[4].Kd", "vec3", [1.0, 1.0, 1.0]); // TODO Lichtfarbe?
 
             // near
             prog.setUniform("cornellBoxMaterials[5].isLight", "bool", true);
             prog.setUniform("cornellBoxMaterials[5].isPerfectMirror", "bool", false);
             prog.setUniform("cornellBoxMaterials[5].isDiffuse", "bool", false);
-            prog.setUniform("cornellBoxMaterials[5].Le", "vec3", [1.0, 1.0, 1.0]);
-            prog.setUniform("cornellBoxMaterials[5].Kd", "vec3", [0.0, 0.0, 0.0]); // TODO Lichtfarbe?
+            prog.setUniform("cornellBoxMaterials[5].Le", "vec3", [0.66, 0.66, 0.66]);
+            prog.setUniform("cornellBoxMaterials[5].Kd", "vec3", [1.0, 1.0, 1.0]); // TODO Lichtfarbe?
         }
 
         /**
