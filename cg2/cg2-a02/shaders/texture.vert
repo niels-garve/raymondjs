@@ -21,9 +21,10 @@ uniform mat4 projectionMatrix;
 varying vec2 texCoords;
 
 void main() {
-    gl_Position = projectionMatrix *
-                  // modelViewMatrix *
-                  vec4(vertexPosition, 1.0);
-    gl_PointSize = 3.0;
-    texCoords = vertexTexCoords;
+	gl_Position = projectionMatrix *
+				  // modelViewMatrix *
+				  vec4(vertexPosition, 1.0);
+
+	gl_PointSize = 3.0;
+	texCoords = vertexTexCoords;
 }

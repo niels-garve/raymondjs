@@ -10,9 +10,10 @@ varying vec3 rayDirection;
 varying vec2 texCoords;
 
 void main() {
-      gl_Position = projectionMatrix *
-                    // modelViewMatrix *
-                    vec4(vertexPosition, 1.0);
-      rayDirection = (vec4(vertexPosition - eyePosition, 1.0) * inverseModelViewMatrix).xyz;
-      texCoords = vertexTexCoords;
+	gl_Position = projectionMatrix *
+			  // modelViewMatrix *
+			  vec4(vertexPosition, 1.0);
+
+	rayDirection = (vec4(vertexPosition - eyePosition, 1.0) * inverseModelViewMatrix).xyz;
+	texCoords = vertexTexCoords;
 }
