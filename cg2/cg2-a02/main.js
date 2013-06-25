@@ -10,16 +10,25 @@
  */
 
 requirejs.config({
+    shim: {
+        'webgl-obj-loader': {
+            deps: ['jquery']
+        }
+    },
+
     paths: {
         // jquery library
-        "jquery": [
+        jquery: [
             // try content delivery network location first
             'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min',
-            //If the load via CDN fails, load locally
-            '../lib/jquery-1.7.2.min'],
+            // if the load via CDN fails, load locally
+            '../lib/jquery-1.7.2.min'
+        ],
 
         // gl-matrix library
-        "gl-matrix": "../lib/gl-matrix-1.3.7"
+        'gl-matrix': '../lib/gl-matrix-1.3.7',
+
+        'webgl-obj-loader': 'loaders/webgl-obj-loader'
     }
 });
 

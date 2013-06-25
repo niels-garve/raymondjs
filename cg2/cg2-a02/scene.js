@@ -24,7 +24,7 @@
 /* requireJS module definition */
 define(["jquery", "gl-matrix",
     "program", "shaders", "scene_node", "texture", "light", "material",
-    "models/Stage"],
+    "models/Stage", "webgl-obj-loader"],
     (function ($, glmatrix, Program, shaders, SceneNode, Texture, light, material, Stage) {
 
         "use strict";
@@ -125,6 +125,40 @@ define(["jquery", "gl-matrix",
         }
 
         /**
+         *
+         * @param gl
+         * @param array
+         * @param scale
+         * @returns {Uint8Array}
+         * @author Niels Garve, niels.garve.yahoo.de
+         * @private
+         */
+        function prepareArrayForShader(gl, array, scale) {
+            // defaults
+            scale = scale || 1; // TODO 255
+
+            // checks
+            if (!array instanceof Array) {
+                throw new Error("bad parameter: array");
+            }
+
+            // vars
+            var length = 3 * gl.MAX_TEXTURE_SIZE, // 3 Byte per Pixel
+                res = new Uint8Array(length),
+                i;
+
+            if (array.length > length) {
+                throw new Error("mesh data is currently too big for Shader");
+            }
+
+            for (i = 0; i < array.length; i++) {
+                res[i] = parseInt(array[i] * scale, 10);
+            }
+
+            return res;
+        }
+
+        /**
          * a simple scene is an object with a few objects and a draw() method
          *
          * @param gl
@@ -136,7 +170,8 @@ define(["jquery", "gl-matrix",
             // store the WebGL rendering context
             this.gl = gl;
 
-            var canvas = gl.canvas;
+            var canvas = gl.canvas,
+                mesh = new obj_loader.Mesh(document.getElementById('mesh').innerHTML);
 
             // 1. framebuffer
             this.framebuffer = gl.createFramebuffer();
@@ -144,12 +179,19 @@ define(["jquery", "gl-matrix",
             this.framebuffer.width = canvas.width;
             this.framebuffer.height = canvas.height;
 
-            // 2. texture
-            var texture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null);
+            // 2. textures
+            var texture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null),
+                meshVertices = new Texture.Texture2D(gl).init_2(gl.MAX_TEXTURE_SIZE, 1, prepareArrayForShader(gl, mesh.vertices)),
+                meshVertexNormals = new Texture.Texture2D(gl).init_2(gl.MAX_TEXTURE_SIZE, 1, prepareArrayForShader(gl, mesh.vertexNormals));
+
             texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            meshVertices.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            meshVertices.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            meshVertexNormals.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            meshVertexNormals.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
-            // 3. framebufferTexture
+            // 3. evtl. framebufferTexture
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.glTextureObject(), 0);
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -178,6 +220,9 @@ define(["jquery", "gl-matrix",
             this.prog_pathtracing.setTexture("texture0", 0, texture);
             this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 0]); // eye
             setUniformScene(this.prog_pathtracing);
+            this.prog_pathtracing.setTexture("mesh.vertices", 1, meshVertices);
+            this.prog_pathtracing.setTexture("mesh.vertexNormals", 2, meshVertexNormals);
+            this.prog_pathtracing.setUniform("mesh.samplerWidth", "float", gl.MAX_TEXTURE_SIZE);
 
             // create some objects to be drawn
             this.stage = new Stage(gl);

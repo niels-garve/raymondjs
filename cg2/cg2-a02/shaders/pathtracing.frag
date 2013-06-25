@@ -22,9 +22,14 @@ struct Plane { // Hessesche Normalform
 	vec3 n;
 	float d;
 };
-struct CornellBox {
+struct CornellBox { // sechs "Planes"
 	vec3 minCorner;
 	vec3 maxCorner;
+};
+struct Mesh {
+	sampler2D vertices;
+	sampler2D vertexNormals;
+	float samplerWidth; // float, da samplerWidth mit in die Berechnung der Texturkoord. elem. [0, 1] x [0, 1] einfließt
 };
 struct Material {
 	bool isLight;
@@ -47,6 +52,8 @@ uniform Material sphereMaterials[4];
 
 uniform CornellBox cornellBox;
 uniform Material cornellBoxMaterials[6];
+
+uniform Mesh mesh;
 
 uniform vec3 eyePosition;
 uniform float secondsSinceStart;
@@ -133,6 +140,18 @@ Hit hitCornellBox(Ray ray) {
 	return hit;
 }
 
+Hit hitMesh(Ray ray) {
+	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
+
+	// TODO for...
+	int i = 0;
+	vec3 p0 = texture2D(mesh.vertices, vec2(float(i)     / mesh.samplerWidth, 0)).xyz;
+	vec3 p1 = texture2D(mesh.vertices, vec2(float(i + 1) / mesh.samplerWidth, 0)).xyz;
+	vec3 p2 = texture2D(mesh.vertices, vec2(float(i + 2) / mesh.samplerWidth, 0)).xyz;
+
+	return hit;
+}
+
 /**
  * Schneidet alle Szeneobjekte mit ray und liefert den naheliegendsten Hit.
  */
@@ -150,6 +169,10 @@ Hit sceneFirstHit(Ray ray) {
 	// 2. "CornellBox" schneiden
 	Hit cornellBoxHit = hitCornellBox(ray);
 	if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
+
+	// 3. Mesh schneiden
+	Hit meshHit = hitMesh(ray);
+	if (meshHit.t < hit.t) hit = meshHit;
 
 	return hit;
 }

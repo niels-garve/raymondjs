@@ -120,7 +120,7 @@ define(["util"], (function(util) {
         this.loadingCompleted = true;
 
         gl.bindTexture(gl.TEXTURE_2D, this.gltex);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, aData);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, aData);
 
         // now is the right time to generate a MIP-MAP, if desired
         if (this.useMipMap) {
