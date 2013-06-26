@@ -29,7 +29,7 @@ struct CornellBox { // sechs "Planes"
 struct Mesh {
 	sampler2D vertices;
 	sampler2D vertexNormals;
-	float samplerWidth; // float, da samplerWidth mit in die Berechnung der Texturkoord. elem. [0, 1] x [0, 1] einfließt
+	vec2 onePixel; // Größe eines Pixel zur Adressierung
 };
 struct Material {
 	bool isLight;
@@ -140,14 +140,30 @@ Hit hitCornellBox(Ray ray) {
 	return hit;
 }
 
+/**
+ * x, y sind Pixelkoordinaten
+ */
+vec3 readMeshSamplerBuffer(sampler2D sampler, int x, int y) {
+	vec3 res = texture2D(sampler, vec2(x, y) * mesh.onePixel).xyz * 255.0;
+
+	// Zweierkomplement
+	if(res.x > 127.0) res.x -= 256.0;
+	if(res.y > 127.0) res.y -= 256.0;
+	if(res.z > 127.0) res.z -= 256.0;
+
+	return res;
+}
+
 Hit hitMesh(Ray ray) {
 	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
 
 	// TODO for...
 	int i = 0;
-	vec3 p0 = texture2D(mesh.vertices, vec2(float(i)     / mesh.samplerWidth, 0)).xyz;
-	vec3 p1 = texture2D(mesh.vertices, vec2(float(i + 1) / mesh.samplerWidth, 0)).xyz;
-	vec3 p2 = texture2D(mesh.vertices, vec2(float(i + 2) / mesh.samplerWidth, 0)).xyz;
+	vec3 p0 = readMeshSamplerBuffer(mesh.vertices, i,     0);
+	vec3 p1 = readMeshSamplerBuffer(mesh.vertices, i + 1, 0);
+	vec3 p2 = readMeshSamplerBuffer(mesh.vertices, i + 2, 0);
+
+	// TODO
 
 	return hit;
 }

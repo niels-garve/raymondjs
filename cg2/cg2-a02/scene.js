@@ -126,14 +126,14 @@ define(["jquery", "gl-matrix",
 
         /**
          *
-         * @param gl
          * @param array
+         * @param size
          * @param scale
          * @returns {Uint8Array}
          * @author Niels Garve, niels.garve.yahoo.de
          * @private
          */
-        function prepareArrayForShader(gl, array, scale) {
+        function prepareArrayForShader(array, size, scale) {
             // defaults
             scale = scale || 1; // TODO 255
 
@@ -143,7 +143,7 @@ define(["jquery", "gl-matrix",
             }
 
             // vars
-            var length = 3 * gl.MAX_TEXTURE_SIZE, // 3 Byte per Pixel
+            var length = 3 * size, // 3 Byte per Pixel
                 res = new Uint8Array(length),
                 i;
 
@@ -181,8 +181,8 @@ define(["jquery", "gl-matrix",
 
             // 2. textures
             var texture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null),
-                meshVertices = new Texture.Texture2D(gl).init_2(gl.MAX_TEXTURE_SIZE, 1, prepareArrayForShader(gl, mesh.vertices)),
-                meshVertexNormals = new Texture.Texture2D(gl).init_2(gl.MAX_TEXTURE_SIZE, 1, prepareArrayForShader(gl, mesh.vertexNormals));
+                meshVertices = new Texture.Texture2D(gl).init_2(4, 1, prepareArrayForShader(mesh.vertices, 4)),
+                meshVertexNormals = new Texture.Texture2D(gl).init_2(4, 1, prepareArrayForShader(mesh.vertexNormals, 4));
 
             texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -222,7 +222,7 @@ define(["jquery", "gl-matrix",
             setUniformScene(this.prog_pathtracing);
             this.prog_pathtracing.setTexture("mesh.vertices", 1, meshVertices);
             this.prog_pathtracing.setTexture("mesh.vertexNormals", 2, meshVertexNormals);
-            this.prog_pathtracing.setUniform("mesh.samplerWidth", "float", gl.MAX_TEXTURE_SIZE);
+            this.prog_pathtracing.setUniform("mesh.onePixel", "vec2", [0.25, 1.0]);
 
             // create some objects to be drawn
             this.stage = new Stage(gl);
