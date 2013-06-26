@@ -159,11 +159,30 @@ Hit hitMesh(Ray ray) {
 
 	// TODO for...
 	int i = 0;
-	vec3 p0 = readMeshSamplerBuffer(mesh.vertices, i,     0);
-	vec3 p1 = readMeshSamplerBuffer(mesh.vertices, i + 1, 0);
-	vec3 p2 = readMeshSamplerBuffer(mesh.vertices, i + 2, 0);
+	vec3 v0 = readMeshSamplerBuffer(mesh.vertices, i,     0);
+	vec3 v1 = readMeshSamplerBuffer(mesh.vertices, i + 1, 0);
+	vec3 v2 = readMeshSamplerBuffer(mesh.vertices, i + 2, 0);
 
-	// TODO
+	// Moeller, S. 581
+	vec3 e1 = v1 - v0;
+	vec3 e2 = v2 - v0;
+	vec3 p = cross(ray.direction, e2);
+	float a = dot(e1, p);
+	if (a > -EPSILON && a < EPSILON) return hit; // "REJECT"
+	float f = 1.0 / a;
+	vec3 s = ray.start - v0;
+	float u = f * dot(s, p);
+	if (u < 0.0 || u > 1.0) return hit; // "REJECT"
+	vec3 q = cross(s, e1);
+	float v = f * dot(ray.direction, q);
+	if (v < 0.0 || (u + v) > 1.0) return hit; // "REJECT"
+	float t = f * dot(e2, q);
+	// END Moeller
+
+	hit.t = t;
+	hit.hitPoint = ray.start + t * ray.direction;
+	hit.material = cornellBoxMaterials[3]; // TODO
+	hit.normal = readMeshSamplerBuffer(mesh.vertexNormals, i, 0);
 
 	return hit;
 }
