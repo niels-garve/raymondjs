@@ -171,7 +171,8 @@ define(["jquery", "gl-matrix",
             this.gl = gl;
 
             var canvas = gl.canvas,
-                mesh = new obj_loader.Mesh(document.getElementById('mesh').innerHTML);
+                mesh = new obj_loader.Mesh(document.getElementById('mesh').innerHTML),
+                meshSamplerWidth = 1024; // for now
 
             // 1. framebuffer
             this.framebuffer = gl.createFramebuffer();
@@ -181,8 +182,8 @@ define(["jquery", "gl-matrix",
 
             // 2. textures
             var texture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null),
-                meshVertices = new Texture.Texture2D(gl).init_2(4, 1, prepareArrayForShader(mesh.vertices, 4)),
-                meshVertexNormals = new Texture.Texture2D(gl).init_2(4, 1, prepareArrayForShader(mesh.vertexNormals, 4));
+                meshVertices = new Texture.Texture2D(gl).init_2(meshSamplerWidth, 1, prepareArrayForShader(mesh.vertices, meshSamplerWidth)),
+                meshVertexNormals = new Texture.Texture2D(gl).init_2(meshSamplerWidth, 1, prepareArrayForShader(mesh.vertexNormals, meshSamplerWidth));
 
             texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -222,7 +223,7 @@ define(["jquery", "gl-matrix",
             setUniformScene(this.prog_pathtracing);
             this.prog_pathtracing.setTexture("mesh.vertices", 1, meshVertices);
             this.prog_pathtracing.setTexture("mesh.vertexNormals", 2, meshVertexNormals);
-            this.prog_pathtracing.setUniform("mesh.onePixel", "vec2", [0.25, 1.0]);
+            this.prog_pathtracing.setUniform("mesh.onePixel", "vec2", [1 / meshSamplerWidth, 1]);
 
             // create some objects to be drawn
             this.stage = new Stage(gl);

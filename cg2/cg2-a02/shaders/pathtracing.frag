@@ -141,7 +141,7 @@ Hit hitCornellBox(Ray ray) {
 }
 
 /**
- * x, y sind Pixelkoordinaten
+ * Liefert den RGB-Wert von sampler an der Stelle [x, y], "Pixel-Welt".
  */
 vec3 readMeshSamplerBuffer(sampler2D sampler, int x, int y) {
 	vec3 res = texture2D(sampler, vec2(x, y) * mesh.onePixel).xyz * 255.0;
@@ -154,36 +154,48 @@ vec3 readMeshSamplerBuffer(sampler2D sampler, int x, int y) {
 	return res;
 }
 
+/**
+ * Schneidet ray mit (uniform) mesh und liefert ein "Hit-structure".
+ */
 Hit hitMesh(Ray ray) {
 	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
 
-	// TODO for...
-	int i = 0;
-	vec3 v0 = readMeshSamplerBuffer(mesh.vertices, i,     0);
-	vec3 v1 = readMeshSamplerBuffer(mesh.vertices, i + 1, 0);
-	vec3 v2 = readMeshSamplerBuffer(mesh.vertices, i + 2, 0);
+	// Achtung: 3er-Schritte, also auch schon ab 1021 raus!
+	for (int i = 0; i < 1021; i += 3) { // Dank der GLSL 1.0 muss man wissen, welche Breite die Texturen haben...
+		vec3 v0 = readMeshSamplerBuffer(mesh.vertices, i,     0);
+		vec3 v1 = readMeshSamplerBuffer(mesh.vertices, i + 1, 0);
+		vec3 v2 = readMeshSamplerBuffer(mesh.vertices, i + 2, 0);
 
-	// Moeller, S. 581
-	vec3 e1 = v1 - v0;
-	vec3 e2 = v2 - v0;
-	vec3 p = cross(ray.direction, e2);
-	float a = dot(e1, p);
-	if (a > -EPSILON && a < EPSILON) return hit; // "REJECT"
-	float f = 1.0 / a;
-	vec3 s = ray.start - v0;
-	float u = f * dot(s, p);
-	if (u < 0.0 || u > 1.0) return hit; // "REJECT"
-	vec3 q = cross(s, e1);
-	float v = f * dot(ray.direction, q);
-	if (v < 0.0 || (u + v) > 1.0) return hit; // "REJECT"
-	float t = f * dot(e2, q);
-	// END Moeller
+		// Abbrechen sobald ein Triangle: (0, 0, 0), (0, 0, 0), (0, 0, 0) vorkommt
+		if (v0.x == 0.0 && v0.y == 0.0 && v0.z == 0.0 &&
+			v1.x == 0.0 && v1.y == 0.0 && v1.z == 0.0 &&
+			v2.x == 0.0 && v2.y == 0.0 && v2.z == 0.0) {
+			break;
+		}
 
-	hit.t = t;
-	hit.hitPoint = ray.start + t * ray.direction;
-	hit.material = cornellBoxMaterials[3]; // TODO
-	hit.normal = readMeshSamplerBuffer(mesh.vertexNormals, i, 0);
+		// Moeller, S. 581
+		vec3 e1 = v1 - v0;
+		vec3 e2 = v2 - v0;
+		vec3 p = cross(ray.direction, e2);
+		float a = dot(e1, p);
+		if (a > -EPSILON && a < EPSILON) continue; // "REJECT"
+		float f = 1.0 / a;
+		vec3 s = ray.start - v0;
+		float u = f * dot(s, p);
+		if (u < 0.0 || u > 1.0) continue; // "REJECT"
+		vec3 q = cross(s, e1);
+		float v = f * dot(ray.direction, q);
+		if (v < 0.0 || (u + v) > 1.0) continue; // "REJECT"
+		float t = f * dot(e2, q);
+		// END Moeller
 
+		if (t <= T_MIN || T_MAX <= t || hit.t < t) continue;
+
+		hit.t = t;
+		hit.hitPoint = ray.start + t * ray.direction;
+		hit.material = cornellBoxMaterials[3]; // TODO
+		hit.normal = normalize(readMeshSamplerBuffer(mesh.vertexNormals, i, 0));
+	}
 	return hit;
 }
 
