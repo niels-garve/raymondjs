@@ -48,13 +48,14 @@ struct Hit {
 
 // uniforms
 uniform vec3 La; // Hintergrundfarbe
-uniform Sphere spheres[4];
-uniform Material sphereMaterials[4];
+uniform Sphere spheres[2];
+uniform Material sphereMaterials[2];
 
 uniform CornellBox cornellBox;
 uniform Material cornellBoxMaterials[6];
 
 uniform Mesh mesh;
+uniform Material meshMaterial;
 
 uniform vec3 eyePosition;
 uniform float secondsSinceStart;
@@ -191,7 +192,7 @@ Hit hitMesh(Ray ray) {
 
 		hit.t = t;
 		hit.hitPoint = ray.start + t * ray.direction;
-		hit.material = cornellBoxMaterials[3]; // TODO
+		hit.material = meshMaterial;
 		hit.normal = normalize(readMeshSamplerBuffer(mesh.vertexNormals, i, 0));
 	}
 	return hit;
@@ -204,16 +205,16 @@ Hit sceneFirstHit(Ray ray) {
 	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
 
 	// 1. Kugeln schneiden
-	for (int i = 0; i < 4; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Kugeln die Szene hat...
+	for (int i = 0; i < 2; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Kugeln die Szene hat...
 		Hit tmpHit = hitSphere(spheres[i], ray, sphereMaterials[i]);
 		if (tmpHit.t < hit.t) { // der naheliegendste Schnittpunkt zählt
 			hit = tmpHit;
 		}
 	}
 
-	// 2. "CornellBox" schneiden
-	Hit cornellBoxHit = hitCornellBox(ray);
-	if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
+	// 2. "CornellBox" schneiden (leider zu langsam)
+	// Hit cornellBoxHit = hitCornellBox(ray);
+	// if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
 
 	// 3. Mesh schneiden
 	Hit meshHit = hitMesh(ray);
@@ -376,10 +377,10 @@ void main() {
 	// initialisiere CornellBox-Ebenen
 	cornellBoxPlanes[0] = Plane(vec3( 1.0,  0.0,  0.0),  cornellBox.minCorner.x); // left
 	cornellBoxPlanes[1] = Plane(vec3(-1.0,  0.0,  0.0), -cornellBox.maxCorner.x); // right
-	cornellBoxPlanes[2] = Plane(vec3( 0.0,  1.0,  0.0),  cornellBox.minCorner.y); // bottom
-	cornellBoxPlanes[3] = Plane(vec3( 0.0, -1.0,  0.0), -cornellBox.maxCorner.y); // top
-	cornellBoxPlanes[4] = Plane(vec3( 0.0,  0.0,  1.0),  cornellBox.minCorner.z); // far
-	cornellBoxPlanes[5] = Plane(vec3( 0.0,  0.0, -1.0), -cornellBox.maxCorner.z); // near
+	cornellBoxPlanes[2] = Plane(vec3( 0.0,  1.0,  0.0),  cornellBox.minCorner.y); // near
+	cornellBoxPlanes[3] = Plane(vec3( 0.0, -1.0,  0.0), -cornellBox.maxCorner.y); // far
+	cornellBoxPlanes[4] = Plane(vec3( 0.0,  0.0,  1.0),  cornellBox.minCorner.z); // bottom
+	cornellBoxPlanes[5] = Plane(vec3( 0.0,  0.0, -1.0), -cornellBox.maxCorner.z); // top
 
 	// "blending" vgl. Evan Wallace
 	gl_FragColor = mix(vec4(pathTrace(), 1.0), texture2D(texture0, texCoords), textureWeight);

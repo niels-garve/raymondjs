@@ -43,43 +43,36 @@ define(["jquery", "gl-matrix",
             /*
              * spheres
              */
-            prog.setUniform("spheres[0].center", "vec3", [9.5, -0.5, -10.5]); // "unten, mittig an der rechten Wand"
-            prog.setUniform("spheres[0].radius", "float", 0.499);
+            prog.setUniform("spheres[0].center", "vec3", [-20, 60, -30]);
+            prog.setUniform("spheres[0].radius", "float", 7.5);
             prog.setUniform("sphereMaterials[0].isLight", "bool", true);
             prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
             prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
-            prog.setUniform("sphereMaterials[0].Le", "vec3", [0.66, 0.66, 0.66]);
-            prog.setUniform("sphereMaterials[0].Kd", "vec3", [1.0, 1.0, 1.0]); // TODO Lichtfarbe?
+            prog.setUniform("sphereMaterials[0].Le", "vec3", [1, 1, 1]);
+            prog.setUniform("sphereMaterials[0].Kd", "vec3", [1, 1, 1]); // Lichtfarbe
 
-            prog.setUniform("spheres[1].center", "vec3", [1.0, -0.5, -2.0]); // Kamera-Zentrum
-            prog.setUniform("spheres[1].radius", "float", 0.499);
-            prog.setUniform("sphereMaterials[1].isLight", "bool", false);
+            prog.setUniform("spheres[1].center", "vec3", [0, 85, 85]);
+            prog.setUniform("spheres[1].radius", "float", 50);
+            prog.setUniform("sphereMaterials[1].isLight", "bool", true);
             prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", false);
-            prog.setUniform("sphereMaterials[1].isDiffuse", "bool", true);
-            prog.setUniform("sphereMaterials[1].Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("sphereMaterials[1].Kd", "vec3", [0.4, 0.4, 0.4]);
-
-            prog.setUniform("spheres[2].center", "vec3", [1.0, -0.5, 0.5]);
-            prog.setUniform("spheres[2].radius", "float", 0.499);
-            prog.setUniform("sphereMaterials[2].isLight", "bool", false);
-            prog.setUniform("sphereMaterials[2].isPerfectMirror", "bool", false);
-            prog.setUniform("sphereMaterials[2].isDiffuse", "bool", true);
-            prog.setUniform("sphereMaterials[2].Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("sphereMaterials[2].Kd", "vec3", [0.2, 0.2, 0.2]);
-
-            prog.setUniform("spheres[3].center", "vec3", [-3.0, 0.0, -1.0]);
-            prog.setUniform("spheres[3].radius", "float", 0.99);
-            prog.setUniform("sphereMaterials[3].isLight", "bool", false);
-            prog.setUniform("sphereMaterials[3].isPerfectMirror", "bool", true);
-            prog.setUniform("sphereMaterials[3].isDiffuse", "bool", false);
-            prog.setUniform("sphereMaterials[3].Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("sphereMaterials[3].Kd", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
+            prog.setUniform("sphereMaterials[1].Le", "vec3", [1, 1, 1]);
+            prog.setUniform("sphereMaterials[1].Kd", "vec3", [1, 1, 1]);
 
             /*
-             * Cornell Box (14 x 3 x 21)
+             * the mesh, matrial only
              */
-            prog.setUniform("cornellBox.minCorner", "vec3", [-4.0, -1.0, -20.0]);
-            prog.setUniform("cornellBox.maxCorner", "vec3", [10.0, 2.0, 1.0]);
+            prog.setUniform("meshMaterial.isLight", "bool", false);
+            prog.setUniform("meshMaterial.isPerfectMirror", "bool", false);
+            prog.setUniform("meshMaterial.isDiffuse", "bool", true);
+            prog.setUniform("meshMaterial.Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("meshMaterial.Kd", "vec3", [0.8, 0.8, 0.8]);
+
+            /*
+             * Cornell Box (255 x 255 x 128)
+             */
+            prog.setUniform("cornellBox.minCorner", "vec3", [-128, -128, -64]);
+            prog.setUniform("cornellBox.maxCorner", "vec3", [127, 127, 64]);
 
             // left
             prog.setUniform("cornellBoxMaterials[0].isLight", "bool", false);
@@ -95,33 +88,33 @@ define(["jquery", "gl-matrix",
             prog.setUniform("cornellBoxMaterials[1].Le", "vec3", [0.0, 0.0, 0.0]);
             prog.setUniform("cornellBoxMaterials[1].Kd", "vec3", [1.0, 0.4, 0.0]); // eine Art Orange
 
-            // bottom
-            prog.setUniform("cornellBoxMaterials[2].isLight", "bool", false);
+            // near
+            prog.setUniform("cornellBoxMaterials[2].isLight", "bool", true);
             prog.setUniform("cornellBoxMaterials[2].isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterials[2].isDiffuse", "bool", true);
-            prog.setUniform("cornellBoxMaterials[2].Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("cornellBoxMaterials[2].Kd", "vec3", [0.2, 0.2, 0.2]);
+            prog.setUniform("cornellBoxMaterials[2].isDiffuse", "bool", false);
+            prog.setUniform("cornellBoxMaterials[2].Le", "vec3", [0.66, 0.66, 0.66]);
+            prog.setUniform("cornellBoxMaterials[2].Kd", "vec3", [1.0, 1.0, 1.0]); // Lichtfarbe
 
-            // top
+            // far
             prog.setUniform("cornellBoxMaterials[3].isLight", "bool", false);
             prog.setUniform("cornellBoxMaterials[3].isPerfectMirror", "bool", false);
             prog.setUniform("cornellBoxMaterials[3].isDiffuse", "bool", true);
             prog.setUniform("cornellBoxMaterials[3].Le", "vec3", [0.0, 0.0, 0.0]);
             prog.setUniform("cornellBoxMaterials[3].Kd", "vec3", [0.8, 0.8, 0.8]);
 
-            // far
-            prog.setUniform("cornellBoxMaterials[4].isLight", "bool", true);
+            // bottom
+            prog.setUniform("cornellBoxMaterials[4].isLight", "bool", false);
             prog.setUniform("cornellBoxMaterials[4].isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterials[4].isDiffuse", "bool", false);
-            prog.setUniform("cornellBoxMaterials[4].Le", "vec3", [0.66, 0.66, 0.66]);
-            prog.setUniform("cornellBoxMaterials[4].Kd", "vec3", [1.0, 1.0, 1.0]); // TODO Lichtfarbe?
+            prog.setUniform("cornellBoxMaterials[4].isDiffuse", "bool", true);
+            prog.setUniform("cornellBoxMaterials[4].Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("cornellBoxMaterials[4].Kd", "vec3", [0.2, 0.2, 0.2]);
 
-            // near
-            prog.setUniform("cornellBoxMaterials[5].isLight", "bool", true);
+            // top
+            prog.setUniform("cornellBoxMaterials[5].isLight", "bool", false);
             prog.setUniform("cornellBoxMaterials[5].isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterials[5].isDiffuse", "bool", false);
-            prog.setUniform("cornellBoxMaterials[5].Le", "vec3", [0.66, 0.66, 0.66]);
-            prog.setUniform("cornellBoxMaterials[5].Kd", "vec3", [1.0, 1.0, 1.0]); // TODO Lichtfarbe?
+            prog.setUniform("cornellBoxMaterials[5].isDiffuse", "bool", true);
+            prog.setUniform("cornellBoxMaterials[5].Le", "vec3", [0.0, 0.0, 0.0]);
+            prog.setUniform("cornellBoxMaterials[5].Kd", "vec3", [0.8, 0.8, 0.8]);
         }
 
         /**
@@ -183,7 +176,7 @@ define(["jquery", "gl-matrix",
             // 2. textures
             var texture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null),
                 meshVertices = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.vertices, MESH_SAMPLER_WIDTH)),
-                meshVertexNormals = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.vertexNormals, MESH_SAMPLER_WIDTH)),
+                meshVertexNormals = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.vertexNormals, MESH_SAMPLER_WIDTH, 127)),
                 meshIndices = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.indices, MESH_SAMPLER_WIDTH));
 
             texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -201,7 +194,7 @@ define(["jquery", "gl-matrix",
 
             // initial camera parameters
             this.camera = {};
-            this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [1.0, -0.5, -2.0], [0, 1, 0]); // eye, center, up
+            this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [-0.2, 1, -0.6], [0, 0, 1]); // eye, center, up
             // set up the projection matrix: orthographic projection, aspect ratio: 1:1
             this.camera.projectionMatrix = mat4.ortho(-1, 1, -1, 1, 0.01, 100);
 
@@ -221,13 +214,13 @@ define(["jquery", "gl-matrix",
             this.prog_texture.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
 
             this.prog_pathtracing.use();
-            this.prog_pathtracing.setTexture("texture0", 0, texture);
             this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 0]); // eye
-            setUniformScene(this.prog_pathtracing);
+            this.prog_pathtracing.setTexture("texture0", 0, texture);
             this.prog_pathtracing.setTexture("mesh.vertices", 1, meshVertices);
             this.prog_pathtracing.setTexture("mesh.vertexNormals", 2, meshVertexNormals);
             this.prog_pathtracing.setTexture("mesh.indices", 3, meshIndices);
             this.prog_pathtracing.setUniform("mesh.onePixel", "vec2", [1 / MESH_SAMPLER_WIDTH, 1]);
+            setUniformScene(this.prog_pathtracing);
 
             // create some objects to be drawn
             this.stage = new Stage(gl);
