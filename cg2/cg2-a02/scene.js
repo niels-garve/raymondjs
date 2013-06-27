@@ -52,11 +52,11 @@ define(["jquery", "gl-matrix",
             prog.setUniform("sphereMaterials[0].Kd", "vec3", [1, 1, 1]); // Lichtfarbe
 
             prog.setUniform("spheres[1].center", "vec3", [0, 85, 85]);
-            prog.setUniform("spheres[1].radius", "float", 50);
+            prog.setUniform("spheres[1].radius", "float", 35);
             prog.setUniform("sphereMaterials[1].isLight", "bool", true);
             prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", false);
             prog.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
-            prog.setUniform("sphereMaterials[1].Le", "vec3", [1, 1, 1]);
+            prog.setUniform("sphereMaterials[1].Le", "vec3", [0.66, 0.66, 0.66]);
             prog.setUniform("sphereMaterials[1].Kd", "vec3", [1, 1, 1]);
 
             /*
