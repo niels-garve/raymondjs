@@ -172,7 +172,7 @@ define(["jquery", "gl-matrix",
 
             var canvas = gl.canvas,
                 mesh = new obj_loader.Mesh(document.getElementById('mesh').innerHTML),
-                meshSamplerWidth = 1024; // for now
+                MESH_SAMPLER_WIDTH = 256; // fest, sonst sprengen die Indizes ein Byte
 
             // 1. framebuffer
             this.framebuffer = gl.createFramebuffer();
@@ -182,8 +182,9 @@ define(["jquery", "gl-matrix",
 
             // 2. textures
             var texture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null),
-                meshVertices = new Texture.Texture2D(gl).init_2(meshSamplerWidth, 1, prepareArrayForShader(mesh.vertices, meshSamplerWidth)),
-                meshVertexNormals = new Texture.Texture2D(gl).init_2(meshSamplerWidth, 1, prepareArrayForShader(mesh.vertexNormals, meshSamplerWidth));
+                meshVertices = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.vertices, MESH_SAMPLER_WIDTH)),
+                meshVertexNormals = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.vertexNormals, MESH_SAMPLER_WIDTH)),
+                meshIndices = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.indices, MESH_SAMPLER_WIDTH));
 
             texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -191,6 +192,8 @@ define(["jquery", "gl-matrix",
             meshVertices.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             meshVertexNormals.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             meshVertexNormals.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            meshIndices.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            meshIndices.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
             // 3. evtl. framebufferTexture
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.glTextureObject(), 0);
@@ -223,7 +226,8 @@ define(["jquery", "gl-matrix",
             setUniformScene(this.prog_pathtracing);
             this.prog_pathtracing.setTexture("mesh.vertices", 1, meshVertices);
             this.prog_pathtracing.setTexture("mesh.vertexNormals", 2, meshVertexNormals);
-            this.prog_pathtracing.setUniform("mesh.onePixel", "vec2", [1 / meshSamplerWidth, 1]);
+            this.prog_pathtracing.setTexture("mesh.indices", 3, meshIndices);
+            this.prog_pathtracing.setUniform("mesh.onePixel", "vec2", [1 / MESH_SAMPLER_WIDTH, 1]);
 
             // create some objects to be drawn
             this.stage = new Stage(gl);

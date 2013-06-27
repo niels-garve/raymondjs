@@ -29,6 +29,7 @@ struct CornellBox { // sechs "Planes"
 struct Mesh {
 	sampler2D vertices;
 	sampler2D vertexNormals;
+	sampler2D indices;
 	vec2 onePixel; // Größe eines Pixel zur Adressierung
 };
 struct Material {
@@ -160,18 +161,15 @@ vec3 readMeshSamplerBuffer(sampler2D sampler, int x, int y) {
 Hit hitMesh(Ray ray) {
 	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
 
-	// Achtung: 3er-Schritte, also auch schon ab 1021 raus!
-	for (int i = 0; i < 1021; i += 3) { // Dank der GLSL 1.0 muss man wissen, welche Breite die Texturen haben...
-		vec3 v0 = readMeshSamplerBuffer(mesh.vertices, i,     0);
-		vec3 v1 = readMeshSamplerBuffer(mesh.vertices, i + 1, 0);
-		vec3 v2 = readMeshSamplerBuffer(mesh.vertices, i + 2, 0);
+	for (int i = 0; i < 256; i++) { // Dank der GLSL 1.0 muss man wissen, welche Breite die Texturen haben...
+		vec3 indices = readMeshSamplerBuffer(mesh.indices, i, 0);
 
-		// Abbrechen sobald ein Triangle: (0, 0, 0), (0, 0, 0), (0, 0, 0) vorkommt
-		if (v0.x == 0.0 && v0.y == 0.0 && v0.z == 0.0 &&
-			v1.x == 0.0 && v1.y == 0.0 && v1.z == 0.0 &&
-			v2.x == 0.0 && v2.y == 0.0 && v2.z == 0.0) {
-			break;
-		}
+		// Abbrechen sobald ein Triangle: (0, 0, 0), (0, 0, 0), (0, 0, 0) vorkommt; Rundungsfehler beachten!
+		if (indices.x < EPSILON && indices.y < EPSILON && indices.z < EPSILON) break;
+
+		vec3 v0 = readMeshSamplerBuffer(mesh.vertices, int(ceil(indices.x)), 0); // ceil durch Test
+		vec3 v1 = readMeshSamplerBuffer(mesh.vertices, int(ceil(indices.y)), 0);
+		vec3 v2 = readMeshSamplerBuffer(mesh.vertices, int(ceil(indices.z)), 0);
 
 		// Moeller, S. 581
 		vec3 e1 = v1 - v0;
