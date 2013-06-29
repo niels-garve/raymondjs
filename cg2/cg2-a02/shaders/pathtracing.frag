@@ -1,16 +1,17 @@
 #version 100
 precision mediump float;
 
-// Intervallgrenzen für Werte von t (des Skalars) bei der Schnittpunktberechnung (Rundungsfehler abfangen). 
-const float T_MIN = 0.001;
-const float T_MAX = 1000000.0;
-// Anzahl "bounces"
-const int DEPTH = 3;
-// Standard-Konstanten
-const float M_PI = 3.14159265359;
-const float EPSILON = 0.001;
+// Intervallgrenzen für Werte von t (des Skalars) bei der Schnittpunktberechnung (Rundungsfehler abfangen)
+#define T_MIN 0.001
+#define T_MAX 1000000.0
 
-// structs
+// Anzahl "bounces"
+#define DEPTH 3
+
+#define M_PI 3.14159265359
+#define EPSILON 0.001
+
+// "struct"-Orientiertes programmieren
 struct Ray {
 	vec3 start;
 	vec3 direction;
@@ -28,7 +29,7 @@ struct Mesh {
 	vec2 onePixel; // Größe eines Pixel zur Adressierung
 };
 struct Material {
-	bool isLight;
+	// zwei Boolesche Variablen zur Auswahl der BRDF
 	bool isPerfectMirror;
 	bool isDiffuse;
 	vec3 Le; // L_emit
@@ -225,7 +226,7 @@ Hit sceneFirstHit(Ray ray) {
 void Li(vec3 x, vec3 s, vec3 n, vec3 lightColor, inout vec3 res) {
 	// ist Licht sichtbar?
 	Hit hit = sceneFirstHit(Ray(x, s));
-	if (hit.t < T_MAX && !hit.material.isLight) return;
+	if (hit.t < T_MAX && length(hit.material.Le) == 0.0) return;
 
 	float theCos = dot(n, s);
 	if (theCos >= 0.0) res += lightColor * theCos;
@@ -327,7 +328,7 @@ vec3 pathTrace() {
 		if (hit.t == T_MAX) return La;
 
 		// Fall: Licht geschnitten
-		if (hit.material.isLight) {
+		if (length(hit.material.Le) > 0.0) {
 			if (j == 0) { // ...von einem Primärstrahl?
 				return hit.material.Kd; // -> Lichtdesign
 			} else {

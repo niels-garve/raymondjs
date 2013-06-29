@@ -44,7 +44,6 @@ define([
          */
         prog.setUniform("spheres[0].center", "vec3", [-20, 60, -30]);
         prog.setUniform("spheres[0].radius", "float", 7.5);
-        prog.setUniform("sphereMaterials[0].isLight", "bool", true);
         prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
         prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
         prog.setUniform("sphereMaterials[0].Le", "vec3", [1, 1, 1]);
@@ -52,7 +51,6 @@ define([
 
         prog.setUniform("spheres[1].center", "vec3", [0, 85, 85]);
         prog.setUniform("spheres[1].radius", "float", 35);
-        prog.setUniform("sphereMaterials[1].isLight", "bool", true);
         prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", false);
         prog.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
         prog.setUniform("sphereMaterials[1].Le", "vec3", [0.66, 0.66, 0.66]);
@@ -61,7 +59,6 @@ define([
         /*
          * the mesh, matrial only
          */
-        prog.setUniform("meshMaterial.isLight", "bool", false);
         prog.setUniform("meshMaterial.isPerfectMirror", "bool", false);
         prog.setUniform("meshMaterial.isDiffuse", "bool", true);
         prog.setUniform("meshMaterial.Le", "vec3", [0.0, 0.0, 0.0]);
@@ -80,7 +77,6 @@ define([
          // left
          prog.setUniform("cornellBox.planes[0].n", "vec3", [1, 0, 0]);
          prog.setUniform("cornellBox.planes[0].d", "float", minCorner[0]); // x
-         prog.setUniform("cornellBox.materials[0].isLight", "bool", false);
          prog.setUniform("cornellBox.materials[0].isPerfectMirror", "bool", false);
          prog.setUniform("cornellBox.materials[0].isDiffuse", "bool", true);
          prog.setUniform("cornellBox.materials[0].Le", "vec3", [0.0, 0.0, 0.0]);
@@ -89,7 +85,6 @@ define([
          // right
          prog.setUniform("cornellBox.planes[1].n", "vec3", [-1, 0, 0]);
          prog.setUniform("cornellBox.planes[1].d", "float", -maxCorner[0]); // x
-         prog.setUniform("cornellBox.materials[1].isLight", "bool", false);
          prog.setUniform("cornellBox.materials[1].isPerfectMirror", "bool", false);
          prog.setUniform("cornellBox.materials[1].isDiffuse", "bool", true);
          prog.setUniform("cornellBox.materials[1].Le", "vec3", [0.0, 0.0, 0.0]);
@@ -98,7 +93,6 @@ define([
          // near
          prog.setUniform("cornellBox.planes[2].n", "vec3", [0, 1, 0]);
          prog.setUniform("cornellBox.planes[2].d", "float", minCorner[1]); // y
-         prog.setUniform("cornellBox.materials[2].isLight", "bool", false);
          prog.setUniform("cornellBox.materials[2].isPerfectMirror", "bool", false);
          prog.setUniform("cornellBox.materials[2].isDiffuse", "bool", true);
          prog.setUniform("cornellBox.materials[2].Le", "vec3", [0.0, 0.0, 0.0]);
@@ -107,7 +101,6 @@ define([
          // far
          prog.setUniform("cornellBox.planes[3].n", "vec3", [0, -1, 0]);
          prog.setUniform("cornellBox.planes[3].d", "float", -maxCorner[1]); // y
-         prog.setUniform("cornellBox.materials[3].isLight", "bool", false);
          prog.setUniform("cornellBox.materials[3].isPerfectMirror", "bool", false);
          prog.setUniform("cornellBox.materials[3].isDiffuse", "bool", true);
          prog.setUniform("cornellBox.materials[3].Le", "vec3", [0.0, 0.0, 0.0]);
@@ -116,7 +109,6 @@ define([
          // bottom
          prog.setUniform("cornellBox.planes[4].n", "vec3", [0, 0, 1]);
          prog.setUniform("cornellBox.planes[4].d", "float", minCorner[2]); // z
-         prog.setUniform("cornellBox.materials[4].isLight", "bool", false);
          prog.setUniform("cornellBox.materials[4].isPerfectMirror", "bool", false);
          prog.setUniform("cornellBox.materials[4].isDiffuse", "bool", true);
          prog.setUniform("cornellBox.materials[4].Le", "vec3", [0.0, 0.0, 0.0]);
@@ -125,7 +117,6 @@ define([
          // top
          prog.setUniform("cornellBox.planes[5].n", "vec3", [0, 0, -1]);
          prog.setUniform("cornellBox.planes[5].d", "float", -maxCorner[2]); // z
-         prog.setUniform("cornellBox.materials[5].isLight", "bool", true);
          prog.setUniform("cornellBox.materials[5].isPerfectMirror", "bool", false);
          prog.setUniform("cornellBox.materials[5].isDiffuse", "bool", false);
          prog.setUniform("cornellBox.materials[5].Le", "vec3", [0.4, 0.4, 0.4]);
