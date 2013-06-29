@@ -116,22 +116,26 @@ Hit hitSphere(Ray ray, Sphere sphere, float tMin, float tMax, Material material)
 }
 
 /**
- * Schneidet ray mit der CornellBox und liefert ein "Hit-structure".
+ * Schneidet ray mit (uniform) cornellBox und liefert ein Hit. Hit.t "ist Element von" [tMin, ..., tMax]. Rundungsfehler 
+ * werden somit abgefangen.
  */
-Hit hitCornellBox(Ray ray) {
-	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
+Hit hitCornellBox(Ray ray, float tMin, float tMax) {
+	Hit hit; hit.t = tMax; // hit repräsentiert zunächst den "Schnitt in der Unendlichkeit"
 
 	for (int i = 0; i < 6; i ++) {
 		float denominator = dot(cornellBox.planes[i].n, ray.direction); // z. dt. Nenner
 
-		if (abs(denominator) < EPSILON) continue; // keine Division durch "0"
+		if (denominator == 0.0) continue;
 
 		float tmpT = (cornellBox.planes[i].d - dot(cornellBox.planes[i].n, ray.start)) / denominator;
 
-		// Intervallgrenzen checken und kleinstes t suchen (siehe CornellBox)
-		if (tmpT <= T_MIN || T_MAX <= tmpT || hit.t < tmpT) continue;
+		// Intervallgrenzen checken und kleinstes tmpT suchen
+		if (tmpT <= tMin || tMax <= tmpT || tmpT > hit.t) continue;
 
-		hit = Hit(tmpT, ray.start + tmpT * ray.direction, cornellBox.materials[i], cornellBox.planes[i].n);
+		hit.t = tmpT;
+		hit.hitPoint = ray.start + hit.t * ray.direction;
+		hit.material = cornellBox.materials[i];
+		hit.normal = cornellBox.planes[i].n;
 	}
 	return hit;
 }
@@ -206,7 +210,7 @@ Hit sceneFirstHit(Ray ray) {
 	}
 
 	// 2. "CornellBox" schneiden (leider zu langsam)
-	// Hit cornellBoxHit = hitCornellBox(ray);
+	// Hit cornellBoxHit = hitCornellBox(ray, T_MIN, T_MAX);
 	// if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
 
 	// 3. Mesh schneiden
