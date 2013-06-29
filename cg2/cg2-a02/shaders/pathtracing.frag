@@ -38,10 +38,13 @@ struct Material {
 struct CornellBox {
 	Plane planes[6];
 	Material materials[6];
+	// eigentlich redundant, aber benötigt für Mittelpunktberechnung (siehe Li-Berechnung)
 	vec3 minCorner;
 	vec3 maxCorner;
 };
 struct Hit {
+	// eigentlich sind t und hitPoint redundant, aber t ist eine schnelle Metrik für die Abstandsmessung und hitPoint
+	// ist hier einfach gut aufgehoben
 	float t;
 	vec3 hitPoint;
 	Material material;
@@ -50,6 +53,7 @@ struct Hit {
 
 // uniforms
 uniform vec3 La; // Hintergrundfarbe
+
 uniform Sphere spheres[2];
 uniform Material sphereMaterials[2];
 
@@ -58,10 +62,12 @@ uniform Material meshMaterial;
 
 uniform CornellBox cornellBox;
 
-uniform vec3 eyePosition;
+// Benötigt für Zufallsvariable
 uniform float secondsSinceStart;
+
 uniform sampler2D texture0;
 uniform float textureWeight;
+uniform vec3 eyePosition;
 
 // varyings
 varying vec3 rayDirection;
