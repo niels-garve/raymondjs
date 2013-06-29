@@ -146,9 +146,8 @@ vec3 readMeshSamplerBuffer(sampler2D sampler, int x, int y) {
 	vec3 res = texture2D(sampler, vec2(x, y) * mesh.onePixel).xyz * 255.0;
 
 	// Zweierkomplement
-	if(res.x > 127.0) res.x -= 256.0;
-	if(res.y > 127.0) res.y -= 256.0;
-	if(res.z > 127.0) res.z -= 256.0;
+	bvec3 b = greaterThan(res, vec3(127.0, 127.0, 127.0));
+	res -= vec3(256.0, 256.0, 256.0) * vec3(b);
 
 	return res;
 }
