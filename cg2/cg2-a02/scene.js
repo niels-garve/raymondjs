@@ -22,261 +22,283 @@
 
 
 /* requireJS module definition */
-define(["jquery", "gl-matrix",
-    "program", "shaders", "scene_node", "texture", "light", "material",
-    "models/Stage", "webgl-obj-loader"],
-    (function ($, glmatrix, Program, shaders, SceneNode, Texture, light, material, Stage) {
+define([
+    "jquery", "gl-matrix", "program", "shaders", "scene_node", "texture", "light", "material", "Stage", "Config",
+    "webgl-obj-loader"
+], (function ($, glmatrix, Program, shaders, SceneNode, Texture, light, material, Stage, Config) {
+    "use strict";
 
-        "use strict";
+    /**
+     * Initialisiert die zu prog gehörenden "uniform" Variablen, die die Szene definieren. !!!Achtung: Lichter sind
+     * auch Objekte. Sie werden dem Shader immer zu Beginn(!) der entsprechenden Reihung übergeben!!!
+     *
+     * @param prog
+     * @author Niels Garve, niels.garve.yahoo.de
+     * @private
+     */
+    function setUniformScene(prog) {
+        prog.setUniform("La", "vec3", [0.1, 0.1, 0.1]);
 
-        /**
-         * sets the uniform variables defining the scene to be "traced". !!! Attention: lights are scene objects as well
-         * and must be added at the beginning of the corresponding arrays!!!
-         *
-         * @param prog
-         * @author Niels Garve, niels.garve.yahoo.de
-         * @private
+        /*
+         * spheres
          */
-        function setUniformScene(prog) {
-            prog.setUniform("La", "vec3", [0.1, 0.1, 0.1]);
+        prog.setUniform("spheres[0].center", "vec3", [-20, 60, -30]);
+        prog.setUniform("spheres[0].radius", "float", 7.5);
+        prog.setUniform("sphereMaterials[0].isLight", "bool", true);
+        prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
+        prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
+        prog.setUniform("sphereMaterials[0].Le", "vec3", [1, 1, 1]);
+        prog.setUniform("sphereMaterials[0].Kd", "vec3", [1, 1, 1]); // Lichtfarbe
 
-            /*
-             * spheres
-             */
-            prog.setUniform("spheres[0].center", "vec3", [-20, 60, -30]);
-            prog.setUniform("spheres[0].radius", "float", 7.5);
-            prog.setUniform("sphereMaterials[0].isLight", "bool", true);
-            prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
-            prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
-            prog.setUniform("sphereMaterials[0].Le", "vec3", [1, 1, 1]);
-            prog.setUniform("sphereMaterials[0].Kd", "vec3", [1, 1, 1]); // Lichtfarbe
+        prog.setUniform("spheres[1].center", "vec3", [0, 85, 85]);
+        prog.setUniform("spheres[1].radius", "float", 35);
+        prog.setUniform("sphereMaterials[1].isLight", "bool", true);
+        prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", false);
+        prog.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
+        prog.setUniform("sphereMaterials[1].Le", "vec3", [0.66, 0.66, 0.66]);
+        prog.setUniform("sphereMaterials[1].Kd", "vec3", [1, 1, 1]);
 
-            prog.setUniform("spheres[1].center", "vec3", [0, 85, 85]);
-            prog.setUniform("spheres[1].radius", "float", 35);
-            prog.setUniform("sphereMaterials[1].isLight", "bool", true);
-            prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", false);
-            prog.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
-            prog.setUniform("sphereMaterials[1].Le", "vec3", [0.66, 0.66, 0.66]);
-            prog.setUniform("sphereMaterials[1].Kd", "vec3", [1, 1, 1]);
+        /*
+         * the mesh, matrial only
+         */
+        prog.setUniform("meshMaterial.isLight", "bool", false);
+        prog.setUniform("meshMaterial.isPerfectMirror", "bool", false);
+        prog.setUniform("meshMaterial.isDiffuse", "bool", true);
+        prog.setUniform("meshMaterial.Le", "vec3", [0.0, 0.0, 0.0]);
+        prog.setUniform("meshMaterial.Kd", "vec3", [1.0, 1.0, 1.0]);
 
-            /*
-             * the mesh, matrial only
-             */
-            prog.setUniform("meshMaterial.isLight", "bool", false);
-            prog.setUniform("meshMaterial.isPerfectMirror", "bool", false);
-            prog.setUniform("meshMaterial.isDiffuse", "bool", true);
-            prog.setUniform("meshMaterial.Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("meshMaterial.Kd", "vec3", [0.8, 0.8, 0.8]);
+        /*
+         * Cornell Box (128 x 128 x 48)
+         */
+        /*
+         var minCorner = [-64, -1, -16], // [x, y, z]
+         maxCorner = [64, 127, 32]; // [x, y, z]
 
-            /*
-             * Cornell Box (255 x 255 x 128)
-             */
-            prog.setUniform("cornellBox.minCorner", "vec3", [-128, -128, -64]);
-            prog.setUniform("cornellBox.maxCorner", "vec3", [127, 127, 64]);
+         prog.setUniform("cornellBox.minCorner", "vec3", minCorner);
+         prog.setUniform("cornellBox.maxCorner", "vec3", maxCorner);
 
-            // left
-            prog.setUniform("cornellBoxMaterials[0].isLight", "bool", false);
-            prog.setUniform("cornellBoxMaterials[0].isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterials[0].isDiffuse", "bool", true);
-            prog.setUniform("cornellBoxMaterials[0].Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("cornellBoxMaterials[0].Kd", "vec3", [0.0, 0.0, 0.0]);
+         // left
+         prog.setUniform("cornellBox.planes[0].n", "vec3", [1, 0, 0]);
+         prog.setUniform("cornellBox.planes[0].d", "float", minCorner[0]); // x
+         prog.setUniform("cornellBox.materials[0].isLight", "bool", false);
+         prog.setUniform("cornellBox.materials[0].isPerfectMirror", "bool", false);
+         prog.setUniform("cornellBox.materials[0].isDiffuse", "bool", true);
+         prog.setUniform("cornellBox.materials[0].Le", "vec3", [0.0, 0.0, 0.0]);
+         prog.setUniform("cornellBox.materials[0].Kd", "vec3", [0.4, 0.0, 0.0]);
 
-            // right
-            prog.setUniform("cornellBoxMaterials[1].isLight", "bool", false);
-            prog.setUniform("cornellBoxMaterials[1].isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterials[1].isDiffuse", "bool", true);
-            prog.setUniform("cornellBoxMaterials[1].Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("cornellBoxMaterials[1].Kd", "vec3", [1.0, 0.4, 0.0]); // eine Art Orange
+         // right
+         prog.setUniform("cornellBox.planes[1].n", "vec3", [-1, 0, 0]);
+         prog.setUniform("cornellBox.planes[1].d", "float", -maxCorner[0]); // x
+         prog.setUniform("cornellBox.materials[1].isLight", "bool", false);
+         prog.setUniform("cornellBox.materials[1].isPerfectMirror", "bool", false);
+         prog.setUniform("cornellBox.materials[1].isDiffuse", "bool", true);
+         prog.setUniform("cornellBox.materials[1].Le", "vec3", [0.0, 0.0, 0.0]);
+         prog.setUniform("cornellBox.materials[1].Kd", "vec3", [0.0, 0.4, 0.0]);
 
-            // near
-            prog.setUniform("cornellBoxMaterials[2].isLight", "bool", true);
-            prog.setUniform("cornellBoxMaterials[2].isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterials[2].isDiffuse", "bool", false);
-            prog.setUniform("cornellBoxMaterials[2].Le", "vec3", [0.66, 0.66, 0.66]);
-            prog.setUniform("cornellBoxMaterials[2].Kd", "vec3", [1.0, 1.0, 1.0]); // Lichtfarbe
+         // near
+         prog.setUniform("cornellBox.planes[2].n", "vec3", [0, 1, 0]);
+         prog.setUniform("cornellBox.planes[2].d", "float", minCorner[1]); // y
+         prog.setUniform("cornellBox.materials[2].isLight", "bool", false);
+         prog.setUniform("cornellBox.materials[2].isPerfectMirror", "bool", false);
+         prog.setUniform("cornellBox.materials[2].isDiffuse", "bool", true);
+         prog.setUniform("cornellBox.materials[2].Le", "vec3", [0.0, 0.0, 0.0]);
+         prog.setUniform("cornellBox.materials[2].Kd", "vec3", [0.8, 0.8, 0.8]);
 
-            // far
-            prog.setUniform("cornellBoxMaterials[3].isLight", "bool", false);
-            prog.setUniform("cornellBoxMaterials[3].isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterials[3].isDiffuse", "bool", true);
-            prog.setUniform("cornellBoxMaterials[3].Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("cornellBoxMaterials[3].Kd", "vec3", [0.8, 0.8, 0.8]);
+         // far
+         prog.setUniform("cornellBox.planes[3].n", "vec3", [0, -1, 0]);
+         prog.setUniform("cornellBox.planes[3].d", "float", -maxCorner[1]); // y
+         prog.setUniform("cornellBox.materials[3].isLight", "bool", false);
+         prog.setUniform("cornellBox.materials[3].isPerfectMirror", "bool", false);
+         prog.setUniform("cornellBox.materials[3].isDiffuse", "bool", true);
+         prog.setUniform("cornellBox.materials[3].Le", "vec3", [0.0, 0.0, 0.0]);
+         prog.setUniform("cornellBox.materials[3].Kd", "vec3", [0.8, 0.8, 0.8]);
 
-            // bottom
-            prog.setUniform("cornellBoxMaterials[4].isLight", "bool", false);
-            prog.setUniform("cornellBoxMaterials[4].isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterials[4].isDiffuse", "bool", true);
-            prog.setUniform("cornellBoxMaterials[4].Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("cornellBoxMaterials[4].Kd", "vec3", [0.2, 0.2, 0.2]);
+         // bottom
+         prog.setUniform("cornellBox.planes[4].n", "vec3", [0, 0, 1]);
+         prog.setUniform("cornellBox.planes[4].d", "float", minCorner[2]); // z
+         prog.setUniform("cornellBox.materials[4].isLight", "bool", false);
+         prog.setUniform("cornellBox.materials[4].isPerfectMirror", "bool", false);
+         prog.setUniform("cornellBox.materials[4].isDiffuse", "bool", true);
+         prog.setUniform("cornellBox.materials[4].Le", "vec3", [0.0, 0.0, 0.0]);
+         prog.setUniform("cornellBox.materials[4].Kd", "vec3", [0.2, 0.2, 0.2]);
 
-            // top
-            prog.setUniform("cornellBoxMaterials[5].isLight", "bool", false);
-            prog.setUniform("cornellBoxMaterials[5].isPerfectMirror", "bool", false);
-            prog.setUniform("cornellBoxMaterials[5].isDiffuse", "bool", true);
-            prog.setUniform("cornellBoxMaterials[5].Le", "vec3", [0.0, 0.0, 0.0]);
-            prog.setUniform("cornellBoxMaterials[5].Kd", "vec3", [0.8, 0.8, 0.8]);
+         // top
+         prog.setUniform("cornellBox.planes[5].n", "vec3", [0, 0, -1]);
+         prog.setUniform("cornellBox.planes[5].d", "float", -maxCorner[2]); // z
+         prog.setUniform("cornellBox.materials[5].isLight", "bool", true);
+         prog.setUniform("cornellBox.materials[5].isPerfectMirror", "bool", false);
+         prog.setUniform("cornellBox.materials[5].isDiffuse", "bool", false);
+         prog.setUniform("cornellBox.materials[5].Le", "vec3", [0.4, 0.4, 0.4]);
+         prog.setUniform("cornellBox.materials[5].Kd", "vec3", [1.0, 1.0, 1.0]); // Lichtfarbe
+         */
+    }
+
+    /**
+     * Füllt die Textur folgendermaßen:
+     *  ----------------------------------------------------s
+     * | Face_1  (a, b, c) ... Face_samplerWidth  (a, b, c)
+     * | Vertex_1(x, y, z) ... Vertex_samplerWidth(x, y, z)
+     * | Normal_1(x, y, z) ... Normal_samplerWidth(x, y, z)
+     * t
+     *
+     * Das spart teure Adressierung im Shader: jedem Array gehört eine Zeile in der Textur. Die Indizes stimmen!
+     * Außerdem lässt die aktuelle Implementierung nur maximal 256 Vertizes zu, da sonst das eine Byte pro Index
+     * "gesprengt" wird. Eine Zeile sollte also erstmal reichen.
+     *
+     * @param mesh
+     * @param samplerWidth
+     * @param samplerHeight
+     * @returns {Uint8Array}
+     * @author Niels Garve, niels.garve.yahoo.de
+     * @private
+     */
+    function meshToUint8Array(mesh, samplerWidth, samplerHeight) {
+        if (!mesh.indices || !mesh.vertices || !mesh.vertexNormals) {
+            throw new Error("bad parameter: mesh");
         }
 
-        /**
-         *
-         * @param array
-         * @param size
-         * @param scale
-         * @returns {Uint8Array}
-         * @author Niels Garve, niels.garve.yahoo.de
-         * @private
-         */
-        function prepareArrayForShader(array, size, scale) {
-            // defaults
-            scale = scale || 1; // TODO 255
-
-            // checks
-            if (!array instanceof Array) {
-                throw new Error("bad parameter: array");
-            }
-
-            // vars
-            var length = 3 * size, // 3 Byte per Pixel
-                res = new Uint8Array(length),
-                i;
-
-            if (array.length > length) {
-                throw new Error("mesh data is currently too big for Shader");
-            }
-
-            for (i = 0; i < array.length; i++) {
-                res[i] = parseInt(array[i] * scale, 10);
-            }
-
-            return res;
+        if (mesh.indices.length > 3 * samplerWidth ||
+            mesh.vertices.length > 3 * samplerWidth ||
+            mesh.vertexNormals.length > 3 * samplerWidth ||
+            samplerHeight < 3) {
+            throw new Error("mesh doesn't fit the sampler");
         }
 
-        /**
-         * a simple scene is an object with a few objects and a draw() method
-         *
-         * @param gl
-         * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
-         * @author Niels Garve, niels.garve.yahoo.de
-         * @constructor
-         */
-        var Scene = function (gl) {
-            // store the WebGL rendering context
-            this.gl = gl;
+        var res = new Uint8Array(samplerWidth * samplerHeight * 3),
+            i, j, k;
 
-            var canvas = gl.canvas,
-                mesh = new obj_loader.Mesh(document.getElementById('mesh').innerHTML),
-                MESH_SAMPLER_WIDTH = 256; // fest, sonst sprengen die Indizes ein Byte
+        for (i = 0; i < mesh.indices.length; i++) {
+            res[i] = mesh.indices[i];
+        }
 
-            // 1. framebuffer
-            this.framebuffer = gl.createFramebuffer();
-            gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-            this.framebuffer.width = canvas.width;
-            this.framebuffer.height = canvas.height;
+        for (j = 0; j < mesh.vertices.length; j++) {
+            res[3 * samplerWidth + j] = mesh.vertices[j];
+        }
 
-            // 2. textures
-            var texture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null),
-                meshVertices = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.vertices, MESH_SAMPLER_WIDTH)),
-                meshVertexNormals = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.vertexNormals, MESH_SAMPLER_WIDTH, 127)),
-                meshIndices = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, 1, prepareArrayForShader(mesh.indices, MESH_SAMPLER_WIDTH));
+        for (k = 0; k < mesh.vertexNormals.length; k++) {
+            res[6 * samplerWidth + k] = mesh.vertexNormals[k] * 127; // Rundungsfehler verringern
+        }
 
-            texture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            texture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-            meshVertices.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            meshVertices.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-            meshVertexNormals.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            meshVertexNormals.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-            meshIndices.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            meshIndices.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        return res;
+    }
 
-            // 3. evtl. framebufferTexture
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture.glTextureObject(), 0);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    /**
+     * a simple scene is an object with a few objects and a draw() method
+     *
+     * @param gl
+     * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+     * @author Niels Garve, niels.garve.yahoo.de
+     * @constructor
+     */
+    var Scene = function (gl) {
+        // store the WebGL rendering context
+        this.gl = gl;
 
-            // initial camera parameters
-            this.camera = {};
-            this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [-0.2, 1, -0.6], [0, 0, 1]); // eye, center, up
-            // set up the projection matrix: orthographic projection, aspect ratio: 1:1
-            this.camera.projectionMatrix = mat4.ortho(-1, 1, -1, 1, 0.01, 100);
+        // vars
+        var config = new Config(),
+            MESH_SAMPLER_WIDTH = config.get('MESH_SAMPLER_WIDTH'),
+            MESH_SAMPLER_HEIGHT = config.get('MESH_SAMPLER_HEIGHT'),
+            canvas = gl.canvas,
+            mesh = new obj_loader.Mesh(document.getElementById('mesh').innerHTML),
+            meshData = meshToUint8Array(mesh, MESH_SAMPLER_WIDTH, MESH_SAMPLER_HEIGHT); // zum Laden in eine Textur
 
-            // create WebGL programs
-            this.prog_pathtracing = new Program(gl,
-                shaders("pathtracing_vert"),
-                shaders("pathtracing_frag")
-            );
+        // 1. initialisiere "framebuffer"
+        this.framebuffer = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+        this.framebuffer.width = canvas.width;
+        this.framebuffer.height = canvas.height;
 
-            this.prog_texture = new Program(gl,
-                shaders("texture_vert"),
-                shaders("texture_frag")
-            );
+        // 2. initialisiere "textures"
+        var swapTexture = new Texture.Texture2D(gl).init_2(this.framebuffer.width, this.framebuffer.height, null),
+            meshTexture = new Texture.Texture2D(gl).init_2(MESH_SAMPLER_WIDTH, MESH_SAMPLER_HEIGHT, meshData);
 
-            this.prog_texture.use();
-            this.prog_texture.setTexture("texture0", 0, texture);
-            this.prog_texture.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
+        swapTexture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        swapTexture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        meshTexture.setTexParameter(gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        meshTexture.setTexParameter(gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
-            this.prog_pathtracing.use();
-            this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 0]); // eye
-            this.prog_pathtracing.setTexture("texture0", 0, texture);
-            this.prog_pathtracing.setTexture("mesh.vertices", 1, meshVertices);
-            this.prog_pathtracing.setTexture("mesh.vertexNormals", 2, meshVertexNormals);
-            this.prog_pathtracing.setTexture("mesh.indices", 3, meshIndices);
-            this.prog_pathtracing.setUniform("mesh.onePixel", "vec2", [1 / MESH_SAMPLER_WIDTH, 1]);
-            setUniformScene(this.prog_pathtracing);
+        // 3. initialisiere evtl. "framebufferTexture"
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, swapTexture.glTextureObject(), 0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-            // create some objects to be drawn
-            this.stage = new Stage(gl);
-            this.stageNode = new SceneNode("StageNode", [this.stage], null); // program to null, it changes while drawing
+        // 4. initialisiere "camera"
+        this.camera = {};
+        this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [-0.2, 1, -0.6], [0, 0, 1]); // eye, center, up
+        // set up the projection matrix: orthographic projection, aspect ratio: 1:1
+        this.camera.projectionMatrix = mat4.ortho(-1, 1, -1, 1, 0.01, 100);
 
-            // the world node - this is potentially going to be accessed from outside
-            this.world = new SceneNode("world", [this.stageNode], null); // program to null, it changes while drawing
+        // 5. initialisiere "WebGL programs"
+        this.prog_pathtracing = new Program(gl,
+            shaders("pathtracing_vert"),
+            shaders("pathtracing_frag")
+        );
 
-            // for the UI - this will be accessed directly by HtmlController
-            this.drawOptions = {
-                "Stage": true
-            };
+        this.prog_texture = new Program(gl,
+            shaders("texture_vert"),
+            shaders("texture_frag")
+        );
 
-            this.sampleCounter = 0;
-        }; // Scene constructor
+        this.prog_texture.use();
+        this.prog_texture.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
+        this.prog_texture.setTexture("texture0", 0, swapTexture);
 
-        /**
-         * draw the scene, starting at the root node
-         *
-         * @param msSinceStart
-         * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
-         * @author Niels Garve, niels.garve.yahoo.de
-         */
-        Scene.prototype.draw = function (msSinceStart) {
+        this.prog_pathtracing.use();
+        this.prog_pathtracing.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
+        this.prog_pathtracing.setTexture("texture0", 0, swapTexture);
+        this.prog_pathtracing.setTexture("mesh.data", 1, meshTexture);
+        this.prog_pathtracing.setUniform("mesh.onePixel", "vec2", [1 / MESH_SAMPLER_WIDTH, 1 / MESH_SAMPLER_HEIGHT]);
+        this.prog_pathtracing.setUniform("eyePosition", "vec3", [0, 0, 0]); // eye
+        setUniformScene(this.prog_pathtracing);
 
-            // shortcut
-            var gl = this.gl;
+        // 6. create some objects to be drawn
+        this.stage = new Stage(gl);
+        this.stageNode = new SceneNode("StageNode", [this.stage], null); // program to null, it changes while drawing
+        // the world node - this is potentially going to be accessed from outside
+        this.world = new SceneNode("world", [this.stageNode], null);
 
-            this.prog_pathtracing.use();
-            this.prog_pathtracing.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
-            this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001); // vgl. Evan Wallace
-            this.prog_pathtracing.setUniform("textureWeight", "float", this.sampleCounter / (this.sampleCounter + 1)); // vgl. Evan Wallace
+        // for the UI - this will be accessed directly by HtmlController
+        this.drawOptions = {};
 
-            // initially set model-view matrix to the camera's view matrix
-            var modelView = this.camera.viewMatrix;
+        this.sampleCounter = 0;
+    }; // Scene constructor
 
-            // enable depth testing, keep fragments with smaller depth values
-            gl.enable(gl.DEPTH_TEST);
-            gl.depthFunc(gl.LESS);
+    /**
+     * draw the scene, starting at the root node
+     *
+     * @param msSinceStart
+     * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+     * @author Niels Garve, niels.garve.yahoo.de
+     */
+    Scene.prototype.draw = function (msSinceStart) {
+        // shortcut
+        var gl = this.gl;
 
-            // clear color and depth buffers
-            gl.clearColor(1.0, 1.0, 1.0, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        this.prog_pathtracing.use();
+        this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001); // vgl. Evan Wallace
+        this.prog_pathtracing.setUniform("textureWeight", "float", this.sampleCounter / (this.sampleCounter + 1)); // vgl. Evan Wallace
 
-            // start drawing with the root node
-            gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-            this.world.draw(gl, this.prog_pathtracing, modelView);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        // initially set model-view matrix to the camera's view matrix
+        var modelView = this.camera.viewMatrix;
 
-            this.world.draw(gl, this.prog_texture, modelView);
+        // enable depth testing, keep fragments with smaller depth values
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LESS);
 
-            this.sampleCounter++;
-        }; // Scene draw()
+        // clear color and depth buffers
+        gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        return Scene;
-    }) // self executing function
-); // define module
+        // start drawing with the root node
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+        this.world.draw(gl, this.prog_pathtracing, modelView);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        this.world.draw(gl, this.prog_texture, modelView);
+
+        this.sampleCounter++;
+    }; // Scene draw()
+
+    return Scene;
+})); // define module
         
 

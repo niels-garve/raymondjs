@@ -28,7 +28,9 @@ requirejs.config({
         // gl-matrix library
         'gl-matrix': '../lib/gl-matrix-1.3.7',
 
-        'webgl-obj-loader': 'loaders/webgl-obj-loader'
+        'webgl-obj-loader': 'loaders/webgl-obj-loader',
+
+        Stage: 'models/Stage'
     }
 });
 

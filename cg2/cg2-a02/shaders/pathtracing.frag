@@ -1,3 +1,4 @@
+#version 100
 precision mediump float;
 
 // Intervallgrenzen für Werte von t (des Skalars) bei der Schnittpunktberechnung (Rundungsfehler abfangen). 
@@ -22,14 +23,8 @@ struct Plane { // Hessesche Normalform
 	vec3 n;
 	float d;
 };
-struct CornellBox { // sechs "Planes"
-	vec3 minCorner;
-	vec3 maxCorner;
-};
 struct Mesh {
-	sampler2D vertices;
-	sampler2D vertexNormals;
-	sampler2D indices;
+	sampler2D data;
 	vec2 onePixel; // Größe eines Pixel zur Adressierung
 };
 struct Material {
@@ -38,6 +33,12 @@ struct Material {
 	bool isDiffuse;
 	vec3 Le; // L_emit
 	vec3 Kd; // Farbe 
+};
+struct CornellBox {
+	Plane planes[6];
+	Material materials[6];
+	vec3 minCorner;
+	vec3 maxCorner;
 };
 struct Hit {
 	float t;
@@ -51,11 +52,10 @@ uniform vec3 La; // Hintergrundfarbe
 uniform Sphere spheres[2];
 uniform Material sphereMaterials[2];
 
-uniform CornellBox cornellBox;
-uniform Material cornellBoxMaterials[6];
-
 uniform Mesh mesh;
 uniform Material meshMaterial;
+
+uniform CornellBox cornellBox;
 
 uniform vec3 eyePosition;
 uniform float secondsSinceStart;
@@ -65,9 +65,6 @@ uniform float textureWeight;
 // varyings
 varying vec3 rayDirection;
 varying vec2 texCoords;
-
-// lokale Variablen
-Plane cornellBoxPlanes[6];
 
 /**
  * Schneidet ray mit sphere und liefert t (ein Skalar). Falls zwei Schnittpunkte existieren wird das kleinste t
@@ -128,16 +125,16 @@ Hit hitCornellBox(Ray ray) {
 	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
 
 	for (int i = 0; i < 6; i ++) {
-		float denominator = dot(cornellBoxPlanes[i].n, ray.direction); // z. dt. Nenner
+		float denominator = dot(cornellBox.planes[i].n, ray.direction); // z. dt. Nenner
 
 		if (abs(denominator) < EPSILON) continue; // keine Division durch "0"
 
-		float tmpT = (cornellBoxPlanes[i].d - dot(cornellBoxPlanes[i].n, ray.start)) / denominator;
+		float tmpT = (cornellBox.planes[i].d - dot(cornellBox.planes[i].n, ray.start)) / denominator;
 
 		// Intervallgrenzen checken und kleinstes t suchen (siehe CornellBox)
 		if (tmpT <= T_MIN || T_MAX <= tmpT || hit.t < tmpT) continue;
 
-		hit = Hit(tmpT, ray.start + tmpT * ray.direction, cornellBoxMaterials[i], cornellBoxPlanes[i].n);
+		hit = Hit(tmpT, ray.start + tmpT * ray.direction, cornellBox.materials[i], cornellBox.planes[i].n);
 	}
 	return hit;
 }
@@ -163,14 +160,14 @@ Hit hitMesh(Ray ray) {
 	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
 
 	for (int i = 0; i < 256; i++) { // Dank der GLSL 1.0 muss man wissen, welche Breite die Texturen haben...
-		vec3 indices = readMeshSamplerBuffer(mesh.indices, i, 0);
+		vec3 indices = readMeshSamplerBuffer(mesh.data, i, 3);
 
 		// Abbrechen sobald ein Triangle: (0, 0, 0), (0, 0, 0), (0, 0, 0) vorkommt; Rundungsfehler beachten!
 		if (indices.x < EPSILON && indices.y < EPSILON && indices.z < EPSILON) break;
 
-		vec3 v0 = readMeshSamplerBuffer(mesh.vertices, int(ceil(indices.x)), 0); // ceil durch Test
-		vec3 v1 = readMeshSamplerBuffer(mesh.vertices, int(ceil(indices.y)), 0);
-		vec3 v2 = readMeshSamplerBuffer(mesh.vertices, int(ceil(indices.z)), 0);
+		vec3 v0 = readMeshSamplerBuffer(mesh.data, int(ceil(indices.x)), 2); // ceil durch Test
+		vec3 v1 = readMeshSamplerBuffer(mesh.data, int(ceil(indices.y)), 2);
+		vec3 v2 = readMeshSamplerBuffer(mesh.data, int(ceil(indices.z)), 2);
 
 		// Moeller, S. 581
 		vec3 e1 = v1 - v0;
@@ -193,7 +190,7 @@ Hit hitMesh(Ray ray) {
 		hit.t = t;
 		hit.hitPoint = ray.start + t * ray.direction;
 		hit.material = meshMaterial;
-		hit.normal = normalize(readMeshSamplerBuffer(mesh.vertexNormals, i, 0));
+		hit.normal = normalize(readMeshSamplerBuffer(mesh.data, i, 1));
 	}
 	return hit;
 }
@@ -242,7 +239,7 @@ vec3 prepareLiCalculation(Hit hit) {
 	vec3 res = vec3(0.0, 0.0, 0.0);
 
 	// 1. Kugel-Lichter
-	for (int i = 0; i < 1; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Lichter die Szene hat...
+	for (int i = 0; i < 2; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Lichter die Szene hat...
 		// die Lichter befinden sich am Anfang der Reihungen
 		vec3 toSource = normalize(spheres[i].center - hit.hitPoint); // TODO Sampling!
 		vec3 lightColor = sphereMaterials[i].Le;
@@ -254,12 +251,9 @@ vec3 prepareLiCalculation(Hit hit) {
 	vec2 centerXY = vec2((cornellBox.minCorner.x + cornellBox.maxCorner.x) / 2.0,
 				   (cornellBox.minCorner.y + cornellBox.maxCorner.y) / 2.0); // TODO Sampling
 
-	// TODO noch "hard coded"! Und zwar leuchtet die "far plane" und die "near plane"
-	vec3 toCornellBoxFarSource = normalize(vec3(centerXY, cornellBox.minCorner.z) - hit.hitPoint);
-	Li(hit.hitPoint, toCornellBoxFarSource, hit.normal, cornellBoxMaterials[4].Le, res);
-
+	// TODO noch "hard coded"! Und zwar leuchtet die "top plane"
 	vec3 toCornellBoxNearSource = normalize(vec3(centerXY, cornellBox.maxCorner.z) - hit.hitPoint);
-	Li(hit.hitPoint, toCornellBoxNearSource, hit.normal, cornellBoxMaterials[5].Le, res);
+	Li(hit.hitPoint, toCornellBoxNearSource, hit.normal, cornellBox.materials[5].Le, res);
 
 	return res;
 }
@@ -374,14 +368,6 @@ vec3 pathTrace() {
 }
 
 void main() {
-	// initialisiere CornellBox-Ebenen
-	cornellBoxPlanes[0] = Plane(vec3( 1.0,  0.0,  0.0),  cornellBox.minCorner.x); // left
-	cornellBoxPlanes[1] = Plane(vec3(-1.0,  0.0,  0.0), -cornellBox.maxCorner.x); // right
-	cornellBoxPlanes[2] = Plane(vec3( 0.0,  1.0,  0.0),  cornellBox.minCorner.y); // near
-	cornellBoxPlanes[3] = Plane(vec3( 0.0, -1.0,  0.0), -cornellBox.maxCorner.y); // far
-	cornellBoxPlanes[4] = Plane(vec3( 0.0,  0.0,  1.0),  cornellBox.minCorner.z); // bottom
-	cornellBoxPlanes[5] = Plane(vec3( 0.0,  0.0, -1.0), -cornellBox.maxCorner.z); // top
-
 	// "blending" vgl. Evan Wallace
 	gl_FragColor = mix(vec4(pathTrace(), 1.0), texture2D(texture0, texCoords), textureWeight);
 }

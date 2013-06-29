@@ -10,6 +10,8 @@
  * to the fragment shader using the varying texCoords.
  *
  */
+ 
+#version 100
 
 attribute vec3 vertexPosition;
 attribute vec2 vertexTexCoords;

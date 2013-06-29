@@ -8,7 +8,8 @@
  * in varying texCoords, and uses the texture value as fragment color.
  *
  */
-
+ 
+#version 100
 precision mediump float;
 
 uniform sampler2D texture0;
