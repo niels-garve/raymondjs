@@ -74,10 +74,12 @@ varying vec3 rayDirection;
 varying vec2 texCoords;
 
 /**
- * Schneidet ray mit sphere und liefert t (ein Skalar). Falls zwei Schnittpunkte existieren wird das kleinste t
- * zurückgeliefert; falls ray sphere nicht schneidet T_MAX.
+ * Schneidet ray mit sphere und liefert ein Hit; Hit.t "ist Element von" [tMin, ..., tMax]. Rundungsfehler werden somit
+ * abgefangen. Falls zwei Schnittpunkte existieren, wird der naheliegendste zurückgeliefert; falls ray sphere nicht 
+ * schneidet der "Schnitt in der Unendlichkeit".
  */
-float intersectSphere(Sphere sphere, Ray ray) {
+Hit hitSphere(Ray ray, Sphere sphere, float tMin, float tMax, Material material) {
+	Hit hit; hit.t = tMax; // hit repräsentiert zunächst den "Schnitt in der Unendlichkeit"
 	vec3 toSphere = ray.start - sphere.center;
 
 	// Terme der Mitternachtsformel
@@ -86,43 +88,31 @@ float intersectSphere(Sphere sphere, Ray ray) {
 	float c = dot(toSphere, toSphere) - sphere.radius * sphere.radius;
 	float discriminant = b * b - 4.0 * a * c; // Wurzel
 
-	if (discriminant < 0.0) return T_MAX; // keine Lösung
+	if (discriminant < 0.0) return hit; // keine Lösung
 
 	if (discriminant == 0.0) { // eine Lösung
-		float t0 = -b / (2.0 * a);
+		float t = -b / (2.0 * a);
 
-		if (t0 <= T_MIN) return T_MAX; // Rundungsfehler abfangen
+		if (t <= tMin || tMax <= t) return hit;
 
-		return t0;
+		hit.t = t;
+		hit.hitPoint = ray.start + hit.t * ray.direction;
+		hit.material = material;
+		hit.normal = normalize(hit.hitPoint - sphere.center);
+		return hit;
 	} else { // zwei Lösungen
 		float t0 = (-b + sqrt(discriminant)) / (2.0 * a);
 		float t1 = (-b - sqrt(discriminant)) / (2.0 * a);
+		float t = min(t0, t1);
 
-		if (t0 <= T_MIN || t1 <= T_MIN) return T_MAX; // Rundungsfehler abfangen
+		if (t <= tMin || tMax <= t) return hit;
 
-		if (t0 <= t1) {
-			return t0;
-		} else {
-			return t1;
-		}
+		hit.t = t;
+		hit.hitPoint = ray.start + hit.t * ray.direction;
+		hit.material = material;
+		hit.normal = normalize(hit.hitPoint - sphere.center);
+		return hit;
 	}
-}
-
-/**
- * Schneidet ray mit sphere und liefert ein "Hit-structure" mit Hit.material = material und Hit.t = T_MAX falls kein 
- * Schnittpunkt existiert.
- */
-Hit hitSphere(Sphere sphere, Ray ray, Material material) {
-	Hit hit; hit.t = intersectSphere(sphere, ray);
-
-	if (hit.t == T_MAX) { // kein Schnittpunkt
-		return hit; // hit repräsentiert den Schnitt in der Unendlichkeit
-	} // else
-
-	hit.hitPoint = ray.start + hit.t * ray.direction;
-	hit.material = material;
-	hit.normal = normalize(hit.hitPoint - sphere.center);
-	return hit;
 }
 
 /**
@@ -209,7 +199,7 @@ Hit sceneFirstHit(Ray ray) {
 
 	// 1. Kugeln schneiden
 	for (int i = 0; i < 2; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Kugeln die Szene hat...
-		Hit tmpHit = hitSphere(spheres[i], ray, sphereMaterials[i]);
+		Hit tmpHit = hitSphere(ray, spheres[i], T_MIN, T_MAX, sphereMaterials[i]);
 		if (tmpHit.t < hit.t) { // der naheliegendste Schnittpunkt zählt
 			hit = tmpHit;
 		}
