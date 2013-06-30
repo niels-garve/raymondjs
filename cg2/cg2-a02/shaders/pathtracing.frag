@@ -131,24 +131,6 @@ void hitPlane(Ray ray, Plane plane, float tMin, inout Hit firstHit, Material mat
 }
 
 /**
- * Liefert den RGB-Vektor von Pixel [x, y] der mesh.data Textur. Der Wertebereich pro Kanal "ist Element von"
- * [-128.0, ..., 127.0], also der eines Bytes in Zweierkomplement-Darstellung. Es handelt sich tatsächlich um nur 255
- * Werte, obwohl es "floats" sind. Das Weiterrechnen mit floats ist einfach einfacher. Mit r lassen sich die Werte
- * konstant erhöhen oder verringern. Das ist eine Trick, um die Richtung --- auf- oder abrunden --- bei einem Cast auf 
- * int einzustellen. ceil() oder floor() müssen dann nicht noch extra angewendet werden.
- * 
- */
-vec3 meshSamplerLookup(int x, int y, float r) {
-	vec3 res = texture2D(mesh.data, vec2(x, y) * mesh.onePixel).xyz * 255.0 + r;
-
-	// Zweierkomplement
-	bvec3 b = greaterThan(res, vec3(127.0, 127.0, 127.0));
-	res -= vec3(256.0, 256.0, 256.0) * vec3(b);
-
-	return res;
-}
-
-/**
  * Schneidet ray mit triangle und liefert (inout) firstHit, falls (out) firstHit.t in (tMin, ..., (in) firstHit.t)
  * liegt. Sonst: nichts.
  */
@@ -176,6 +158,24 @@ void hitTriangle(Ray ray, Triangle triangle, float tMin, inout Hit firstHit, Mat
 }
 
 /**
+ * Liefert den RGB-Vektor von Pixel [x, y] der mesh.data Textur. Der Wertebereich pro Kanal "ist Element von"
+ * [-128.0, ..., 127.0], also der eines Bytes in Zweierkomplement-Darstellung. Es handelt sich tatsächlich um nur 255
+ * Werte, obwohl es "floats" sind. Das Weiterrechnen mit floats ist einfach einfacher. Mit r lassen sich die Werte
+ * konstant erhöhen oder verringern. Das ist eine Trick, um die Richtung --- auf- oder abrunden --- bei einem Cast auf 
+ * int einzustellen. ceil() oder floor() müssen dann nicht noch extra angewendet werden.
+ * 
+ */
+vec3 meshSamplerLookup(int x, int y, float r) {
+	vec3 res = texture2D(mesh.data, vec2(x, y) * mesh.onePixel).xyz * 255.0 + r;
+
+	// Zweierkomplement
+	bvec3 b = greaterThan(res, vec3(127.0, 127.0, 127.0));
+	res -= vec3(256.0, 256.0, 256.0) * vec3(b);
+
+	return res;
+}
+
+/**
  * Schneidet alle Szeneobjekte mit ray und liefert den naheliegendsten Hit.
  */
 Hit sceneFirstHit(Ray ray) {
@@ -193,7 +193,7 @@ Hit sceneFirstHit(Ray ray) {
 
 	// 3. Mesh schneiden
 	for (int i = 0; i < 256; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 256 px
-		ivec3 indices = ivec3(meshSamplerLookup(i, 3, 0.1));
+		ivec3 indices = ivec3(meshSamplerLookup(i, 3, 0.1)); // Der Textur-Ursprung ist links-unten
 
 		// "0-terminierend"
 		if (indices.x == 0 && indices.y == 0 && indices.z == 0) break;
