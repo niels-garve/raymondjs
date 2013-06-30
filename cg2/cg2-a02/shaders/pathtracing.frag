@@ -24,6 +24,12 @@ struct Plane { // Hessesche Normalform
 	vec3 n;
 	float d;
 };
+struct Triangle {
+	vec3 v0;
+	vec3 v1;
+	vec3 v2;
+	vec3 n; // erst mal reicht nur eine Normale
+};
 struct Mesh {
 	sampler2D data;
 	vec2 onePixel; // Größe eines Pixel zur Adressierung
@@ -75,7 +81,7 @@ varying vec2 texCoords;
 
 /**
  * Schneidet ray mit sphere und liefert (inout) firstHit, falls (out) firstHit.t in (tMin, ..., (in) firstHit.t) liegt.
- * Sonst nichts.
+ * Sonst: nichts.
  */
 void hitSphere(Ray ray, Sphere sphere, float tMin, inout Hit firstHit, Material material) {
 	vec3 toSphere = ray.start - sphere.center;
@@ -109,7 +115,7 @@ void hitSphere(Ray ray, Sphere sphere, float tMin, inout Hit firstHit, Material 
 
 /**
  * Schneidet ray mit plane und liefert (inout) firstHit, falls (out) firstHit.t in (tMin, ..., (in) firstHit.t) liegt.
- * Sonst nichts.
+ * Sonst: nichts.
  */
 void hitPlane(Ray ray, Plane plane, float tMin, inout Hit firstHit, Material material) {
 	float denominator = dot(plane.n, ray.direction); // z. dt. Nenner
@@ -143,47 +149,30 @@ vec3 meshSamplerLookup(int x, int y, float r) {
 }
 
 /**
- * Schneidet ray mit (uniform) mesh und liefert ein Hit. Hit.t "ist Element von" [tMin, ..., tMax]. Rundungsfehler
- * werden somit abgefangen.
+ * Schneidet ray mit triangle und liefert (inout) firstHit, falls (out) firstHit.t in (tMin, ..., (in) firstHit.t)
+ * liegt. Sonst: nichts.
  */
-Hit hitMesh(Ray ray, float tMin, float tMax) {
-	Hit hit; hit.t = tMax; // hit repräsentiert zunächst den "Schnitt in der Unendlichkeit"
+void hitTriangle(Ray ray, Triangle triangle, float tMin, inout Hit firstHit, Material material) {
+	// vgl. Moeller, S. 581
+	vec3 e1 = triangle.v1 - triangle.v0;
+	vec3 e2 = triangle.v2 - triangle.v0;
+	vec3 p = cross(ray.direction, e2);
+	float a = dot(e1, p);
+	if (a > -EPSILON && a < EPSILON) return; // "REJECT"
+	float f = 1.0 / a;
+	vec3 s = ray.start - triangle.v0;
+	float u = f * dot(s, p);
+	if (u < 0.0 || u > 1.0) return; // "REJECT"
+	vec3 q = cross(s, e1);
+	float v = f * dot(ray.direction, q);
+	if (v < 0.0 || (u + v) > 1.0) return; // "REJECT"
+	float t = f * dot(e2, q);
+	// END Moeller
 
-	// # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0)
-	for (int i = 0; i < 256; i++) { // 256 ist die Breite der Textur
-		ivec3 indices = ivec3(meshSamplerLookup(i, 3, 0.1));
-
-		// "0-terminierend"
-		if (indices.x == 0 && indices.y == 0 && indices.z == 0) break;
-
-		vec3 v0 = meshSamplerLookup(indices.x, 2, 0.0);
-		vec3 v1 = meshSamplerLookup(indices.y, 2, 0.0);
-		vec3 v2 = meshSamplerLookup(indices.z, 2, 0.0);
-
-		// vgl. Moeller, S. 581
-		vec3 e1 = v1 - v0;
-		vec3 e2 = v2 - v0;
-		vec3 p = cross(ray.direction, e2);
-		float a = dot(e1, p);
-		if (a > -EPSILON && a < EPSILON) continue; // "REJECT"
-		float f = 1.0 / a;
-		vec3 s = ray.start - v0;
-		float u = f * dot(s, p);
-		if (u < 0.0 || u > 1.0) continue; // "REJECT"
-		vec3 q = cross(s, e1);
-		float v = f * dot(ray.direction, q);
-		if (v < 0.0 || (u + v) > 1.0) continue; // "REJECT"
-		float t = f * dot(e2, q);
-		// END Moeller
-
-		if (t <= tMin || tMax <= t || t > hit.t) continue;
-
-		hit.t = t;
-		hit.hitPoint = ray.start + hit.t * ray.direction;
-		hit.material = meshMaterial;
-		hit.normal = normalize(meshSamplerLookup(i, 1, 0.0));
+	if (tMin < t && t < firstHit.t) {
+		vec3 hitPoint = ray.start + t * ray.direction;
+		firstHit = Hit(t, hitPoint, material, triangle.n); // bereits Normalisiert
 	}
-	return hit;
 }
 
 /**
@@ -203,8 +192,19 @@ Hit sceneFirstHit(Ray ray) {
 	// }
 
 	// 3. Mesh schneiden
-	Hit meshHit = hitMesh(ray, T_MIN, T_MAX);
-	if (meshHit.t < firstHit.t) firstHit = meshHit;
+	for (int i = 0; i < 256; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 256 px
+		ivec3 indices = ivec3(meshSamplerLookup(i, 3, 0.1));
+
+		// "0-terminierend"
+		if (indices.x == 0 && indices.y == 0 && indices.z == 0) break;
+
+		Triangle triangle = Triangle(meshSamplerLookup(indices.x, 2, 0.0),
+			                         meshSamplerLookup(indices.y, 2, 0.0),
+			                         meshSamplerLookup(indices.z, 2, 0.0),
+			                         normalize(meshSamplerLookup(i, 1, 0.0)));
+
+		hitTriangle(ray, triangle, T_MIN, firstHit, meshMaterial);
+	}
 
 	return firstHit;
 }
