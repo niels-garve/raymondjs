@@ -141,10 +141,15 @@ Hit hitCornellBox(Ray ray, float tMin, float tMax) {
 }
 
 /**
- * Liefert den RGB-Wert von sampler an der Stelle [x, y], "Pixel-Welt".
+ * Liefert den RGB-Vektor von Pixel [x, y] der mesh.data Textur. Der Wertebereich pro Kanal "ist Element von"
+ * [-128.0, ..., 127.0], also der eines Bytes in Zweierkomplement-Darstellung. Es handelt sich tatsächlich um nur 255
+ * Werte, obwohl es "floats" sind. Das Weiterrechnen mit floats ist einfach einfacher. Mit r lassen sich die Werte
+ * konstant erhöhen oder verringern. Das ist eine Trick, um die Richtung --- auf- oder abrunden --- bei einem Cast auf 
+ * int einzustellen. ceil() oder floor() müssen dann nicht noch extra angewendet werden.
+ * 
  */
-vec3 readMeshSamplerBuffer(sampler2D sampler, int x, int y) {
-	vec3 res = texture2D(sampler, vec2(x, y) * mesh.onePixel).xyz * 255.0;
+vec3 meshSamplerLookup(int x, int y, float r) {
+	vec3 res = texture2D(mesh.data, vec2(x, y) * mesh.onePixel).xyz * 255.0 + r;
 
 	// Zweierkomplement
 	bvec3 b = greaterThan(res, vec3(127.0, 127.0, 127.0));
@@ -154,22 +159,24 @@ vec3 readMeshSamplerBuffer(sampler2D sampler, int x, int y) {
 }
 
 /**
- * Schneidet ray mit (uniform) mesh und liefert ein "Hit-structure".
+ * Schneidet ray mit (uniform) mesh und liefert ein Hit. Hit.t "ist Element von" [tMin, ..., tMax]. Rundungsfehler
+ * werden somit abgefangen.
  */
-Hit hitMesh(Ray ray) {
-	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
+Hit hitMesh(Ray ray, float tMin, float tMax) {
+	Hit hit; hit.t = tMax; // hit repräsentiert zunächst den "Schnitt in der Unendlichkeit"
 
-	for (int i = 0; i < 256; i++) { // Dank der GLSL 1.0 muss man wissen, welche Breite die Texturen haben...
-		vec3 indices = readMeshSamplerBuffer(mesh.data, i, 3);
+	// # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0)
+	for (int i = 0; i < 256; i++) { // 256 ist die Breite der Textur
+		ivec3 indices = ivec3(meshSamplerLookup(i, 3, 0.1));
 
-		// Abbrechen sobald ein Triangle: (0, 0, 0), (0, 0, 0), (0, 0, 0) vorkommt; Rundungsfehler beachten!
-		if (indices.x < EPSILON && indices.y < EPSILON && indices.z < EPSILON) break;
+		// "0-terminierend"
+		if (indices.x == 0 && indices.y == 0 && indices.z == 0) break;
 
-		vec3 v0 = readMeshSamplerBuffer(mesh.data, int(ceil(indices.x)), 2); // ceil durch Test
-		vec3 v1 = readMeshSamplerBuffer(mesh.data, int(ceil(indices.y)), 2);
-		vec3 v2 = readMeshSamplerBuffer(mesh.data, int(ceil(indices.z)), 2);
+		vec3 v0 = meshSamplerLookup(indices.x, 2, 0.0);
+		vec3 v1 = meshSamplerLookup(indices.y, 2, 0.0);
+		vec3 v2 = meshSamplerLookup(indices.z, 2, 0.0);
 
-		// Moeller, S. 581
+		// vgl. Moeller, S. 581
 		vec3 e1 = v1 - v0;
 		vec3 e2 = v2 - v0;
 		vec3 p = cross(ray.direction, e2);
@@ -185,12 +192,12 @@ Hit hitMesh(Ray ray) {
 		float t = f * dot(e2, q);
 		// END Moeller
 
-		if (t <= T_MIN || T_MAX <= t || hit.t < t) continue;
+		if (t <= tMin || tMax <= t || t > hit.t) continue;
 
 		hit.t = t;
-		hit.hitPoint = ray.start + t * ray.direction;
+		hit.hitPoint = ray.start + hit.t * ray.direction;
 		hit.material = meshMaterial;
-		hit.normal = normalize(readMeshSamplerBuffer(mesh.data, i, 1));
+		hit.normal = normalize(meshSamplerLookup(i, 1, 0.0));
 	}
 	return hit;
 }
@@ -214,7 +221,7 @@ Hit sceneFirstHit(Ray ray) {
 	// if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
 
 	// 3. Mesh schneiden
-	Hit meshHit = hitMesh(ray);
+	Hit meshHit = hitMesh(ray, T_MIN, T_MAX);
 	if (meshHit.t < hit.t) hit = meshHit;
 
 	return hit;
