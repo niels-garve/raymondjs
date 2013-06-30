@@ -74,12 +74,10 @@ varying vec3 rayDirection;
 varying vec2 texCoords;
 
 /**
- * Schneidet ray mit sphere und liefert ein Hit; Hit.t "ist Element von" [tMin, ..., tMax]. Rundungsfehler werden somit
- * abgefangen. Falls zwei Schnittpunkte existieren, wird der naheliegendste zurückgeliefert; falls ray sphere nicht 
- * schneidet der "Schnitt in der Unendlichkeit".
+ * Schneidet ray mit sphere und liefert (inout) firstHit, falls (out) firstHit.t in (tMin, ..., (in) firstHit.t) liegt.
+ * Sonst nichts.
  */
-Hit hitSphere(Ray ray, Sphere sphere, float tMin, float tMax, Material material) {
-	Hit hit; hit.t = tMax; // hit repräsentiert zunächst den "Schnitt in der Unendlichkeit"
+void hitSphere(Ray ray, Sphere sphere, float tMin, inout Hit firstHit, Material material) {
 	vec3 toSphere = ray.start - sphere.center;
 
 	// Terme der Mitternachtsformel
@@ -88,56 +86,42 @@ Hit hitSphere(Ray ray, Sphere sphere, float tMin, float tMax, Material material)
 	float c = dot(toSphere, toSphere) - sphere.radius * sphere.radius;
 	float discriminant = b * b - 4.0 * a * c; // Wurzel
 
-	if (discriminant < 0.0) return hit; // keine Lösung
+	if (discriminant < 0.0) return; // keine Lösung
 
 	if (discriminant == 0.0) { // eine Lösung
 		float t = -b / (2.0 * a);
 
-		if (t <= tMin || tMax <= t) return hit;
-
-		hit.t = t;
-		hit.hitPoint = ray.start + hit.t * ray.direction;
-		hit.material = material;
-		hit.normal = normalize(hit.hitPoint - sphere.center);
-		return hit;
+		if (tMin < t && t < firstHit.t) {
+			vec3 hitPoint = ray.start + t * ray.direction;
+			firstHit = Hit(t, hitPoint, material, normalize(hitPoint - sphere.center));
+		}
 	} else { // zwei Lösungen
 		float t0 = (-b + sqrt(discriminant)) / (2.0 * a);
 		float t1 = (-b - sqrt(discriminant)) / (2.0 * a);
 		float t = min(t0, t1);
 
-		if (t <= tMin || tMax <= t) return hit;
-
-		hit.t = t;
-		hit.hitPoint = ray.start + hit.t * ray.direction;
-		hit.material = material;
-		hit.normal = normalize(hit.hitPoint - sphere.center);
-		return hit;
+		if (tMin < t && t < firstHit.t) {
+			vec3 hitPoint = ray.start + t * ray.direction;
+			firstHit = Hit(t, hitPoint, material, normalize(hitPoint - sphere.center));			
+		}
 	}
 }
 
 /**
- * Schneidet ray mit (uniform) cornellBox und liefert ein Hit. Hit.t "ist Element von" [tMin, ..., tMax]. Rundungsfehler 
- * werden somit abgefangen.
+ * Schneidet ray mit plane und liefert (inout) firstHit, falls (out) firstHit.t in (tMin, ..., (in) firstHit.t) liegt.
+ * Sonst nichts.
  */
-Hit hitCornellBox(Ray ray, float tMin, float tMax) {
-	Hit hit; hit.t = tMax; // hit repräsentiert zunächst den "Schnitt in der Unendlichkeit"
+void hitPlane(Ray ray, Plane plane, float tMin, inout Hit firstHit, Material material) {
+	float denominator = dot(plane.n, ray.direction); // z. dt. Nenner
 
-	for (int i = 0; i < 6; i ++) {
-		float denominator = dot(cornellBox.planes[i].n, ray.direction); // z. dt. Nenner
+	if (denominator == 0.0) return;
 
-		if (denominator == 0.0) continue;
+	float t = (plane.d - dot(plane.n, ray.start)) / denominator;
 
-		float tmpT = (cornellBox.planes[i].d - dot(cornellBox.planes[i].n, ray.start)) / denominator;
-
-		// Intervallgrenzen checken und kleinstes tmpT suchen
-		if (tmpT <= tMin || tMax <= tmpT || tmpT > hit.t) continue;
-
-		hit.t = tmpT;
-		hit.hitPoint = ray.start + hit.t * ray.direction;
-		hit.material = cornellBox.materials[i];
-		hit.normal = cornellBox.planes[i].n;
+	if (tMin < t && t < firstHit.t) {
+		vec3 hitPoint = ray.start + t * ray.direction;
+		firstHit = Hit(t, hitPoint, material, plane.n); // bereits Normalisiert
 	}
-	return hit;
 }
 
 /**
@@ -206,25 +190,23 @@ Hit hitMesh(Ray ray, float tMin, float tMax) {
  * Schneidet alle Szeneobjekte mit ray und liefert den naheliegendsten Hit.
  */
 Hit sceneFirstHit(Ray ray) {
-	Hit hit; hit.t = T_MAX; // hit repräsentiert zunächst den Schnitt in der Unendlichkeit
+	Hit firstHit; firstHit.t = T_MAX; // firstHit repräsentiert zunächst den "Schnitt in der Unendlichkeit"
 
 	// 1. Kugeln schneiden
-	for (int i = 0; i < 2; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Kugeln die Szene hat...
-		Hit tmpHit = hitSphere(ray, spheres[i], T_MIN, T_MAX, sphereMaterials[i]);
-		if (tmpHit.t < hit.t) { // der naheliegendste Schnittpunkt zählt
-			hit = tmpHit;
-		}
+	for (int i = 0; i < 2; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 2 Kugeln
+		hitSphere(ray, spheres[i], T_MIN, firstHit, sphereMaterials[i]);
 	}
 
 	// 2. "CornellBox" schneiden (leider zu langsam)
-	// Hit cornellBoxHit = hitCornellBox(ray, T_MIN, T_MAX);
-	// if (cornellBoxHit.t < hit.t) hit = cornellBoxHit;
+	// for (int i = 0; i < 6; i++) { // immer 6 "Wände"
+	// 	hitPlane(ray, cornellBox.planes[i], T_MIN, firstHit, cornellBox.materials[i]);
+	// }
 
 	// 3. Mesh schneiden
 	Hit meshHit = hitMesh(ray, T_MIN, T_MAX);
-	if (meshHit.t < hit.t) hit = meshHit;
+	if (meshHit.t < firstHit.t) firstHit = meshHit;
 
-	return hit;
+	return firstHit;
 }
 
 /**
