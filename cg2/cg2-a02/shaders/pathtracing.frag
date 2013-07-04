@@ -1,3 +1,8 @@
+/**
+ * Pathtracing
+ *
+ * @author Niels Garve, niels.garve.yahoo.de
+ */
 #version 100
 precision mediump float;
 

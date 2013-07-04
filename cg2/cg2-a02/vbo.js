@@ -71,7 +71,7 @@ define(["util"],
         this.numComponents = config.numComponents;
         this.dataType      = config.dataType || gl.FLOAT;
         this.warnUnused    = config.warnUnused;
-        if(this.warnUnused === undefined) { this.warnUnused = true; };
+        if(this.warnUnused === undefined) { this.warnUnused = false; };
         var data = config.data;
         
         // calculate number of vertices from array length

@@ -32,7 +32,7 @@ define(["util"],
        Methods:
        - start()    starts the animation and resets the timer
        - stop()     stops the animation
-       - resume()   resumes the animation after a stop() event. 
+       - resume() continues the animation after a stop() event. 
        
     */
        
@@ -61,7 +61,7 @@ define(["util"],
 
     // query animation status
     Animation.prototype.isRunning = function() {
-        return this.isStopped;
+        return !this.isStopped;
     };
     
     // start a new animation loop with time = 0
@@ -78,7 +78,7 @@ define(["util"],
         this.isStopped = true;
     };
     
-    // resume after a pause/stop:
+    // continue after a pause/stop:
     // - the total elapsed time is calculated relative to the 
     //   original start time
     // - the time "delta" will start with 0 again
@@ -110,7 +110,7 @@ define(["util"],
     Animation.prototype.update = function() {
     
         // only do something if animation is not stopped:
-        if(this.isStopped) {
+        if(!this.isRunning()) {
             return;
         };
             

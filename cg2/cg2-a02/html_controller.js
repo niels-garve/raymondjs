@@ -1,11 +1,13 @@
 /*
- * WebGL core teaching framwork 
+ * JavaScript / Canvas teaching framwork 
  * (C)opyright Hartmut Schirmacher, hschirmacher.beuth-hochschule.de 
  *
  * Module: html_controller
  *
  * Defines callback functions for communicating with various 
  * HTML elements on the page, e.g. buttons and parameter fields.
+ *
+ * Also handles key press events.
  *
  */
 
@@ -19,11 +21,6 @@ define(["jquery"],
     /*
      * define callback functions to react to changes in the HTML page
      * and provide them with a closure defining context and scene
-     *
-     * parameters_
-     * - the scene
-     * - the animation
-     * - list of all checkable scene objects 
      *
      */
     var HtmlController = function(scene,animation) {
@@ -89,7 +86,7 @@ define(["jquery"],
         
         // set up event handler and execute it once so everything is set consistently
         $(".inputParam").change( updateParams ); 
-        // updateParams();
+        updateParams();
         
     }; // end of HtmlController constructor function
         

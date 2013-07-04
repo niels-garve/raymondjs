@@ -5,10 +5,12 @@
  */
 
 
-/* 
+/**
  * RequireJS alias/path configuration (http://requirejs.org/)
+ *
+ * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+ * @author Niels Garve, niels.garve.yahoo.de
  */
-
 requirejs.config({
     shim: {
         'webgl-obj-loader': {
@@ -41,17 +43,9 @@ requirejs.config({
  *
  */
 
-/**
- * requireJS module definition
- *
- * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
- * @author Niels Garve, niels.garve.yahoo.de
- */
-define([
-    "jquery", "gl-matrix", "util", "webgl-debug",
-    "program", "shaders", "animation", "html_controller", "scene", "scene_explorer"],
-    (function ($, glmatrix, util, WebGLDebugUtils,
-               Program, shaders, Animation, HtmlController, Scene, SceneExplorer) {
+/* requireJS module definition */
+define(["jquery", "gl-matrix", "webgl-debug", "scene", "animation", "scene_explorer", "html_controller" ], 
+       (function($, glmatrix, WebGLDebugUtils, Scene, Animation, SceneExplorer, HtmlController ) {
 
         "use strict";
 
@@ -91,6 +85,8 @@ define([
 
         /**
          * create an animation for timing and regular calls of Scene.draw()
+         *
+         * @author Niels Garve, niels.garve.yahoo.de
          * @param scene
          * @returns {Animation}
          */
@@ -103,10 +99,12 @@ define([
             })); // end animation callback
         };
 
-        /*
+        /**
          * main program, to be called once the document has loaded
          * and the DOM has been constructed
          *
+         * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+         * @author Niels Garve, niels.garve.yahoo.de
          */
         $(document).ready((function () {
             // catch errors for debugging purposes
