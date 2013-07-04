@@ -255,7 +255,8 @@ vec3 perfectMirrorBRDF() {
 }
 
 /**
- * Liefert den perfekten Ausfallvektor. Achtung: i ist der "incident vector" --> Richtung beachten!
+ * Liefert den "perfekten" Ausfallvektor out-L. Achtung: i ist der "incident vector" --> Richtung beachten! n ist die 
+ * Normale.
  */
 float perfectMirrorNextDirection(out vec3 L, vec3 i, vec3 n) {
 	L = normalize(reflect(i, n)); // TODO already normalized?
@@ -270,7 +271,7 @@ vec3 diffuseBRDF(Material material) {
 }
 
 /**
- * Liefert, je nach scale und seed, einen (Pseudo-) Zufallswert.
+ * Liefert, je nach scale und seed, ein Zufallszahl.
  * @author vgl. Evan Wallace
  */
 float random(vec3 scale, float seed) {
@@ -278,8 +279,9 @@ float random(vec3 scale, float seed) {
 }
 
 /**
- * Liefert einen (pseudo-) zufälligen Ausfallvektor aus der Halbkugel (out-Parameter L) und seine Wahrscheinlichkeit als
- * "return value" der Funktion.
+ * Liefert den zufälligen Ausfallvektor out-L aus der Halbkugel und seine Wahrscheinlichkeit als "return value". N ist
+ * die Normale und V ist der "view"-Vektor. Achtung: V "zeigt" entgegengesetzt zur Strahl-Richtung! seed wird für die
+ * Zufallszahl-Berechnung benötigt.
  * @author vgl. Szirmay-Kalos, S. 104
  */
 float diffuseNextDirection(out vec3 L, vec3 N, vec3 V, float seed) {
