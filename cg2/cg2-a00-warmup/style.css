@@ -1,0 +1,31 @@
+/* default: white background, sans serif font */
+body {
+    font-family:Arial,Helvetica;
+    background-color:white;
+}
+
+/* region to display an error */
+#error { 
+    color:white; 
+    font-weight:bold; 
+    background-color:red; 
+    display:none; 
+}
+
+/* canvas to perform 2d graphcis */
+#drawing_area {
+    float:left;
+    border-width:1px;
+    border-style: dashed;
+    border-color: #c3c3c3;
+}
+
+/* container to display editable parameters */
+#param_area {
+    float:left;
+    width:400px;
+    border-width:1px;
+    border-style: dashed;
+    border-color: #c3c3c3;
+    text-align:left;
+}
