@@ -35,10 +35,10 @@ define(["util", "vbo"],
 
             // generate vertex coordinates and store in an array
             var coords = [
-                    -1, -1, 0, // coordinates of A
-                    1, -1, 0, // coordinates of B
-                    -1, 1, 0, // coordinates of D
-                    1, 1, 0 // coordinates of C
+                    -1, -1, -2, // coordinates of A
+                    1, -1, -2, // coordinates of B
+                    -1, 1, -2, // coordinates of D
+                    1, 1, -2 // coordinates of C
                 ],
                 texCoords = [
                     0, 0,

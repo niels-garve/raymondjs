@@ -1,5 +1,5 @@
 
-// requireJS wrapper 
+// requireJS wrapper added by Hartmut Schirmacher
 define([], (function() {
 
 

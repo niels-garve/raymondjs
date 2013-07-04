@@ -55,12 +55,12 @@ define(["jquery"], (function($) {
         };
 
         // also show error on the console
-        window.console.log(msg);
+        log(msg);
 
         // if there is an object associated with the error,
         // show it on the console for inspection
         if(err.obj) {
-            window.console.log(err.obj);
+            log(err.obj);
         }
 
         // rethrow the error for the browser / debugger

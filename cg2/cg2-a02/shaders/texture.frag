@@ -8,7 +8,8 @@
  * in varying texCoords, and uses the texture value as fragment color.
  *
  */
-
+ 
+#version 100
 precision mediump float;
 
 uniform sampler2D texture0;
@@ -16,5 +17,5 @@ uniform sampler2D texture0;
 varying vec2 texCoords;
 
 void main() {
-    gl_FragColor = texture2D(texture0, texCoords);
+	gl_FragColor = texture2D(texture0, texCoords);
 }
