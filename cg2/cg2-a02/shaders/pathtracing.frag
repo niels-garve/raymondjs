@@ -80,8 +80,8 @@ varying vec3 rayDirection;
 varying vec2 texCoords;
 
 /**
- * Schneidet ray mit sphere und liefert (inout) firstHit, falls (out) firstHit.t in (tMin, ..., (in) firstHit.t) liegt.
- * Sonst: nichts.
+ * Schneidet ray mit sphere und liefert inout-firstHit, falls "out"-firstHit.t in (tMin, ..., "in"-firstHit.t) liegt.
+ * Sonst: nichts. material gehört zu sphere.
  */
 void hitSphere(Ray ray, Sphere sphere, float tMin, inout Hit firstHit, Material material) {
 	vec3 toSphere = ray.start - sphere.center;
@@ -114,8 +114,8 @@ void hitSphere(Ray ray, Sphere sphere, float tMin, inout Hit firstHit, Material 
 }
 
 /**
- * Schneidet ray mit plane und liefert (inout) firstHit, falls (out) firstHit.t in (tMin, ..., (in) firstHit.t) liegt.
- * Sonst: nichts.
+ * Schneidet ray mit plane und liefert inout-firstHit, falls "out"-firstHit.t in (tMin, ..., "in"-firstHit.t) liegt.
+ * Sonst: nichts. material gehört zu plane.
  */
 void hitPlane(Ray ray, Plane plane, float tMin, inout Hit firstHit, Material material) {
 	float denominator = dot(plane.n, ray.direction); // z. dt. Nenner
@@ -131,11 +131,11 @@ void hitPlane(Ray ray, Plane plane, float tMin, inout Hit firstHit, Material mat
 }
 
 /**
- * Schneidet ray mit triangle und liefert (inout) firstHit, falls (out) firstHit.t in (tMin, ..., (in) firstHit.t)
- * liegt. Sonst: nichts.
+ * Schneidet ray mit triangle und liefert inout-firstHit, falls "out"-firstHit.t in (tMin, ..., "in"-firstHit.t)
+ * liegt. Sonst: nichts. material gehört zu triangle.
+ * @author vgl. Moeller, S. 581
  */
 void hitTriangle(Ray ray, Triangle triangle, float tMin, inout Hit firstHit, Material material) {
-	// vgl. Moeller, S. 581
 	vec3 e1 = triangle.v1 - triangle.v0;
 	vec3 e2 = triangle.v2 - triangle.v0;
 	vec3 p = cross(ray.direction, e2);
@@ -149,7 +149,6 @@ void hitTriangle(Ray ray, Triangle triangle, float tMin, inout Hit firstHit, Mat
 	float v = f * dot(ray.direction, q);
 	if (v < 0.0 || (u + v) > 1.0) return; // "REJECT"
 	float t = f * dot(e2, q);
-	// END Moeller
 
 	if (tMin < t && t < firstHit.t) {
 		vec3 hitPoint = ray.start + t * ray.direction;
