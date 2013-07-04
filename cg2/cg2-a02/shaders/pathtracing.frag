@@ -180,6 +180,11 @@ vec3 meshSamplerLookup(int x, int y, float r) {
 Hit sceneFirstHit(Ray ray) {
 	Hit firstHit; firstHit.t = T_MAX; // firstHit repräsentiert zunächst den "Schnitt in der Unendlichkeit"
 
+	// Li-Berechnung benötigt Le!
+	Material firstHitMaterial;
+	firstHitMaterial.Le = vec3(0.0, 0.0, 0.0);
+	firstHit.material = firstHitMaterial;
+
 	// 1. Kugeln schneiden
 	for (int i = 0; i < 2; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 2 Kugeln
 		hitSphere(ray, spheres[i], T_MIN, firstHit, sphereMaterials[i]);
@@ -209,30 +214,26 @@ Hit sceneFirstHit(Ray ray) {
 }
 
 /**
- * Berechnet die lokale Beleuchtung in x, mit s ist der Vektor zur Lichtquelle und n die Normale.
+ * Berechnet die lokale Beleuchtung in x durch die Lichtquelle in Richtung s mit n ist die Normale in x. Das Resultat
+ * der Berechnung wird zu res addiert.
  */
-void Li(vec3 x, vec3 s, vec3 n, vec3 lightColor, inout vec3 res) {
-	// ist Licht sichtbar?
+void Li(vec3 x, vec3 s, vec3 n, inout vec3 res) {
 	Hit hit = sceneFirstHit(Ray(x, s));
-	if (hit.t < T_MAX && length(hit.material.Le) == 0.0) return;
-
 	float theCos = dot(n, s);
-	if (theCos >= 0.0) res += lightColor * theCos;
+	if (theCos > 0.0) res += hit.material.Le * theCos; // Trick: Schatten-Test ohne if
 }
 
 /**
- * Berechnet die lokale Beleuchtung in hit.
+ * Berechnet die lokale Beleuchtung in hit durch alle Lichtquellen der Szene.
  */
 vec3 prepareLiCalculation(Hit hit) {
 	vec3 res = vec3(0.0, 0.0, 0.0);
 
 	// 1. Kugel-Lichter
-	for (int i = 0; i < 2; i++) { // wegen GLSL 1.0 muss man wissen, wieviele Lichter die Szene hat...
+	for (int i = 0; i < 2; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 2 Lichter
 		// die Lichter befinden sich am Anfang der Reihungen
 		vec3 toSource = normalize(spheres[i].center - hit.hitPoint); // TODO Sampling!
-		vec3 lightColor = sphereMaterials[i].Le;
-
-		Li(hit.hitPoint, toSource, hit.normal, lightColor, res);
+		Li(hit.hitPoint, toSource, hit.normal, res);
 	}
 
 	// 2. Cornell Box-Wand-Lichter
@@ -241,7 +242,7 @@ vec3 prepareLiCalculation(Hit hit) {
 
 	// TODO noch "hard coded"! Und zwar leuchtet die "top plane"
 	vec3 toCornellBoxNearSource = normalize(vec3(centerXY, cornellBox.maxCorner.z) - hit.hitPoint);
-	Li(hit.hitPoint, toCornellBoxNearSource, hit.normal, cornellBox.materials[5].Le, res);
+	Li(hit.hitPoint, toCornellBoxNearSource, hit.normal, res);
 
 	return res;
 }
