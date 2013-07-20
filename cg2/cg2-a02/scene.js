@@ -47,7 +47,7 @@ define([
         prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
         prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
         prog.setUniform("sphereMaterials[0].Le", "vec3", [1, 1, 1]);
-        prog.setUniform("sphereMaterials[0].Kd", "vec3", [1, 1, 1]); // Lichtfarbe
+        prog.setUniform("sphereMaterials[0].Kd", "vec3", [1, 1, 1]);
 
         prog.setUniform("spheres[1].center", "vec3", [0, 85, 85]);
         prog.setUniform("spheres[1].radius", "float", 35);
@@ -218,20 +218,11 @@ define([
         // set up the projection matrix: orthographic projection, aspect ratio: 1:1
         this.camera.projectionMatrix = mat4.ortho(-1, 1, -1, 1, 0.01, 100);
 
-        // 5. initialisiere "WebGL programs"
+        // 5. initialisiere "WebGL program"
         this.prog_pathtracing = new Program(gl,
             shaders("pathtracing_vert"),
             shaders("pathtracing_frag")
         );
-
-        this.prog_texture = new Program(gl,
-            shaders("texture_vert"),
-            shaders("texture_frag")
-        );
-
-        this.prog_texture.use();
-        this.prog_texture.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
-        this.prog_texture.setTexture("texture0", 0, swapTexture);
 
         this.prog_pathtracing.use();
         this.prog_pathtracing.setUniform("projectionMatrix", "mat4", this.camera.projectionMatrix);
@@ -262,14 +253,9 @@ define([
      */
     Scene.prototype.draw = function (msSinceStart) {
         // shortcut
-        var gl = this.gl;
-
-        this.prog_pathtracing.use();
-        this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001); // vgl. Evan Wallace
-        this.prog_pathtracing.setUniform("textureWeight", "float", this.sampleCounter / (this.sampleCounter + 1)); // vgl. Evan Wallace
-
+        var gl = this.gl,
         // initially set model-view matrix to the camera's view matrix
-        var modelView = this.camera.viewMatrix;
+            modelView = this.camera.viewMatrix;
 
         // enable depth testing, keep fragments with smaller depth values
         gl.enable(gl.DEPTH_TEST);
@@ -279,13 +265,24 @@ define([
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+        this.prog_pathtracing.use();
+
         // start drawing with the root node
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+        this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001); // vgl. Evan Wallace
+        this.prog_pathtracing.setUniform("textureWeight", "float", this.sampleCounter / (this.sampleCounter + 1)); // vgl. Evan Wallace
         this.world.draw(gl, this.prog_pathtracing, modelView);
+        this.sampleCounter++;
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        this.world.draw(gl, this.prog_texture, modelView);
-
+        /*
+         * +10 Sekunden ist eigentlich falsch, aber da secondsSinceStart nur als "seed" für die Generierung von Zufalls-
+         * zahlen benötigt wird, hat der Fehler keine Auswirkungen. Solange das so bleibt lässt sich hier Rechenzeit
+         * sparen, da keine "richtige" Zeitzählung erforderlich ist.
+         */
+        this.prog_pathtracing.setUniform("secondsSinceStart", "float", msSinceStart * 0.001 + 10); // vgl. Evan Wallace
+        this.prog_pathtracing.setUniform("textureWeight", "float", this.sampleCounter / (this.sampleCounter + 1)); // vgl. Evan Wallace
+        this.world.draw(gl, this.prog_pathtracing, modelView);
         this.sampleCounter++;
     }; // Scene draw()
 
