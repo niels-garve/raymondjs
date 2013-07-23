@@ -180,7 +180,7 @@ vec3 meshSamplerLookup(int x, int y, float r) {
 }
 
 /**
- * Schneidet alle Szeneobjekte mit ray und liefert den naheliegendsten Hit.
+ * Schneidet alle Szeneobjekte mit ray und liefert den nächstliegendsten Hit.
  */
 Hit sceneFirstHit(Ray ray) {
 	Hit firstHit; firstHit.t = T_MAX; // firstHit repräsentiert zunächst den "Schnitt in der Unendlichkeit"
@@ -317,7 +317,7 @@ vec3 pathTrace() {
 	vec3 tmpColor = vec3(1, 1, 1);
 	vec3 resColor = vec3(0, 0, 0);
 
-	for (int j = 0; j < DEPTH; j++) { // entspricht der Summe von j = 0 bis unendlich
+	for (int j = 0; j < DEPTH; j++) { // entspricht dem Produkt von i = 0 bis n
 		Hit hit = sceneFirstHit(ray);
 
 		// Fall: kein Schnittpunkt
@@ -325,11 +325,7 @@ vec3 pathTrace() {
 
 		// Fall: Licht geschnitten
 		if (length(hit.material.Le) > 0.0) {
-			if (j == 0) { // ...von einem Primärstrahl?
-				return hit.material.Kd; // -> Lichtdesign
-			} else {
-				return resColor + hit.material.Le;
-			}
+			return resColor + hit.material.Le;
 		}
 
 		// L_i (leider zu langsam)
