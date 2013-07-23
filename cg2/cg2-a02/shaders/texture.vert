@@ -26,6 +26,5 @@ void main() {
 				  // modelViewMatrix *
 				  vec4(vertexPosition, 1.0);
 
-	gl_PointSize = 3.0;
 	texCoords = vertexTexCoords;
 }

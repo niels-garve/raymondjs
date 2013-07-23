@@ -47,7 +47,7 @@ define([
         prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
         prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
         prog.setUniform("sphereMaterials[0].Le", "vec3", [1, 1, 1]);
-        prog.setUniform("sphereMaterials[0].Kd", "vec3", [1, 1, 1]); // Lichtfarbe
+        prog.setUniform("sphereMaterials[0].Kd", "vec3", [1, 1, 1]);
 
         prog.setUniform("spheres[1].center", "vec3", [0, 85, 85]);
         prog.setUniform("spheres[1].radius", "float", 35);
