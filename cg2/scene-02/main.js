@@ -75,11 +75,13 @@ define(["jquery", "gl-matrix", "webgl-debug", "scene", "animation", "scene_explo
             }
 
             // create a debugging wrapper of the context object
+/*
             var throwOnGLError = function (err, funcName, args) {
                 throw WebGLDebugUtils.glEnumToString(err) + " was caused by call to: " + funcName;
             };
 
             gl = WebGLDebugUtils.makeDebugContext(gl, throwOnGLError);
+*/
             return gl;
         };
 
