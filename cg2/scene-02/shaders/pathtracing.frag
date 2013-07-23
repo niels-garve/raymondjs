@@ -196,24 +196,24 @@ Hit sceneFirstHit(Ray ray) {
 	}
 
 	// 2. "CornellBox" schneiden (leider zu langsam)
-	// for (int i = 0; i < 6; i++) { // immer 6 "Wände"
-	// 	hitPlane(ray, cornellBox.planes[i], T_MIN, firstHit, cornellBox.materials[i]);
-	// }
+	for (int i = 0; i < 6; i++) { // immer 6 "Wände"
+		hitPlane(ray, cornellBox.planes[i], T_MIN, firstHit, cornellBox.materials[i]);
+	}
 
 	// 3. Mesh schneiden
-	for (int i = 0; i < 256; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 256 px
-		ivec3 indices = ivec3(meshSamplerLookup(i, 3, 0.1)); // Der Textur-Ursprung ist links-unten
+	// for (int i = 0; i < 256; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 256 px
+	// 	ivec3 indices = ivec3(meshSamplerLookup(i, 3, 0.1)); // Der Textur-Ursprung ist links-unten
 
-		// "0-terminierend"
-		if (indices.x == 0 && indices.y == 0 && indices.z == 0) break;
+	// 	// "0-terminierend"
+	// 	if (indices.x == 0 && indices.y == 0 && indices.z == 0) break;
 
-		Triangle triangle = Triangle(meshSamplerLookup(indices.x, 2, 0.0),
-			                         meshSamplerLookup(indices.y, 2, 0.0),
-			                         meshSamplerLookup(indices.z, 2, 0.0),
-			                         normalize(meshSamplerLookup(i, 1, 0.0)));
+	// 	Triangle triangle = Triangle(meshSamplerLookup(indices.x, 2, 0.0),
+	// 		                         meshSamplerLookup(indices.y, 2, 0.0),
+	// 		                         meshSamplerLookup(indices.z, 2, 0.0),
+	// 		                         normalize(meshSamplerLookup(i, 1, 0.0)));
 
-		hitTriangle(ray, triangle, T_MIN, firstHit, meshMaterial);
-	}
+	// 	hitTriangle(ray, triangle, T_MIN, firstHit, meshMaterial);
+	// }
 
 	return firstHit;
 }

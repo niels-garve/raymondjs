@@ -42,19 +42,19 @@ define([
         /*
          * spheres
          */
-        prog.setUniform("spheres[0].center", "vec3", [-20, 60, -30]);
-        prog.setUniform("spheres[0].radius", "float", 7.5);
+        prog.setUniform("spheres[0].center", "vec3", [0, 64, 0]);
+        prog.setUniform("spheres[0].radius", "float", 15.99);
         prog.setUniform("sphereMaterials[0].isPerfectMirror", "bool", false);
-        prog.setUniform("sphereMaterials[0].isDiffuse", "bool", false);
-        prog.setUniform("sphereMaterials[0].Le", "vec3", [1, 1, 1]);
-        prog.setUniform("sphereMaterials[0].Kd", "vec3", [1, 1, 1]);
+        prog.setUniform("sphereMaterials[0].isDiffuse", "bool", true);
+        prog.setUniform("sphereMaterials[0].Le", "vec3", [0, 0, 0]);
+        prog.setUniform("sphereMaterials[0].Kd", "vec3", [0.4, 0.4, 0.4]);
 
-        prog.setUniform("spheres[1].center", "vec3", [0, 85, 85]);
-        prog.setUniform("spheres[1].radius", "float", 35);
-        prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", false);
+        prog.setUniform("spheres[1].center", "vec3", [24, 48, -8]);
+        prog.setUniform("spheres[1].radius", "float", 7.99);
+        prog.setUniform("sphereMaterials[1].isPerfectMirror", "bool", true);
         prog.setUniform("sphereMaterials[1].isDiffuse", "bool", false);
-        prog.setUniform("sphereMaterials[1].Le", "vec3", [0.66, 0.66, 0.66]);
-        prog.setUniform("sphereMaterials[1].Kd", "vec3", [1, 1, 1]);
+        prog.setUniform("sphereMaterials[1].Le", "vec3", [0, 0, 0]);
+        prog.setUniform("sphereMaterials[1].Kd", "vec3", [0, 0, 0]);
 
         /*
          * the mesh, matrial only
@@ -67,61 +67,59 @@ define([
         /*
          * Cornell Box (128 x 128 x 48)
          */
-        /*
-         var minCorner = [-64, -1, -16], // [x, y, z]
-         maxCorner = [64, 127, 32]; // [x, y, z]
+        var minCorner = [-64, -1, -16], // [x, y, z]
+            maxCorner = [64, 127, 32]; // [x, y, z]
 
-         prog.setUniform("cornellBox.minCorner", "vec3", minCorner);
-         prog.setUniform("cornellBox.maxCorner", "vec3", maxCorner);
+        prog.setUniform("cornellBox.minCorner", "vec3", minCorner);
+        prog.setUniform("cornellBox.maxCorner", "vec3", maxCorner);
 
-         // left
-         prog.setUniform("cornellBox.planes[0].n", "vec3", [1, 0, 0]);
-         prog.setUniform("cornellBox.planes[0].d", "float", minCorner[0]); // x
-         prog.setUniform("cornellBox.materials[0].isPerfectMirror", "bool", false);
-         prog.setUniform("cornellBox.materials[0].isDiffuse", "bool", true);
-         prog.setUniform("cornellBox.materials[0].Le", "vec3", [0.0, 0.0, 0.0]);
-         prog.setUniform("cornellBox.materials[0].Kd", "vec3", [0.4, 0.0, 0.0]);
+        // left
+        prog.setUniform("cornellBox.planes[0].n", "vec3", [1, 0, 0]);
+        prog.setUniform("cornellBox.planes[0].d", "float", minCorner[0]); // x
+        prog.setUniform("cornellBox.materials[0].isPerfectMirror", "bool", false);
+        prog.setUniform("cornellBox.materials[0].isDiffuse", "bool", true);
+        prog.setUniform("cornellBox.materials[0].Le", "vec3", [0.0, 0.0, 0.0]);
+        prog.setUniform("cornellBox.materials[0].Kd", "vec3", [0.4, 0.0, 0.0]);
 
-         // right
-         prog.setUniform("cornellBox.planes[1].n", "vec3", [-1, 0, 0]);
-         prog.setUniform("cornellBox.planes[1].d", "float", -maxCorner[0]); // x
-         prog.setUniform("cornellBox.materials[1].isPerfectMirror", "bool", false);
-         prog.setUniform("cornellBox.materials[1].isDiffuse", "bool", true);
-         prog.setUniform("cornellBox.materials[1].Le", "vec3", [0.0, 0.0, 0.0]);
-         prog.setUniform("cornellBox.materials[1].Kd", "vec3", [0.0, 0.4, 0.0]);
+        // right
+        prog.setUniform("cornellBox.planes[1].n", "vec3", [-1, 0, 0]);
+        prog.setUniform("cornellBox.planes[1].d", "float", -maxCorner[0]); // x
+        prog.setUniform("cornellBox.materials[1].isPerfectMirror", "bool", false);
+        prog.setUniform("cornellBox.materials[1].isDiffuse", "bool", true);
+        prog.setUniform("cornellBox.materials[1].Le", "vec3", [0.0, 0.0, 0.0]);
+        prog.setUniform("cornellBox.materials[1].Kd", "vec3", [0.0, 0.4, 0.0]);
 
-         // near
-         prog.setUniform("cornellBox.planes[2].n", "vec3", [0, 1, 0]);
-         prog.setUniform("cornellBox.planes[2].d", "float", minCorner[1]); // y
-         prog.setUniform("cornellBox.materials[2].isPerfectMirror", "bool", false);
-         prog.setUniform("cornellBox.materials[2].isDiffuse", "bool", true);
-         prog.setUniform("cornellBox.materials[2].Le", "vec3", [0.0, 0.0, 0.0]);
-         prog.setUniform("cornellBox.materials[2].Kd", "vec3", [0.8, 0.8, 0.8]);
+        // near
+        prog.setUniform("cornellBox.planes[2].n", "vec3", [0, 1, 0]);
+        prog.setUniform("cornellBox.planes[2].d", "float", minCorner[1]); // y
+        prog.setUniform("cornellBox.materials[2].isPerfectMirror", "bool", false);
+        prog.setUniform("cornellBox.materials[2].isDiffuse", "bool", true);
+        prog.setUniform("cornellBox.materials[2].Le", "vec3", [0.0, 0.0, 0.0]);
+        prog.setUniform("cornellBox.materials[2].Kd", "vec3", [0.8, 0.8, 0.8]);
 
-         // far
-         prog.setUniform("cornellBox.planes[3].n", "vec3", [0, -1, 0]);
-         prog.setUniform("cornellBox.planes[3].d", "float", -maxCorner[1]); // y
-         prog.setUniform("cornellBox.materials[3].isPerfectMirror", "bool", false);
-         prog.setUniform("cornellBox.materials[3].isDiffuse", "bool", true);
-         prog.setUniform("cornellBox.materials[3].Le", "vec3", [0.0, 0.0, 0.0]);
-         prog.setUniform("cornellBox.materials[3].Kd", "vec3", [0.8, 0.8, 0.8]);
+        // far
+        prog.setUniform("cornellBox.planes[3].n", "vec3", [0, -1, 0]);
+        prog.setUniform("cornellBox.planes[3].d", "float", -maxCorner[1]); // y
+        prog.setUniform("cornellBox.materials[3].isPerfectMirror", "bool", false);
+        prog.setUniform("cornellBox.materials[3].isDiffuse", "bool", true);
+        prog.setUniform("cornellBox.materials[3].Le", "vec3", [0.0, 0.0, 0.0]);
+        prog.setUniform("cornellBox.materials[3].Kd", "vec3", [0.8, 0.8, 0.8]);
 
-         // bottom
-         prog.setUniform("cornellBox.planes[4].n", "vec3", [0, 0, 1]);
-         prog.setUniform("cornellBox.planes[4].d", "float", minCorner[2]); // z
-         prog.setUniform("cornellBox.materials[4].isPerfectMirror", "bool", false);
-         prog.setUniform("cornellBox.materials[4].isDiffuse", "bool", true);
-         prog.setUniform("cornellBox.materials[4].Le", "vec3", [0.0, 0.0, 0.0]);
-         prog.setUniform("cornellBox.materials[4].Kd", "vec3", [0.2, 0.2, 0.2]);
+        // bottom
+        prog.setUniform("cornellBox.planes[4].n", "vec3", [0, 0, 1]);
+        prog.setUniform("cornellBox.planes[4].d", "float", minCorner[2]); // z
+        prog.setUniform("cornellBox.materials[4].isPerfectMirror", "bool", false);
+        prog.setUniform("cornellBox.materials[4].isDiffuse", "bool", true);
+        prog.setUniform("cornellBox.materials[4].Le", "vec3", [0.0, 0.0, 0.0]);
+        prog.setUniform("cornellBox.materials[4].Kd", "vec3", [0.2, 0.2, 0.2]);
 
-         // top
-         prog.setUniform("cornellBox.planes[5].n", "vec3", [0, 0, -1]);
-         prog.setUniform("cornellBox.planes[5].d", "float", -maxCorner[2]); // z
-         prog.setUniform("cornellBox.materials[5].isPerfectMirror", "bool", false);
-         prog.setUniform("cornellBox.materials[5].isDiffuse", "bool", false);
-         prog.setUniform("cornellBox.materials[5].Le", "vec3", [0.4, 0.4, 0.4]);
-         prog.setUniform("cornellBox.materials[5].Kd", "vec3", [1.0, 1.0, 1.0]); // Lichtfarbe
-         */
+        // top
+        prog.setUniform("cornellBox.planes[5].n", "vec3", [0, 0, -1]);
+        prog.setUniform("cornellBox.planes[5].d", "float", -maxCorner[2]); // z
+        prog.setUniform("cornellBox.materials[5].isPerfectMirror", "bool", false);
+        prog.setUniform("cornellBox.materials[5].isDiffuse", "bool", false);
+        prog.setUniform("cornellBox.materials[5].Le", "vec3", [0.4, 0.4, 0.4]);
+        prog.setUniform("cornellBox.materials[5].Kd", "vec3", [0, 0, 0]);
     }
 
     /**
@@ -214,7 +212,7 @@ define([
 
         // 4. initialisiere "camera"
         this.camera = {};
-        this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [-0.2, 1, -0.6], [0, 0, 1]); // eye, center, up
+        this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [0, 1, 0], [0, 0, 1]); // eye, center, up
         // set up the projection matrix: orthographic projection, aspect ratio: 1:1
         this.camera.projectionMatrix = mat4.ortho(-1, 1, -1, 1, 0.01, 100);
 
