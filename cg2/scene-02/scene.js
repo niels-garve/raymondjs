@@ -118,7 +118,7 @@ define([
         prog.setUniform("cornellBox.planes[5].d", "float", -maxCorner[2]); // z
         prog.setUniform("cornellBox.materials[5].isPerfectMirror", "bool", false);
         prog.setUniform("cornellBox.materials[5].isDiffuse", "bool", false);
-        prog.setUniform("cornellBox.materials[5].Le", "vec3", [0.4, 0.4, 0.4]);
+        prog.setUniform("cornellBox.materials[5].Le", "vec3", [1.0, 1.0, 1.0]);
         prog.setUniform("cornellBox.materials[5].Kd", "vec3", [0, 0, 0]);
     }
 
