@@ -315,7 +315,6 @@ float diffuseNextDirection(out vec3 L, vec3 N, vec3 V, float seed) {
 vec3 pathTrace() {
 	Ray ray = Ray(eyePosition, normalize(rayDirection)); // Primärstrahl
 	vec3 tmpColor = vec3(1, 1, 1);
-	vec3 resColor = vec3(0, 0, 0);
 
 	for (int j = 0; j < DEPTH; j++) { // entspricht dem Produkt von i = 0 bis n
 		Hit hit = sceneFirstHit(ray);
@@ -325,7 +324,7 @@ vec3 pathTrace() {
 
 		// Fall: Licht geschnitten
 		if (length(hit.material.Le) > 0.0) {
-			return resColor + hit.material.Le;
+			return tmpColor * hit.material.Le;
 		}
 
 		// L_i (leider zu langsam)
@@ -351,7 +350,6 @@ vec3 pathTrace() {
 
 		// tmpColor akkumulieren
 		tmpColor *= brdf * cost / prob;
-		resColor = tmpColor;
 
 		// Iteration
 		ray = Ray(hit.hitPoint, nextDirection); // neuer Strahl
