@@ -24,12 +24,16 @@ define([
         this.scene.draw(0.0);
     };
 
+    PathtracingRT.prototype.start = function() {
+        this.scene.sampleCounter = 0;
+        this.animation.start();
+    };
+
     PathtracingRT.prototype.stop = function() {
         this.animation.stop();
     };
 
     PathtracingRT.prototype.resume = function() {
-        this.scene.sampleCounter = 0;
         this.animation.resume();
     };
 
