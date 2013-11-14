@@ -49,8 +49,9 @@ requirejs.config({
 define([
     'domReady',
     'webgl-debug',
-    'pathtracingRT'
-], function(domReady, WebGLDebugUtils, PathtracingRT) {
+    'pathtracingRT',
+    'html_controller'
+], function(domReady, WebGLDebugUtils, PathtracingRT, HtmlController) {
 
     'use strict';
 
@@ -105,6 +106,8 @@ define([
         try {
             var gl = makeWebGLContext('drawing_area'),
                 engine = new PathtracingRT(gl);
+
+            new HtmlController(engine);
 
             engine.drawFirstFrame();
 

@@ -13,13 +13,8 @@
  *
  * Scene.camera:      the camera to be used, consisting of two attributes:
  *                    camera.viewMatrix and camera.projectionMatrix.
- * 
- * Scene.drawOptions: array of strings defining on/off drawing options. 
- *                    this is potentially used by HtmlController to create
- *                    the corresponding check boxes in the HTML document.
  *
  */
-
 
 /* requireJS module definition */
 define([
@@ -246,9 +241,6 @@ define([
         this.stageNode = new SceneNode("StageNode", [this.stage], null); // program to null, it changes while drawing
         // the world node - this is potentially going to be accessed from outside
         this.world = new SceneNode("world", [this.stageNode], null);
-
-        // for the UI - this will be accessed directly by HtmlController
-        this.drawOptions = {};
 
         this.sampleCounter = 0;
     }; // Scene constructor
