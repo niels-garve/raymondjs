@@ -48,13 +48,9 @@ requirejs.config({
 
 define([
     'domReady',
-    'gl-matrix',
     'webgl-debug',
-    'scene',
-    'animation',
-    'scene_explorer',
-    'html_controller'
-], function(domReady, glmatrix, WebGLDebugUtils, Scene, Animation, SceneExplorer, HtmlController) {
+    'pathtracingRT'
+], function(domReady, WebGLDebugUtils, PathtracingRT) {
 
     'use strict';
 
@@ -69,6 +65,7 @@ define([
      * @author Niels Garve, niels.garve.yahoo.de
      * @param canvasName
      * @returns {*}
+     * @private
      */
     var makeWebGLContext = function(canvasName) {
         // get the canvas element to be used for drawing
@@ -97,22 +94,6 @@ define([
     };
 
     /**
-     * create an animation for timing and regular calls of Scene.draw()
-     *
-     * @author Niels Garve, niels.garve.yahoo.de
-     * @param scene
-     * @returns {Animation}
-     */
-    var makeAnimation = function(scene) {
-        // create animation to rotate the scene
-        return new Animation(function(t) {
-            // (re-) draw the scene
-            scene.draw(t);
-
-        }); // end animation callback
-    };
-
-    /**
      * main program, to be called once the document has loaded
      * and the DOM has been constructed
      *
@@ -122,18 +103,11 @@ define([
     domReady(function() {
         // catch errors for debugging purposes
         try {
-            // create WebGL context object for the named canvas object
             var gl = makeWebGLContext('drawing_area'),
-            // create scene and animation, and start drawing
-                scene = new Scene(gl),
-                animation = makeAnimation(scene); // do not start yet
+                engine = new PathtracingRT(gl);
 
-            new SceneExplorer(gl.canvas, false, scene);
-            // create HTML controller that handles all the interaction of
-            // HTML elements with the scene and the animation
-            new HtmlController(scene, animation);
+            engine.drawFirstFrame();
 
-            scene.draw(0.0);
         } catch (err) {
             var errorElement = document.getElementById('error');
             if(errorElement) {
