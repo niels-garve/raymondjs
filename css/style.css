@@ -17,5 +17,10 @@ body {
 }
 
 #drawing_area {
+    /*
+     * NOTE: the "position:relative" is required due to the current implementation of mouse coordinate processing in
+     * module "util".
+     */
+    position: relative;
     cursor: pointer;
 }

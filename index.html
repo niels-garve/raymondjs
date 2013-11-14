@@ -1,25 +1,12 @@
-<html>
-<head>
-    <meta charset="UTF-8">
+<!doctype html>
+<meta charset="UTF-8">
 
-    <title>CG2 A2: WebGL</title>
+<title>CG2 A2: WebGL</title>
 
-    <script type="text/javascript">
-        // usage: log('inside coolFunc',this,arguments);
-        // http://paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
-        window.log=function(){log.history=log.history||[];log.history.push(arguments);if(!this.console){console.log(Array.prototype.slice.call(arguments))}};
-    </script>
+<link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="css/style.css">
 
-    <!-- import main module using RequireJS -->
-    <script data-main="js/main.js" src="js/lib/require.js"></script>
-
-    <!-- import style sheet -->
-    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" media="screen" href="css/style.css">
-</head>
-
-<body>
-<div class="navbar navbar-inverse navbar-fixed-top">
+<header class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
             <a class="brand" href="#">Pathtracing
@@ -33,9 +20,9 @@
             </div>
         </div>
     </div>
-</div>
+</header>
 
-<div class="container">
+<section class="container">
     <!-- this element will be used to diplay errors -->
     <pre id="error" class="alert alert-error"></pre>
 
@@ -50,16 +37,18 @@
 
     <!-- centered region with drawing canvas -->
     <div class="text-center">
-        <canvas id="drawing_area" width="512" height="512" style="position:relative;">
-            <!-- NOTE: the "position:relative" is required due to the current
-                 implementation of mouse coordinate processing in module "util". -->
-            If you see this text, your browser probably does not
-            support HTML5.
+        <canvas id="drawing_area" width="512" height="512">If you see this text, your browser probably does not support
+            HTML5.
         </canvas>
     </div>
-</div>
+</section>
 
-</body>
+<script type="text/javascript">
+    // usage: log('inside coolFunc',this,arguments);
+    // http://paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
+    window.log=function(){log.history=log.history||[];log.history.push(arguments);if(!this.console){console.log(Array.prototype.slice.call(arguments))}};
+</script>
+<script data-main="js/main.js" src="js/lib/require.js"></script>
 
 <script id="mesh" type="text/plain">
 # Blender v2.67 (sub 0) OBJ File: 'myCrane.blend'
@@ -174,4 +163,3 @@ f 27//31 30//31 32//31
 f 25//32 35//32 24//32
 f 36//33 24//33 37//33
 </script>
-</html>
