@@ -1,6 +1,6 @@
 /*
  * Module main: CG2 Aufgabe 2, Winter 2012/2013
- * (C)opyright Hartmut Schirmacher, hschirmacher.beuth-hochschule.de 
+ * (C)opyright Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
  *
  */
 
@@ -65,6 +65,8 @@ define([
      * It also creates awrapper around it for debugging
      * purposes, using webgl-debug.js
      *
+     * @author Hartmut Schirmacher, hschirmacher.beuth-hochschule.de
+     * @author Niels Garve, niels.garve.yahoo.de
      * @param canvasName
      * @returns {*}
      */
