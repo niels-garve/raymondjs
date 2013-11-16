@@ -12,12 +12,8 @@
  */
 requirejs.config({
     paths: {
-        jquery: [
-            // try content delivery network location first
-            'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min',
-            // if the load via CDN fails, load locally
-            'lib/jquery-1.7.2.min'
-        ],
+        jquery: 'lib/jquery-1.7.2.min',
+        underscore: 'lib/underscore-min',
 
         // require.js plugins
         domReady: 'lib/domReady',
@@ -31,6 +27,10 @@ requirejs.config({
     },
 
     shim: {
+        underscore: {
+            exports: '_'
+        },
+
         'webgl-obj-loader': {
             deps: ['jquery']
         }
