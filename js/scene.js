@@ -29,12 +29,12 @@ define([
     'material',
     'Stage',
     'Config',
-    'text!../shaders/pathtracing.vert',
-    'text!../shaders/pathtracing.frag',
-    'text!../shaders/texture.vert',
-    'text!../shaders/texture.frag',
+    'hgn!../shaders/pathtracing.vert',
+    'hgn!../shaders/pathtracing.frag',
+    'hgn!../shaders/texture.vert',
+    'hgn!../shaders/texture.frag',
     'webgl-obj-loader'
-], function(glmatrix, Program, SceneNode, Texture, light, material, Stage, Config, PathtracingVert, PathtracingFrag, TextureVert, TextureFrag) {
+], function(glmatrix, Program, SceneNode, Texture, light, material, Stage, Config, pathtracingVert, pathtracingFrag, textureVert, textureFrag) {
 
     'use strict';
 
@@ -230,13 +230,13 @@ define([
 
         // 5. initialisiere WebGL programs
         this.prog_pathtracing = new Program(gl,
-            PathtracingVert,
-            PathtracingFrag
+            pathtracingVert({}),
+            pathtracingFrag({})
         );
 
         this.prog_texture = new Program(gl,
-            TextureVert,
-            TextureFrag
+            textureVert({}),
+            textureFrag({})
         );
 
         this.prog_texture.use();

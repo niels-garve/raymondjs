@@ -13,11 +13,12 @@
 requirejs.config({
     paths: {
         jquery: 'lib/jquery-1.7.2.min',
-        underscore: 'lib/underscore-min',
 
         // require.js plugins
         domReady: 'lib/domReady',
-        text: 'lib/text',
+        hgn: '../components/requirejs-hogan-plugin/hgn',
+        text: '../components/requirejs-hogan-plugin/text',
+        hogan: '../components/requirejs-hogan-plugin/hogan',
 
         'gl-matrix': 'lib/gl-matrix-1.3.7.min',
 
@@ -27,12 +28,25 @@ requirejs.config({
     },
 
     shim: {
-        underscore: {
-            exports: '_'
-        },
-
         'webgl-obj-loader': {
             deps: ['jquery']
+        }
+    },
+
+    // configure hgn! plugin
+    hgn: {
+        // load "*.mustache" files, set to empty string if you
+        // want to specify the template extension for each individual file
+        // the default value is ".mustache"
+        templateExtension: '',
+
+        // if you need to set custom options it can be done through the
+        // "compilationOptions" setting, check hogan documentation:
+        // https://github.com/twitter/hogan.js#compilation-options
+        compilationOptions: {
+            // delimiters : '<% %>',
+            // sectionTags: [{o: '_foo', c: 'foo'}],
+            // disableLambda : true
         }
     },
 

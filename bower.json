@@ -1,0 +1,8 @@
+{
+    "name": "Web realtime pathtracing",
+    "version": "0.0.1",
+    "dependencies": {},
+    "devDependencies": {
+        "requirejs-hogan-plugin": "~0.3.1"
+    }
+}
