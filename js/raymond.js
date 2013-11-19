@@ -9,7 +9,7 @@ define([
 
     'use strict';
 
-    var PathtracingRT = function(gl) {
+    var Raymond = function(gl) {
         this.scene = new Scene(gl);
 
         // TODO create an animation for timing and regular calls of Scene.draw()
@@ -20,22 +20,22 @@ define([
         new SceneExplorer(gl.canvas, false, this.scene);
     };
 
-    PathtracingRT.prototype.drawFirstFrame = function() {
+    Raymond.prototype.drawFirstFrame = function() {
         this.scene.draw(0.0);
     };
 
-    PathtracingRT.prototype.start = function() {
+    Raymond.prototype.start = function() {
         this.scene.sampleCounter = 0;
         this.animation.start();
     };
 
-    PathtracingRT.prototype.stop = function() {
+    Raymond.prototype.stop = function() {
         this.animation.stop();
     };
 
-    PathtracingRT.prototype.resume = function() {
+    Raymond.prototype.resume = function() {
         this.animation.resume();
     };
 
-    return PathtracingRT;
+    return Raymond;
 });

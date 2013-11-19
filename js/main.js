@@ -63,9 +63,9 @@ requirejs.config({
 define([
     'domReady',
     'webgl-debug',
-    'pathtracingRT',
+    'raymond',
     'html_controller'
-], function(domReady, WebGLDebugUtils, PathtracingRT, HtmlController) {
+], function(domReady, WebGLDebugUtils, Raymond, HtmlController) {
 
     'use strict';
 
@@ -119,7 +119,7 @@ define([
         // catch errors for debugging purposes
         try {
             var gl = makeWebGLContext('drawing_area'),
-                engine = new PathtracingRT(gl);
+                engine = new Raymond(gl);
 
             new HtmlController(engine);
 
