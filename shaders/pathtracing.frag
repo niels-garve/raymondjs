@@ -16,28 +16,14 @@ precision mediump float;
 #define M_PI 3.14159265359
 #define EPSILON 0.001
 
+#define NUMBER_OF_SPHERES {{numberOfSpheres}}
+#define NUMBER_OF_SPHERICAL_LIGHTS {{numberOfSphericalLights}}
+#define MESH_SAMPLER_WIDTH {{meshSamplerWidth}}
+
 // "struct"-Orientiertes programmieren
 struct Ray {
 	vec3 start;
 	vec3 direction;
-};
-struct Sphere {
-	vec3 center;
-	float radius;
-};
-struct Plane { // Hessesche Normalform
-	vec3 n;
-	float d;
-};
-struct Triangle {
-	vec3 v0;
-	vec3 v1;
-	vec3 v2;
-	vec3 n; // erst mal reicht nur eine Normale
-};
-struct Mesh {
-	sampler2D data;
-	vec2 onePixel; // Größe eines Pixel zur Adressierung
 };
 struct Material {
 	// zwei Boolesche Variablen zur Auswahl der BRDF
@@ -45,13 +31,6 @@ struct Material {
 	bool isDiffuse;
 	vec3 Le; // L_emit
 	vec3 Kd; // Farbe 
-};
-struct CornellBox {
-	Plane planes[6];
-	Material materials[6];
-	// eigentlich redundant, aber benötigt für Mittelpunktberechnung (siehe Li-Berechnung)
-	vec3 minCorner;
-	vec3 maxCorner;
 };
 struct Hit {
 	// eigentlich sind t und hitPoint redundant, aber t ist eine schnelle Metrik für die Abstandsmessung und hitPoint
@@ -65,14 +44,6 @@ struct Hit {
 // uniforms
 uniform vec3 La; // Hintergrundfarbe
 
-uniform Sphere spheres[2];
-uniform Material sphereMaterials[2];
-
-uniform Mesh mesh;
-uniform Material meshMaterial;
-
-uniform CornellBox cornellBox;
-
 // Benötigt für Zufallsvariable
 uniform float secondsSinceStart;
 
@@ -83,6 +54,15 @@ uniform vec3 eyePosition;
 // varyings
 varying vec3 rayDirection;
 varying vec2 texCoords;
+
+//{{#hasSpheres}}
+struct Sphere {
+	vec3 center;
+	float radius;
+};
+
+uniform Sphere spheres[NUMBER_OF_SPHERES];
+uniform Material sphereMaterials[NUMBER_OF_SPHERES];
 
 /**
  * Schneidet ray mit sphere und liefert inout-firstHit, falls "out"-firstHit.t in (tMin, ..., "in"-firstHit.t) liegt.
@@ -117,6 +97,23 @@ void hitSphere(Ray ray, Sphere sphere, float tMin, inout Hit firstHit, Material 
 		}
 	}
 }
+//{{/hasSpheres}}
+
+//{{#hasCornellBox}}
+struct Plane { // Hessesche Normalform
+	vec3 n;
+	float d;
+};
+
+struct CornellBox {
+	Plane planes[6];
+	Material materials[6];
+	// eigentlich redundant, aber benötigt für Mittelpunktberechnung (siehe Li-Berechnung)
+	vec3 minCorner;
+	vec3 maxCorner;
+};
+
+uniform CornellBox cornellBox;
 
 /**
  * Schneidet ray mit plane und liefert inout-firstHit, falls "out"-firstHit.t in (tMin, ..., "in"-firstHit.t) liegt.
@@ -134,6 +131,23 @@ void hitPlane(Ray ray, Plane plane, float tMin, inout Hit firstHit, Material mat
 		firstHit = Hit(t, hitPoint, material, plane.n); // bereits Normalisiert
 	}
 }
+//{{/hasCornellBox}}
+
+//{{#hasMesh}}
+struct Triangle {
+	vec3 v0;
+	vec3 v1;
+	vec3 v2;
+	vec3 n; // erst mal reicht nur eine Normale
+};
+
+struct Mesh {
+	sampler2D data;
+	vec2 onePixel; // Größe eines Pixel zur Adressierung
+};
+
+uniform Mesh mesh;
+uniform Material meshMaterial;
 
 /**
  * Schneidet ray mit triangle und liefert inout-firstHit, falls "out"-firstHit.t in (tMin, ..., "in"-firstHit.t)
@@ -178,6 +192,7 @@ vec3 meshSamplerLookup(int x, int y, float r) {
 
 	return res;
 }
+//{{/hasMesh}}
 
 /**
  * Schneidet alle Szeneobjekte mit ray und liefert den nächstliegendsten Hit.
@@ -190,18 +205,20 @@ Hit sceneFirstHit(Ray ray) {
 	firstHitMaterial.Le = vec3(0.0, 0.0, 0.0);
 	firstHit.material = firstHitMaterial;
 
-	// 1. Kugeln schneiden
-	for (int i = 0; i < 2; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 2 Kugeln
+	//{{#hasSpheres}}
+	for (int i = 0; i < NUMBER_OF_SPHERES; i++) {
 		hitSphere(ray, spheres[i], T_MIN, firstHit, sphereMaterials[i]);
 	}
+	//{{/hasSpheres}}
 
-	// 2. "CornellBox" schneiden (leider zu langsam)
-	// for (int i = 0; i < 6; i++) { // immer 6 "Wände"
-	// 	hitPlane(ray, cornellBox.planes[i], T_MIN, firstHit, cornellBox.materials[i]);
-	// }
+	//{{#hasCornellBox}}
+	for (int i = 0; i < 6; i++) { // immer 6 "Wände"
+		hitPlane(ray, cornellBox.planes[i], T_MIN, firstHit, cornellBox.materials[i]);
+	}
+	//{{/hasCornellBox}}
 
-	// 3. Mesh schneiden
-	for (int i = 0; i < 256; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 256 px
+	//{{#hasMesh}}
+	for (int i = 0; i < MESH_SAMPLER_WIDTH; i++) {
 		ivec3 indices = ivec3(meshSamplerLookup(i, 3, 0.1)); // Der Textur-Ursprung ist links-unten
 
 		// "0-terminierend"
@@ -214,6 +231,7 @@ Hit sceneFirstHit(Ray ray) {
 
 		hitTriangle(ray, triangle, T_MIN, firstHit, meshMaterial);
 	}
+	//{{/hasMesh}}
 
 	return firstHit;
 }
@@ -234,20 +252,22 @@ void Li(vec3 x, vec3 s, vec3 n, inout vec3 res) {
 vec3 prepareLiCalculation(Hit hit) {
 	vec3 res = vec3(0.0, 0.0, 0.0);
 
-	// 1. Kugel-Lichter
-	for (int i = 0; i < 2; i++) { // # Iterationen muss vor der Laufzeit bekannt sein (siehe GLSL 1.0); 2 Lichter
+	//{{#hasSpheres}}
+	for (int i = 0; i < NUMBER_OF_SPHERICAL_LIGHTS; i++) {
 		// die Lichter befinden sich am Anfang der Reihungen
 		vec3 toSource = normalize(spheres[i].center - hit.hitPoint); // TODO Sampling!
 		Li(hit.hitPoint, toSource, hit.normal, res);
 	}
+	//{{/hasSpheres}}
 
-	// 2. Cornell Box-Wand-Lichter
+	//{{#hasCornellBox}}
 	vec2 centerXY = vec2((cornellBox.minCorner.x + cornellBox.maxCorner.x) / 2.0,
 				   (cornellBox.minCorner.y + cornellBox.maxCorner.y) / 2.0); // TODO Sampling
 
 	// TODO noch "hard coded"! Und zwar leuchtet die "top plane"
 	vec3 toCornellBoxNearSource = normalize(vec3(centerXY, cornellBox.maxCorner.z) - hit.hitPoint);
 	Li(hit.hitPoint, toCornellBoxNearSource, hit.normal, res);
+	//{{/hasCornellBox}}
 
 	return res;
 }

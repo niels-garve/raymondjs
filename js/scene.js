@@ -231,7 +231,14 @@ define([
         // 5. initialisiere WebGL programs
         this.prog_pathtracing = new Program(gl,
             pathtracingVert({}),
-            pathtracingFrag({})
+            pathtracingFrag({
+                hasSpheres: true,
+                numberOfSpheres: 2,
+                numberOfSphericalLights: 2,
+                hasCornellBox: false,
+                hasMesh: true,
+                meshSamplerWidth: config.get('MESH_SAMPLER_WIDTH')
+            })
         );
 
         this.prog_texture = new Program(gl,
