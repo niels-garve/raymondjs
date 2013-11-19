@@ -1,8 +1,10 @@
 {
-    "name": "Web realtime pathtracing",
+    "name": "raymondJS",
     "version": "0.0.1",
     "dependencies": {},
     "devDependencies": {
+        "requirejs": "~2.1.9",
+        "requirejs-domready": "~2.0.1",
         "requirejs-hogan-plugin": "~0.3.1"
     }
 }

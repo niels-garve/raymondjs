@@ -12,25 +12,18 @@
  */
 requirejs.config({
     paths: {
-        jquery: 'lib/jquery-1.7.2.min',
-
         // require.js plugins
-        domReady: 'lib/domReady',
+        domReady: '../components/requirejs-domready/domReady',
         hgn: '../components/requirejs-hogan-plugin/hgn',
         text: '../components/requirejs-hogan-plugin/text',
         hogan: '../components/requirejs-hogan-plugin/hogan',
 
         'gl-matrix': 'lib/gl-matrix-1.3.7.min',
 
-        'webgl-obj-loader': 'loaders/webgl-obj-loader',
-
-        Stage: 'models/Stage'
+        'webgl-obj-loader': 'loaders/webgl-obj-loader'
     },
 
     shim: {
-        'webgl-obj-loader': {
-            deps: ['jquery']
-        }
     },
 
     // configure hgn! plugin
