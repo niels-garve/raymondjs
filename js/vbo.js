@@ -13,8 +13,8 @@
  */
 
 /* requireJS module definition */
-define(["util"], 
-       (function(util) {
+define([
+], function() {
 
     "use strict";
     
@@ -178,6 +178,6 @@ define(["util"],
     // this module returns an interface with two constructors
     return vbo;
 
-})); // end define
+}); // end define
 
             

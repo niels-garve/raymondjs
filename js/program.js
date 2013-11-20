@@ -20,8 +20,8 @@
 
 
 /* requireJS module definition */
-define(["util"], 
-       (function(util) {
+define([
+], function() {
        
     "use strict";
     
@@ -198,7 +198,7 @@ define(["util"],
                     this.gl.uniform1i(location, value);
                     return true;
                 default: 
-                    throw new util.RuntimeError("setUniform(): unknown uniform type '"+type+"'", this);
+                    throw new Error("setUniform(): unknown uniform type '"+type+"'");
                     return false;
             }; // end switch
             
@@ -230,7 +230,7 @@ define(["util"],
 
         // does the texture object have an isLoaded() method?
         if( !texture.isLoaded ) {
-            throw new util.RuntimeError("setTexture(): not a valid texture wrapper object.");
+            throw new Error("setTexture(): not a valid texture wrapper object.");
             return false; 
         };
         
@@ -243,8 +243,8 @@ define(["util"],
         // is the desired texture unit within the allowed range?
         var max = this.gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS;
         if(textureUnit < 0 || textureUnit >= max) {
-            fatalError("ERROR: setTexture(): texture unit " + textureUnit + 
-                       " out of range [0 ... " + max-1) + "]";
+            throw new Error("ERROR: setTexture(): texture unit " + textureUnit +
+                       " out of range [0 ... " + max-1 + "]");
             return false;
         };
         
@@ -271,6 +271,6 @@ define(["util"],
     // this module only returns the Program constructor function    
     return Program;
 
-})); // define
+}); // define
 
     

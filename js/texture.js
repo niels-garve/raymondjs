@@ -29,7 +29,8 @@
  */
 
 /* requireJS module definition */
-define(["util"], (function(util) {
+define([
+], function() {
 
     "use strict";
     
@@ -218,6 +219,6 @@ define(["util"], (function(util) {
              "Texture2D": Texture2D, 
              "TextureCube": TextureCube };
          
-})); // define
+}); // define
             
 

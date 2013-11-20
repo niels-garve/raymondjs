@@ -52,8 +52,9 @@
 
 
 /* requireJS module definition */
-define(["util", "gl-matrix"], 
-       (function(util, dummy) {
+define([
+    "gl-matrix"
+], function() {
 
     "use strict";
     
@@ -195,6 +196,6 @@ define(["util", "gl-matrix"],
     // this module only exports the constructor for SceneNode objects
     return SceneNode;
 
-})); // define
+}); // define
 
     
