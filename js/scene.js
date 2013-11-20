@@ -27,7 +27,7 @@ define([
     'texture',
     'light',
     'material',
-    'models/Stage',
+    'stage',
     'Config',
     'hgn!../shaders/pathtracing.vert',
     'hgn!../shaders/pathtracing.frag',
