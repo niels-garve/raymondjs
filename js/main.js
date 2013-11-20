@@ -20,7 +20,7 @@ requirejs.config({
 
         'gl-matrix': '../components/gl-matrix/gl-matrix',
 
-        'webgl-obj-loader': 'loaders/webgl-obj-loader'
+        'webgl-obj-loader': 'loaders/webgl-obj-loader' // TODO check v2.2.0, check AMD-readiness
     },
 
     shim: {
