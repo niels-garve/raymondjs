@@ -18,7 +18,7 @@ requirejs.config({
         text: '../components/requirejs-hogan-plugin/text',
         hogan: '../components/requirejs-hogan-plugin/hogan',
 
-        'gl-matrix': 'lib/gl-matrix-1.3.7.min',
+        'gl-matrix': '../components/gl-matrix/gl-matrix',
 
         'webgl-obj-loader': 'loaders/webgl-obj-loader'
     },
