@@ -18,7 +18,7 @@ requirejs.config({
         text: '../components/requirejs-hogan-plugin/text',
         hogan: '../components/requirejs-hogan-plugin/hogan',
 
-        'gl-matrix': '../components/gl-matrix/gl-matrix' // TODO check v2.2.0, check AMD-readiness
+        'gl-matrix': '../components/gl-matrix/dist/gl-matrix'
     },
 
     shim: {
@@ -52,13 +52,17 @@ requirejs.config({
  */
 
 define([
+    'gl-matrix',
     'domReady',
     'webgl-debug',
     'raymond',
     'html_controller'
-], function(domReady, WebGLDebugUtils, Raymond, HtmlController) {
+], function(glmatrix, domReady, WebGLDebugUtils, Raymond, HtmlController) {
 
     'use strict';
+
+    // TODO Config
+    glmatrix.glMatrix.setMatrixArrayType(Float32Array);
 
     /**
      * This function asks the HTML Canvas element with id canvasName to create

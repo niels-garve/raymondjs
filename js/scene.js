@@ -224,9 +224,9 @@ define([
 
         // 4. initialisiere camera
         this.camera = {};
-        this.camera.viewMatrix = mat4.lookAt([0, 0, 0], [-0.2, 1, -0.6], [0, 0, 1]); // eye, center, up
+        this.camera.viewMatrix = glmatrix.mat4.lookAt(glmatrix.mat4.create(), [0, 0, 0], [-0.2, 1, -0.6], [0, 0, 1]); // eye, center, up
         // set up the projection matrix: orthographic projection, aspect ratio: 1:1
-        this.camera.projectionMatrix = mat4.ortho(-1, 1, -1, 1, 0.01, 100);
+        this.camera.projectionMatrix = glmatrix.mat4.ortho(glmatrix.mat4.create(), -1, 1, -1, 1, 0.01, 100);
 
         // 5. initialisiere WebGL programs
         this.prog_pathtracing = new Program(gl,

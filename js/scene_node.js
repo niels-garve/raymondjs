@@ -54,7 +54,7 @@
 /* requireJS module definition */
 define([
     "gl-matrix"
-], function() {
+], function(glmatrix) {
 
     "use strict";
     
@@ -82,7 +82,7 @@ define([
         this.program         = program || null;
 
         // optional transformation for this node
-        this.transformation  = transform || mat4.identity();
+        this.transformation  = transform || glmatrix.mat4.create();
         
         // flag: draw this node and its children, or not?
         this.visible = visible===undefined? true : visible;
@@ -112,25 +112,23 @@ define([
 
         if(!gl) {
             throw "no WebGL context specified in scene node " + this.name;
-            return;
-        };
+        }
     
         // take program passed as a parameter, or the program from the constructor
         var newProgram = this.program || program;
         if(!newProgram) {
             throw "no program specified in scene node " + this.name;
-            return;
-        };
-            
+        }
+
         // copy  the matrix passed as a parameter, or identity if undefined
-        var newMatrix = mat4.create(modelViewMatrix || mat4.identity());
+        var newMatrix = modelViewMatrix || glmatrix.mat4.create();
         
         // multiply the local transformation from the right so it will be executed FIRST
-        mat4.multiply(newMatrix, this.transformation); 
+        glmatrix.mat4.multiply(newMatrix, newMatrix, this.transformation);
         
         // calculate the normal matrix
-        var normalMatrix =  mat4.toInverseMat3(newMatrix);
-        mat3.transpose(normalMatrix,normalMatrix);
+        var normalMatrix =  glmatrix.mat3.fromMat4(glmatrix.mat3.create(), glmatrix.mat4.invert(newMatrix, newMatrix));
+        glmatrix.mat3.transpose(normalMatrix,normalMatrix);
     
         // loop over all drawable objects and call their draw() methods
         for(var i=0; i<this.drawableObjects.length; ++i) {
@@ -141,7 +139,7 @@ define([
 
             // child may manipulate the program and/or matrix!
             this.drawableObjects[i].draw(gl, newProgram, newMatrix);
-        };
+        }
         
     };
     
@@ -159,7 +157,7 @@ define([
                 this.drawableObjects.push(o);
             }
             
-        };
+        }
         log("added " + objects.length + " objects to SceneNode " + this.name + ".");
             
     };
@@ -177,8 +175,8 @@ define([
             } else {
                 // remove obj from array
                 this.drawableObjects.splice(idx,1);
-            };
-        };
+            }
+        }
             
     };
 
