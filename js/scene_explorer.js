@@ -13,8 +13,9 @@
 
 
 /* requireJS module definition */
-define(["gl-matrix" ], 
-       (function(dummy) {
+define([
+    "gl-matrix"
+], function(glmatrix) {
 
     "use strict";
 
@@ -144,31 +145,30 @@ define(["gl-matrix" ],
             var degreesX = deltaY * this.rotSensitivity;
             
             // camera system x and y axes 
-            var xAxis = vec3.create([1,0,0]);
-            var yAxis = vec3.create([0,1,0]);
+            var xAxis = glmatrix.vec3.fromValues(1, 0, 0);
+            var yAxis = glmatrix.vec3.fromValues(0, 1, 0);
             
             // transformation from camera coords to model coords
-            var modelToEye = mat4.create(this.camera.viewMatrix);
-            var eyeToModel = mat4.inverse(modelToEye, eyeToModel);
+            var eyeToModel = glmatrix.mat4.invert(glmatrix.mat4.create(), this.camera.viewMatrix);
             
             // eliminate translation component of matrix
             eyeToModel[12] = 0; eyeToModel[13] = 0; eyeToModel[14] = 0;
             
             // transform axes into model space
-            var rotX = mat4.identity();
-            var rotY = mat4.identity(); 
-            mat4.multiplyVec3(eyeToModel,xAxis,xAxis);
-            mat4.multiplyVec3(eyeToModel,yAxis,yAxis);
-            mat4.rotate(rotX,degreesX,xAxis,rotX);
-            mat4.rotate(rotY,degreesY,yAxis,rotY);
+            var rotX = glmatrix.mat4.create();
+            var rotY = glmatrix.mat4.create();
+
+            glmatrix.vec3.transformMat4(xAxis, xAxis, eyeToModel);
+            glmatrix.vec3.transformMat4(yAxis, yAxis, eyeToModel);
+
+            glmatrix.mat4.rotate(rotX,rotX,degreesX,xAxis);
+            glmatrix.mat4.rotate(rotY,rotY,degreesY,yAxis);
             
             // log("rotate "+degreesX+" degrees around " + xAxis);
             
             // add to model-view transformation chain from the right
-            mat4.multiply(rotX, this.scene.world.transformation, 
-                                this.scene.world.transformation);
-            mat4.multiply(rotY, this.scene.world.transformation, 
-                                this.scene.world.transformation);
+            glmatrix.mat4.multiply(this.scene.world.transformation, rotX, this.scene.world.transformation);
+            glmatrix.mat4.multiply(this.scene.world.transformation, rotY, this.scene.world.transformation);
             
         } else if(this.dragMode == "translateXY") {
 
@@ -350,11 +350,4 @@ define(["gl-matrix" ],
     // this module only returns the SceneExplorer constructor function
     return SceneExplorer;
 
-})); // define module
-
-
-
-
-
-
-            
+}); // define module

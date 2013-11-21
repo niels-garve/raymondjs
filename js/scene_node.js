@@ -120,8 +120,8 @@ define([
             throw "no program specified in scene node " + this.name;
         }
 
-        // copy  the matrix passed as a parameter, or identity if undefined
-        var newMatrix = modelViewMatrix || glmatrix.mat4.create();
+        // copy the matrix passed as a parameter, or identity if undefined
+        var newMatrix = modelViewMatrix ? glmatrix.mat4.clone(modelViewMatrix) : glmatrix.mat4.create();
         
         // multiply the local transformation from the right so it will be executed FIRST
         glmatrix.mat4.multiply(newMatrix, newMatrix, this.transformation);
