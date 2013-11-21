@@ -28,13 +28,13 @@ define([
     'light',
     'material',
     'stage',
+    'mesh',
     'Config',
     'hgn!../shaders/pathtracing.vert',
     'hgn!../shaders/pathtracing.frag',
     'hgn!../shaders/texture.vert',
-    'hgn!../shaders/texture.frag',
-    'webgl-obj-loader'
-], function(glmatrix, Program, SceneNode, Texture, light, material, Stage, Config, pathtracingVert, pathtracingFrag, textureVert, textureFrag) {
+    'hgn!../shaders/texture.frag'
+], function(glmatrix, Program, SceneNode, Texture, light, material, Stage, Mesh, Config, pathtracingVert, pathtracingFrag, textureVert, textureFrag) {
 
     'use strict';
 
@@ -200,7 +200,7 @@ define([
             MESH_SAMPLER_WIDTH = config.get('MESH_SAMPLER_WIDTH'),
             MESH_SAMPLER_HEIGHT = config.get('MESH_SAMPLER_HEIGHT'),
             canvas = gl.canvas,
-            mesh = new obj_loader.Mesh(document.getElementById('mesh').innerHTML),
+            mesh = new Mesh(document.getElementById('mesh').innerHTML),
             meshData = meshToUint8Array(mesh, MESH_SAMPLER_WIDTH, MESH_SAMPLER_HEIGHT); // zum Laden in eine Textur
 
         // 1. initialisiere framebuffer

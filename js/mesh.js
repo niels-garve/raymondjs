@@ -17,9 +17,11 @@ if (typeof String.prototype.startsWith !== 'function') {
     return this.slice(0, str.length) === str;
   };
 }
-var obj_loader = {};
 
-obj_loader.Mesh = function( objectData ){
+define([
+], function() {
+
+var Mesh = function( objectData ){
     /*
         With the given elementID or string of the OBJ, this parses the
         OBJ and creates the mesh.
@@ -111,4 +113,8 @@ obj_loader.Mesh = function( objectData ){
     this.vertexNormals = packed.norms;
     this.textures = packed.textures;
     this.indices = packed.indices;
-}
+};
+
+    return Mesh;
+
+});

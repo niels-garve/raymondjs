@@ -18,9 +18,7 @@ requirejs.config({
         text: '../components/requirejs-hogan-plugin/text',
         hogan: '../components/requirejs-hogan-plugin/hogan',
 
-        'gl-matrix': '../components/gl-matrix/gl-matrix',
-
-        'webgl-obj-loader': 'loaders/webgl-obj-loader' // TODO check v2.2.0, check AMD-readiness
+        'gl-matrix': '../components/gl-matrix/gl-matrix' // TODO check v2.2.0, check AMD-readiness
     },
 
     shim: {
