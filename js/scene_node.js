@@ -127,7 +127,9 @@ define([
         glmatrix.mat4.multiply(newMatrix, newMatrix, this.transformation);
         
         // calculate the normal matrix
-        var normalMatrix =  glmatrix.mat3.fromMat4(glmatrix.mat3.create(), glmatrix.mat4.invert(newMatrix, newMatrix));
+        var normalMatrix =  glmatrix.mat3.fromMat4(glmatrix.mat3.create(),
+            glmatrix.mat4.invert(glmatrix.mat4.create(), newMatrix) // copy
+        );
         glmatrix.mat3.transpose(normalMatrix,normalMatrix);
     
         // loop over all drawable objects and call their draw() methods
