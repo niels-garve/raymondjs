@@ -46,6 +46,7 @@ define([
         // array of lines separated by the newline
         var lines = objectData.split('\n');
         for (var i = 0; i < lines.length; i++) {
+            var line = '';
             // if this is a vertex
             if(lines[ i ].startsWith('v ')) {
                 line = lines[ i ].slice(2).split(" ");
