@@ -39,9 +39,7 @@ requirejs.config({
             // sectionTags: [{o: '_foo', c: 'foo'}],
             // disableLambda : true
         }
-    },
-
-    bDebugMode: true
+    }
 });
 
 /*
@@ -93,7 +91,8 @@ define([
         }
 
         // create a debugging wrapper of the context object
-        if(require.s.contexts._.config.bDebugMode) {
+        // TODO config
+        if(true) {
             var throwOnGLError = function(err, funcName, args) {
                 throw WebGLDebugUtils.glEnumToString(err) + ' was caused by call to: ' + funcName;
             };
