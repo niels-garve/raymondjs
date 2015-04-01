@@ -5,13 +5,16 @@ body {
 /* region to display an error */
 #error {
     display: none;
+    margin: 20px 0 0;
 }
 
 #drawing_area {
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    border-radius: 100%;
     /*
      * NOTE: the "position:relative" is required due to the current implementation of mouse coordinate processing in
      * module "util".
      */
     position: relative;
-    cursor: pointer;
 }

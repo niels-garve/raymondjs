@@ -1,44 +1,53 @@
 <!doctype html>
-<meta charset="UTF-8">
 
-<title>CG2 A2: WebGL</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="stylesheet" type="text/css" media="screen" href="../css/bootstrap.min.css">
-<link rel="stylesheet" type="text/css" media="screen" href="../css/style.css">
+<title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
+<meta name="description" content="{{ site.description }}">
 
-<header class="navbar navbar-inverse navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container">
-            <a class="brand" href="#">Pathtracing
-                <small>von Niels Garve</small>
-            </a>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="{{ '/css/main.css' | prepend: site.baseurl }}">
+<link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
 
-            <div class="nav-collapse collapse">
-                <ul class="nav">
-                    <li class="active"><a href="#">Home</a></li>
-                </ul>
-            </div>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">{{ site.title }}</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+            </ul>
         </div>
     </div>
-</header>
+</nav>
 
 <section class="container">
-    <!-- this element will be used to diplay errors -->
-    <pre id="error" class="alert alert-error"></pre>
+    <pre id="error" class="alert alert-danger"></pre>
 
-    <div id="param_area" class="text-center">
-        <label class="checkbox inline">
-            <i class="icon-hand-left icon-white"></i>
-            <input type="checkbox" id="anim_Toggle" class="inputParam">Animation
-        </label>
-    </div>
+    <div class="stage text-center">
+        <div class="stage__controls">
+            <label class="checkbox-inline">
+                <input type="checkbox" id="anim_Toggle">
+                Start Animation
+            </label>
+        </div>
 
-    <!-- centered region with drawing canvas -->
-    <div class="text-center">
-        <canvas id="drawing_area" width="512" height="512">If you see this text, your browser probably does not support
-            HTML5.
+        <canvas id="drawing_area" class="stage__canvas" width="256" height="256">If you see this text, your browser
+            probably does not support HTML5.
         </canvas>
     </div>
+
+    {{ content }}
 </section>
 
 <script type="text/javascript">
@@ -46,9 +55,9 @@
     // http://paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
     window.log=function(){log.history=log.history||[];log.history.push(arguments);if(!this.console){console.log(Array.prototype.slice.call(arguments))}};
 </script>
-<script src="../dist/raymond.js"></script>
-<script src="webgl-debug.js"></script>
-<script src="example.js"></script>
+<script src="dist/raymond.js"></script>
+<script src="example/webgl-debug.js"></script>
+<script src="example/example.js"></script>
 
 <script id="mesh" type="text/plain">
 # Blender v2.67 (sub 0) OBJ File: 'myCrane.blend'
