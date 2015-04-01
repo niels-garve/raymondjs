@@ -59,7 +59,7 @@
         }
 
         // get WebGL rendering context for canvas element
-        var options = {alpha: true, depth: true, antialias: true},
+        var options = {alpha: true, depth: true, antialias: false},
             gl = canvas.getContext('webgl', options) || canvas.getContext('experimental-webgl', options);
 
         if (!gl) {
