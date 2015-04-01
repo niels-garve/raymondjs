@@ -3,7 +3,7 @@
     name: '../components/almond/almond',
     include: 'main',
     out: 'dist/raymond.js',
-    mainConfigFile: 'js/main.js',
+    mainConfigFile: 'js/build/config.js',
     wrap: {
         startFile: 'js/build/start.txt',
         endFile: 'js/build/end.txt'

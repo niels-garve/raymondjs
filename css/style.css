@@ -7,15 +7,6 @@ body {
     display: none;
 }
 
-/* some input elements get a fixed width */
-#curve_x {
-    width: 150px;
-}
-
-#curve_y {
-    width: 150px;
-}
-
 #drawing_area {
     /*
      * NOTE: the "position:relative" is required due to the current implementation of mouse coordinate processing in
