@@ -7,11 +7,11 @@
 requirejs.config({
     paths: {
         // require.js plugins
-        hgn: '../components/requirejs-hogan-plugin/hgn',
-        text: '../components/requirejs-hogan-plugin/text',
-        hogan: '../components/requirejs-hogan-plugin/hogan',
+        hgn: 'components/requirejs-hogan-plugin/hgn',
+        text: 'components/requirejs-hogan-plugin/text',
+        hogan: 'components/requirejs-hogan-plugin/hogan',
 
-        'gl-matrix': '../components/gl-matrix/dist/gl-matrix'
+        'gl-matrix': 'components/gl-matrix/dist/gl-matrix'
     },
 
     shim: {},

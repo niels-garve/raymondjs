@@ -1,12 +1,12 @@
 ({
-    baseUrl: 'js',
-    name: '../components/almond/almond',
+    baseUrl: 'dev',
+    name: 'components/almond/almond',
     include: 'main',
     out: 'dist/raymond.js',
-    mainConfigFile: 'js/build/config.js',
+    mainConfigFile: 'dev/build/config.js',
     wrap: {
-        startFile: 'js/build/start.txt',
-        endFile: 'js/build/end.txt'
+        startFile: 'dev/build/start.txt',
+        endFile: 'dev/build/end.txt'
     },
     optimize: 'uglify2',
     preserveLicenseComments: false,
