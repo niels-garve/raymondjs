@@ -1,5 +1,11 @@
+bower_components
+
 ## OS files
 .DS_Store
 
 ## IDE files
 .idea
+
+## gh-pages
+_site
+.sass-cache
