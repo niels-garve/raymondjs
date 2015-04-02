@@ -5,3 +5,7 @@ components
 
 ## IDE files
 .idea
+
+## gh-pages
+_site
+.sass-cache
