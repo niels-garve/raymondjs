@@ -7,8 +7,8 @@
 <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
 <meta name="description" content="{{ site.description }}">
 
-<link rel="stylesheet" href="css/bootstrap.min.css">
-<link rel="stylesheet" href="{{ '/css/main.css' | prepend: site.baseurl }}">
+<link rel="stylesheet" href="{{ '/assets/css/bootstrap.min.css' | prepend: site.baseurl }}">
+<link rel="stylesheet" href="{{ '/assets/css/main.css' | prepend: site.baseurl }}">
 <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -56,8 +56,8 @@
     window.log=function(){log.history=log.history||[];log.history.push(arguments);if(!this.console){console.log(Array.prototype.slice.call(arguments))}};
 </script>
 <script src="dist/raymond.js"></script>
-<script src="example/webgl-debug.js"></script>
-<script src="example/example.js"></script>
+<script src="assets/js/webgl-debug.js"></script>
+<script src="assets/js/example.js"></script>
 
 <script id="mesh" type="text/plain">
 # Blender v2.67 (sub 0) OBJ File: 'myCrane.blend'
