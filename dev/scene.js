@@ -47,7 +47,7 @@ define([
      * @private
      */
     function setUniformScene(prog) {
-        prog.setUniform('La', 'vec3', [0.1, 0.1, 0.1]);
+        prog.setUniform('La', 'vec3', [0.133, 0.133, 0.133]);
 
         /*
          * spheres
