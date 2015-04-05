@@ -1,6 +1,6 @@
 var gulp = require('gulp'),
     spawn = require('child_process').spawn,
-    connect = require('gulp-connect');
+    browserSync = require('browser-sync');
 
 gulp.task('rjs', function(done) {
     spawn('r.js', ['-o', 'build.js'], {stdio: 'inherit'})
@@ -15,14 +15,15 @@ gulp.task('rjs-copy', ['rjs'], function() {
         .pipe(gulp.dest('example'));
 });
 
-gulp.task('watch', function() {
-    connect.server({
-        root: 'example',
-        livereload: true,
-        port: 3000
+gulp.task('watch', ['rjs-copy'], function() {
+    browserSync({
+        server: {
+            baseDir: 'example'
+        },
+        open: false
     });
 
-    gulp.watch(['example/index.html', 'example/example.js', 'example/raymond.js'], connect.reload);
+    gulp.watch(['example/index.html', 'example/example.js', 'example/raymond.js'], browserSync.reload);
     gulp.watch(['dev/**/*.js'], ['rjs-copy']);
 });
 
