@@ -3,14 +3,14 @@
  *
  * @author Niels Garve, niels.garve.yahoo.de
  */
-#version 100
-precision mediump float;
+// #version 100
+// precision mediump float;
 
-attribute vec3 vertexPosition;
-attribute vec2 vertexTexCoords;
+// attribute vec3 vertexPosition;
+// attribute vec2 vertexTexCoords;
 
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
+// uniform mat4 modelViewMatrix;
+// uniform mat4 projectionMatrix;
 uniform vec3 eyePosition;
 
 varying vec3 rayDirection;
@@ -76,10 +76,9 @@ mat4 inverse(mat4 mat) {
 }
 
 void main() {
-	gl_Position = projectionMatrix *
-			  // modelViewMatrix *
-			  vec4(vertexPosition, 1.0);
+	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 
-	rayDirection = (vec4(vertexPosition - eyePosition, 1.0) * inverse(modelViewMatrix)).xyz;
-	texCoords = vertexTexCoords;
+	// rayDirection = (vec4(position - eyePosition, 1.0) * inverse(modelViewMatrix)).xyz;
+	rayDirection = position - eyePosition;
+	texCoords = uv;
 }

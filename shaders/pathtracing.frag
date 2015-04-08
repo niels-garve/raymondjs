@@ -3,8 +3,8 @@
  *
  * @author Niels Garve, niels.garve.yahoo.de
  */
-#version 100
-precision mediump float;
+// #version 100
+// precision mediump float;
 
 // Intervallgrenzen für Werte von t (des Skalars) bei der Schnittpunktberechnung (Rundungsfehler abfangen)
 #define T_MIN 0.001
@@ -377,7 +377,29 @@ vec3 pathTrace() {
 	return La; // Fall: maximale "depth" erreicht
 }
 
+uniform vec3 sphere1Center;
+uniform float sphere1Radius;
+/**
+ * @deprecated
+ */
+vec4 intersectSphere() {
+	vec3 toSphere = eyePosition - sphere1Center;
+
+	// Mitternachtsformel
+	float a = dot(rayDirection, rayDirection);
+	float b = 2.0 * dot(toSphere, rayDirection);
+	float c = dot(toSphere, toSphere) - sphere1Radius * sphere1Radius;
+	float discriminant = b * b - 4.0 * a * c; // Wurzel
+
+	if(discriminant > 0.0) {
+	    return vec4(1,0,0,1);
+	}
+	return vec4(0,0,0,1);
+}
+
 void main() {
 	// "blending" vgl. Evan Wallace
-	gl_FragColor = mix(vec4(pathTrace(), 1.0), texture2D(texture0, texCoords), textureWeight);
+	// gl_FragColor = mix(vec4(pathTrace(), 1.0), texture2D(texture0, texCoords), textureWeight);
+
+	gl_FragColor = intersectSphere();
 }

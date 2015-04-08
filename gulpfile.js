@@ -15,16 +15,16 @@ gulp.task('rjs-copy', ['rjs'], function() {
         .pipe(gulp.dest('example'));
 });
 
-gulp.task('watch', ['rjs-copy'], function() {
+gulp.task('watch',/* ['rjs-copy'],*/ function() {
     browserSync({
         server: {
-            baseDir: 'example'
+            baseDir: '.'
         },
         open: false
     });
 
-    gulp.watch(['example/index.html', 'example/example.js', 'example/raymond.js'], browserSync.reload);
-    gulp.watch(['dev/**/*.js'], ['rjs-copy']);
+    //gulp.watch(['example/index.html', 'example/example.js', 'example/raymond.js'], browserSync.reload);
+    //gulp.watch(['dev/**/*.js'], ['rjs-copy']);
 });
 
 gulp.task('default', ['watch']);
