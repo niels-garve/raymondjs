@@ -3,10 +3,16 @@ requirejs.config({
         // require.js plugins
         hgn: '../bower_components/requirejs-hogan-plugin/hgn',
         text: '../bower_components/requirejs-hogan-plugin/text',
-        hogan: '../bower_components/requirejs-hogan-plugin/hogan'
+        hogan: '../bower_components/requirejs-hogan-plugin/hogan',
+
+        threejs: '../bower_components/three.js/three'
     },
 
-    shim: {},
+    shim: {
+        threejs: {
+            exports: 'THREE'
+        }
+    },
 
     // configure hgn! plugin
     hgn: {
@@ -30,7 +36,8 @@ define([
     'hgn!../shaders/pathtracing.vert',
     'hgn!../shaders/pathtracing.frag',
     'hgn!../shaders/texture.vert',
-    'hgn!../shaders/texture.frag'
+    'hgn!../shaders/texture.frag',
+    'threejs'
 ], function( pathtracingVert, pathtracingFrag, textureVert, textureFrag ) {
     var scene = new THREE.Scene(),
         camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 1000),
