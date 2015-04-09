@@ -27,8 +27,8 @@ struct Ray {
 };
 struct Material {
 	// zwei Boolesche Variablen zur Auswahl der BRDF
-	bool isPerfectMirror;
-	bool isDiffuse;
+	int isPerfectMirror;
+	int isDiffuse;
 	vec3 Le; // L_emit
 	vec3 Kd; // Farbe 
 };
@@ -354,10 +354,10 @@ vec3 pathTrace() {
 		vec3 brdf; vec3 nextDirection;
 		float prob;
 
-		if (hit.material.isPerfectMirror) {
+		if (hit.material.isPerfectMirror > 0) {
 			brdf = perfectMirrorBRDF();
 			prob = perfectMirrorNextDirection(nextDirection, ray.direction, hit.normal);
-		} else if (hit.material.isDiffuse) {
+		} else if (hit.material.isDiffuse > 0) {
 			brdf = diffuseBRDF(hit.material);
 			prob = diffuseNextDirection(nextDirection, hit.normal, -ray.direction, secondsSinceStart + float(j));
 		}
@@ -377,29 +377,30 @@ vec3 pathTrace() {
 	return La; // Fall: maximale "depth" erreicht
 }
 
-uniform vec3 sphere1Center;
-uniform float sphere1Radius;
 /**
  * @deprecated
  */
-vec4 intersectSphere() {
-	vec3 toSphere = eyePosition - sphere1Center;
+vec3 intersectSphere() {
+	for (int i = 0; i < NUMBER_OF_SPHERES; i++) {
+		vec3 toSphere = eyePosition - spheres[i].center;
 
-	// Mitternachtsformel
-	float a = dot(rayDirection, rayDirection);
-	float b = 2.0 * dot(toSphere, rayDirection);
-	float c = dot(toSphere, toSphere) - sphere1Radius * sphere1Radius;
-	float discriminant = b * b - 4.0 * a * c; // Wurzel
+		// Mitternachtsformel
+		float a = dot(rayDirection, rayDirection);
+		float b = 2.0 * dot(toSphere, rayDirection);
+		float c = dot(toSphere, toSphere) - spheres[i].radius * spheres[i].radius;
+		float discriminant = b * b - 4.0 * a * c; // Wurzel
 
-	if(discriminant > 0.0) {
-	    return vec4(1,0,0,1);
+		if(discriminant > 0.0) {
+		    return sphereMaterials[i].Kd;
+		}
 	}
-	return vec4(0,0,0,1);
+
+	return La;
 }
 
 void main() {
 	// "blending" vgl. Evan Wallace
 	// gl_FragColor = mix(vec4(pathTrace(), 1.0), texture2D(texture0, texCoords), textureWeight);
 
-	gl_FragColor = intersectSphere();
+	gl_FragColor = vec4(intersectSphere(), 1.0);
 }

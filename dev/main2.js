@@ -50,7 +50,8 @@ define([
         renderer = new THREE.WebGLRenderer(),
         geometry,
         material,
-        plane;
+        plane,
+        time = new Date().getTime();
 
     controls.target = new THREE.Vector3(0, 0, -2);
     controls.rotateSpeed = 1.0;
@@ -69,13 +70,36 @@ define([
     geometry = new THREE.PlaneGeometry(2, 2);
     material = new THREE.ShaderMaterial({
         uniforms: {
-            eyePosition: { type: 'v3', value: camera.position },
+            eyePosition: { type: 'v3', value: new THREE.Vector3(0, 0, 0) },
+            La: { type: 'v3', value: new THREE.Vector3(0.133, 0.133, 0.133) },
 
-            sphere1Center: { type: 'v3', value: new THREE.Vector3(0, 0, -20) },
-            sphere1Radius: { type: 'f', value: 5 }
+            // light
+            'spheres[0].center': { type: 'v3', value: new THREE.Vector3(0, -20, -20) },
+            'spheres[0].radius': { type: 'f', value: 10 },
+            'sphereMaterials[0].isPerfectMirror': { type: 'i', value: 0 },
+            'sphereMaterials[0].isDiffuse': { type: 'i', value: 0 },
+            'sphereMaterials[0].Le': { type: 'v3', value: new THREE.Vector3(1, 1, 1) },
+            'sphereMaterials[0].Kd': { type: 'v3', value: new THREE.Vector3(1, 1, 1) },
+
+            // object
+            'spheres[1].center': { type: 'v3', value: new THREE.Vector3(0, 0, -20) },
+            'spheres[1].radius': { type: 'f', value: 5 },
+            'sphereMaterials[1].isPerfectMirror': { type: 'i', value: 0 },
+            'sphereMaterials[1].isDiffuse': { type: 'i', value: 1 },
+            'sphereMaterials[1].Le': { type: 'v3', value: new THREE.Vector3(0, 0, 0) },
+            'sphereMaterials[1].Kd': { type: 'v3', value: new THREE.Vector3(1, 0, 0) },
+
+            secondsSinceStart: { type: 'f', value: 0 }
         },
         vertexShader: pathtracingVert(),
-        fragmentShader: pathtracingFrag()
+        fragmentShader: pathtracingFrag({
+            hasSpheres: true,
+            numberOfSpheres: 2,
+            numberOfSphericalLights: 1,
+            hasCornellBox: false,
+            hasMesh: false,
+            meshSamplerWidth: 256
+        })
     });
     plane = new THREE.Mesh(geometry, material);
     plane.position.z = -2;
@@ -88,6 +112,10 @@ define([
     }
 
     function render() {
+        var now = new Date().getTime(),
+            secondsSinceStart = (now - time) * 0.001;
+
+        material.uniforms.secondsSinceStart = { type: 'f', value: secondsSinceStart };
         renderer.render(scene, camera);
         stats.update();
     }
