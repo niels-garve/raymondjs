@@ -5,12 +5,17 @@ requirejs.config({
         text: '../bower_components/requirejs-hogan-plugin/text',
         hogan: '../bower_components/requirejs-hogan-plugin/hogan',
 
-        threejs: '../bower_components/three.js/three'
+        threejs: '../bower_components/three.js/three',
+        controls: 'vendor/TrackballControls'
     },
 
     shim: {
         threejs: {
             exports: 'THREE'
+        },
+        controls: {
+            deps: [ 'threejs' ],
+            exports: 'THREE.TrackballControls'
         }
     },
 
@@ -37,14 +42,26 @@ define([
     'hgn!../shaders/pathtracing.frag',
     'hgn!../shaders/texture.vert',
     'hgn!../shaders/texture.frag',
-    'threejs'
+    'controls'
 ], function( pathtracingVert, pathtracingFrag, textureVert, textureFrag ) {
     var scene = new THREE.Scene(),
         camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 1000),
+        controls = new THREE.TrackballControls(camera),
         renderer = new THREE.WebGLRenderer(),
         geometry,
         material,
         plane;
+
+    controls.target = new THREE.Vector3(0, 0, -2);
+    controls.rotateSpeed = 1.0;
+    controls.zoomSpeed = 1.2;
+    controls.panSpeed = 0.8;
+    controls.noZoom = false;
+    controls.noPan = false;
+    controls.staticMoving = true;
+    controls.dynamicDampingFactor = 0.3;
+    controls.keys = [ 65, 83, 68 ];
+    controls.addEventListener('change', render);
 
     renderer.setSize(256, 256);
     document.body.appendChild(renderer.domElement);
@@ -55,20 +72,26 @@ define([
             eyePosition: { type: 'v3', value: camera.position },
 
             sphere1Center: { type: 'v3', value: new THREE.Vector3(0, 0, -20) },
-            sphere1Radius: { type: 'f', value: 10 }
+            sphere1Radius: { type: 'f', value: 5 }
         },
         vertexShader: pathtracingVert(),
         fragmentShader: pathtracingFrag()
     });
     plane = new THREE.Mesh(geometry, material);
+    plane.position.z = -2;
 
     scene.add(plane);
-    camera.position.z = 2;
 
-    function render() {
-        requestAnimationFrame(render);
-        renderer.render(scene, camera);
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
     }
 
+    function render() {
+        renderer.render(scene, camera);
+        stats.update();
+    }
+
+    animate();
     render();
 });

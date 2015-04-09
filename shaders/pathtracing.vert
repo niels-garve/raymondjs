@@ -76,9 +76,10 @@ mat4 inverse(mat4 mat) {
 }
 
 void main() {
-	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+	gl_Position = projectionMatrix *
+	              modelMatrix *
+	              vec4(position, 1.0);
 
-	// rayDirection = (vec4(position - eyePosition, 1.0) * inverse(modelViewMatrix)).xyz;
-	rayDirection = position - eyePosition;
+	rayDirection = (vec4(position - eyePosition, 1.0) * inverse(modelViewMatrix)).xyz;
 	texCoords = uv;
 }

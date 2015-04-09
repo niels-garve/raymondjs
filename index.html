@@ -13,6 +13,14 @@
     </style>
 </head>
 <body>
+<script src="dist/vendor/stats.min.js"></script>
+<script>
+    var stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '0px';
+    stats.domElement.style.zIndex = 100;
+    document.body.appendChild(stats.domElement);
+</script>
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.min.js"></script>-->
 <script data-main="dev/main2.js" src="bower_components/requirejs/require.js"></script>
 </body>
