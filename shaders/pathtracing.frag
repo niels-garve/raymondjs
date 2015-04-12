@@ -377,30 +377,7 @@ vec3 pathTrace() {
 	return La; // Fall: maximale "depth" erreicht
 }
 
-/**
- * @deprecated
- */
-vec3 intersectSphere() {
-	for (int i = 0; i < NUMBER_OF_SPHERES; i++) {
-		vec3 toSphere = eyePosition - spheres[i].center;
-
-		// Mitternachtsformel
-		float a = dot(rayDirection, rayDirection);
-		float b = 2.0 * dot(toSphere, rayDirection);
-		float c = dot(toSphere, toSphere) - spheres[i].radius * spheres[i].radius;
-		float discriminant = b * b - 4.0 * a * c; // Wurzel
-
-		if(discriminant > 0.0) {
-		    return sphereMaterials[i].Kd;
-		}
-	}
-
-	return La;
-}
-
 void main() {
 	// "blending" vgl. Evan Wallace
-	// gl_FragColor = mix(vec4(pathTrace(), 1.0), texture2D(texture0, texCoords), textureWeight);
-
-	gl_FragColor = vec4(intersectSphere(), 1.0);
+	gl_FragColor = mix(vec4(pathTrace(), 1.0), texture2D(texture0, texCoords), textureWeight);
 }

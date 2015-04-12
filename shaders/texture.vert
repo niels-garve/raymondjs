@@ -11,21 +11,21 @@
  *
  */
  
-#version 100
-precision mediump float;
+// #version 100
+// precision mediump float;
 
-attribute vec3 vertexPosition;
-attribute vec2 vertexTexCoords;
+// attribute vec3 vertexPosition;
+// attribute vec2 vertexTexCoords;
 
 // uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
+// uniform mat4 projectionMatrix;
 
 varying vec2 texCoords;
 
 void main() {
 	gl_Position = projectionMatrix *
-				  // modelViewMatrix *
-				  vec4(vertexPosition, 1.0);
+				  modelMatrix *
+				  vec4(position, 1.0);
 
-	texCoords = vertexTexCoords;
+	texCoords = uv;
 }
