@@ -51,7 +51,8 @@ define([
         geometry,
         material,
         plane,
-        time = new Date().getTime();
+        time = new Date().getTime(),
+        now;
 
     controls.target = new THREE.Vector3(0, 0, -2);
     controls.rotateSpeed = 1.0;
@@ -112,10 +113,9 @@ define([
     }
 
     function render() {
-        var now = new Date().getTime(),
-            secondsSinceStart = (now - time) * 0.001;
+        now = new Date().getTime();
 
-        material.uniforms.secondsSinceStart = { type: 'f', value: secondsSinceStart };
+        material.uniforms.secondsSinceStart.value = (now - time) * 0.001;
         renderer.render(scene, camera);
         stats.update();
     }
