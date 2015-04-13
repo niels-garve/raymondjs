@@ -94,7 +94,7 @@ define([
             La: { type: 'v3', value: new THREE.Vector3(0.133, 0.133, 0.133) },
 
             // light
-            'spheres[0].center': { type: 'v3', value: new THREE.Vector3(0, 20, 10) },
+            'spheres[0].center': { type: 'v3', value: new THREE.Vector3(0, 20, 20) },
             'spheres[0].radius': { type: 'f', value: 10 },
             'sphereMaterials[0].isPerfectMirror': { type: 'i', value: 0 },
             'sphereMaterials[0].isDiffuse': { type: 'i', value: 0 },
@@ -102,7 +102,7 @@ define([
             'sphereMaterials[0].Kd': { type: 'v3', value: new THREE.Vector3(1, 1, 1) },
 
             // object
-            'spheres[1].center': { type: 'v3', value: new THREE.Vector3(0, 0, 20) },
+            'spheres[1].center': { type: 'v3', value: new THREE.Vector3(0, -10, 20) },
             'spheres[1].radius': { type: 'f', value: 5 },
             'sphereMaterials[1].isPerfectMirror': { type: 'i', value: 0 },
             'sphereMaterials[1].isDiffuse': { type: 'i', value: 1 },
