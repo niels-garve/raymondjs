@@ -51,6 +51,8 @@ define([
         renderer = new THREE.WebGLRenderer(),
         swappy,
         geometry,
+        minCorner = [ -15, -15, -1 ], // [x, y, z]
+        maxCorner = [ 15, 5, 29 ], // [x, y, z]
         material,
         material2,
         plane,
@@ -94,7 +96,7 @@ define([
             La: { type: 'v3', value: new THREE.Vector3(0.133, 0.133, 0.133) },
 
             // light
-            'spheres[0].center': { type: 'v3', value: new THREE.Vector3(0, 20, 20) },
+            'spheres[0].center': { type: 'v3', value: new THREE.Vector3(0, 12.5, 15) },
             'spheres[0].radius': { type: 'f', value: 10 },
             'sphereMaterials[0].isPerfectMirror': { type: 'i', value: 0 },
             'sphereMaterials[0].isDiffuse': { type: 'i', value: 0 },
@@ -104,10 +106,58 @@ define([
             // object
             'spheres[1].center': { type: 'v3', value: new THREE.Vector3(0, -10, 20) },
             'spheres[1].radius': { type: 'f', value: 5 },
-            'sphereMaterials[1].isPerfectMirror': { type: 'i', value: 0 },
-            'sphereMaterials[1].isDiffuse': { type: 'i', value: 1 },
+            'sphereMaterials[1].isPerfectMirror': { type: 'i', value: 1 },
+            'sphereMaterials[1].isDiffuse': { type: 'i', value: 0 },
             'sphereMaterials[1].Le': { type: 'v3', value: new THREE.Vector3(0, 0, 0) },
-            'sphereMaterials[1].Kd': { type: 'v3', value: new THREE.Vector3(1, 0, 0) },
+            'sphereMaterials[1].Kd': { type: 'v3', value: new THREE.Vector3(0, 0, 0) },
+
+            // left
+            'cornellBox.planes[0].n': { type: 'v3', value: new THREE.Vector3(1, 0, 0) },
+            'cornellBox.planes[0].d': { type: 'f', value: minCorner[ 0 ] }, // x
+            'cornellBox.materials[0].isPerfectMirror': { type: 'i', value: 0 },
+            'cornellBox.materials[0].isDiffuse': { type: 'i', value: 1 },
+            'cornellBox.materials[0].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
+            'cornellBox.materials[0].Kd': { type: 'v3', value: new THREE.Vector3(0.4, 0.0, 0.4) },
+
+            // right
+            'cornellBox.planes[1].n': { type: 'v3', value: new THREE.Vector3(-1, 0, 0) },
+            'cornellBox.planes[1].d': { type: 'f', value: -maxCorner[ 0 ] }, // x
+            'cornellBox.materials[1].isPerfectMirror': { type: 'i', value: 0 },
+            'cornellBox.materials[1].isDiffuse': { type: 'i', value: 1 },
+            'cornellBox.materials[1].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
+            'cornellBox.materials[1].Kd': { type: 'v3', value: new THREE.Vector3(0.0, 0.4, 0.0) },
+
+            // bottom
+            'cornellBox.planes[2].n': { type: 'v3', value: new THREE.Vector3(0, 1, 0) },
+            'cornellBox.planes[2].d': { type: 'f', value: minCorner[ 1 ] }, // y
+            'cornellBox.materials[2].isPerfectMirror': { type: 'i', value: 0 },
+            'cornellBox.materials[2].isDiffuse': { type: 'i', value: 1 },
+            'cornellBox.materials[2].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
+            'cornellBox.materials[2].Kd': { type: 'v3', value: new THREE.Vector3(0.2, 0.2, 0.2) },
+
+            // top
+            'cornellBox.planes[3].n': { type: 'v3', value: new THREE.Vector3(0, -1, 0) },
+            'cornellBox.planes[3].d': { type: 'f', value: -maxCorner[ 1 ] }, // y
+            'cornellBox.materials[3].isPerfectMirror': { type: 'i', value: 0 },
+            'cornellBox.materials[3].isDiffuse': { type: 'i', value: 1 },
+            'cornellBox.materials[3].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
+            'cornellBox.materials[3].Kd': { type: 'v3', value: new THREE.Vector3(0.8, 0.8, 0.8) },
+
+            // near
+            'cornellBox.planes[4].n': { type: 'v3', value: new THREE.Vector3(0, 0, 1) },
+            'cornellBox.planes[4].d': { type: 'f', value: minCorner[ 2 ] }, // z
+            'cornellBox.materials[4].isPerfectMirror': { type: 'i', value: 0 },
+            'cornellBox.materials[4].isDiffuse': { type: 'i', value: 1 },
+            'cornellBox.materials[4].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
+            'cornellBox.materials[4].Kd': { type: 'v3', value: new THREE.Vector3(0.8, 0.8, 0.8) },
+
+            // far
+            'cornellBox.planes[5].n': { type: 'v3', value: new THREE.Vector3(0, 0, -1) },
+            'cornellBox.planes[5].d': { type: 'f', value: -maxCorner[ 2 ] }, // z
+            'cornellBox.materials[5].isPerfectMirror': { type: 'i', value: 0 },
+            'cornellBox.materials[5].isDiffuse': { type: 'i', value: 1 },
+            'cornellBox.materials[5].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
+            'cornellBox.materials[5].Kd': { type: 'v3', value: new THREE.Vector3(0.8, 0.8, 0.8) },
 
             secondsSinceStart: { type: 'f', value: 0 },
             texture0: { type: 't', value: swappy[ 0 ] },
@@ -118,7 +168,7 @@ define([
             hasSpheres: true,
             numberOfSpheres: 2,
             numberOfSphericalLights: 1,
-            hasCornellBox: false,
+            hasCornellBox: true,
             hasMesh: false,
             meshSamplerWidth: 256
         })
