@@ -92,7 +92,6 @@ define([
     geometry = new THREE.PlaneGeometry(2, 2);
     material = new THREE.ShaderMaterial({
         uniforms: {
-            eyePosition: { type: 'v3', value: new THREE.Vector3(0, 0, 0) },
             La: { type: 'v3', value: new THREE.Vector3(0.133, 0.133, 0.133) },
 
             // light
