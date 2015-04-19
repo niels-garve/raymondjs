@@ -13,9 +13,4 @@ body {
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     border-radius: 6px;
-    /*
-     * NOTE: the "position:relative" is required due to the current implementation of mouse coordinate processing in
-     * module "util".
-     */
-    position: relative;
 }

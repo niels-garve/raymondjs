@@ -50,14 +50,46 @@
     {{ content }}
 </section>
 
-<script type="text/javascript">
-    // usage: log('inside coolFunc',this,arguments);
-    // http://paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
-    window.log=function(){log.history=log.history||[];log.history.push(arguments);if(!this.console){console.log(Array.prototype.slice.call(arguments))}};
-</script>
 <script src="client/server/engine.js"></script>
 <script src="client/vendor/TrackballControls.js"></script>
-<script src="client/app.js"></script>
+<script type="text/javascript">
+    (function( Raymond ) {
+        var canvas = document.getElementById('drawing_area');
+        var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+        if (!gl) {
+            throw "could not create WebGL rendering context";
+        }
+
+        var engine = new Raymond({
+            canvas: canvas,
+            context: gl
+        });
+
+        var controls = new THREE.TrackballControls(engine.getCamera());
+        controls.target = new THREE.Vector3(0, 0, -2);
+        controls.rotateSpeed = 1.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        controls.noZoom = false;
+        controls.noPan = false;
+        controls.staticMoving = true;
+        controls.dynamicDampingFactor = 0.3;
+        controls.keys = [ 65, 83, 68 ];
+        controls.addEventListener('change', function() {
+            engine.resetSampleCounter();
+        });
+
+        engine.setControls(controls);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            engine.render();
+        }
+
+        animate();
+    })(window.Raymond);
+</script>
 
 <script id="mesh" type="text/plain">
 # Blender v2.67 (sub 0) OBJ File: 'myCrane.blend'
