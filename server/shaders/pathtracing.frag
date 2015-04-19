@@ -3,8 +3,8 @@
  *
  * @author Niels Garve, niels.garve.yahoo.de
  */
-#version 100
-precision mediump float;
+// #version 100
+// precision mediump float;
 
 // Intervallgrenzen für Werte von t (des Skalars) bei der Schnittpunktberechnung (Rundungsfehler abfangen)
 #define T_MIN 0.001
@@ -27,8 +27,8 @@ struct Ray {
 };
 struct Material {
 	// zwei Boolesche Variablen zur Auswahl der BRDF
-	bool isPerfectMirror;
-	bool isDiffuse;
+	int isPerfectMirror;
+	int isDiffuse;
 	vec3 Le; // L_emit
 	vec3 Kd; // Farbe 
 };
@@ -49,7 +49,6 @@ uniform float secondsSinceStart;
 
 uniform sampler2D texture0;
 uniform float textureWeight;
-uniform vec3 eyePosition;
 
 // varyings
 varying vec3 rayDirection;
@@ -102,7 +101,7 @@ void hitSphere(Ray ray, Sphere sphere, float tMin, inout Hit firstHit, Material 
 //{{#hasCornellBox}}
 struct Plane { // Hessesche Normalform
 	vec3 n;
-	float d;
+	vec3 p;
 };
 
 struct CornellBox {
@@ -120,11 +119,11 @@ uniform CornellBox cornellBox;
  * Sonst: nichts. material gehört zu plane.
  */
 void hitPlane(Ray ray, Plane plane, float tMin, inout Hit firstHit, Material material) {
-	float denominator = dot(plane.n, ray.direction); // z. dt. Nenner
+	float denominator = dot(ray.direction, plane.n); // z. dt. Nenner
 
 	if (denominator == 0.0) return;
 
-	float t = (plane.d - dot(plane.n, ray.start)) / denominator;
+	float t = dot((plane.p - ray.start), plane.n) / denominator;
 
 	if (tMin < t && t < firstHit.t) {
 		vec3 hitPoint = ray.start + t * ray.direction;
@@ -333,7 +332,7 @@ float diffuseNextDirection(out vec3 L, vec3 N, vec3 V, float seed) {
  * Path tracing (vgl. Szirmay-Kalos, S. 112; Kevin Suffern S. 547 - 549)
  */
 vec3 pathTrace() {
-	Ray ray = Ray(eyePosition, normalize(rayDirection)); // Primärstrahl
+	Ray ray = Ray(vec3(0, 0, 0), normalize(rayDirection)); // Primärstrahl
 	vec3 resColor = vec3(1, 1, 1);
 
 	for (int j = 0; j < DEPTH; j++) { // entspricht dem Produkt von i = 0 bis n
@@ -354,10 +353,10 @@ vec3 pathTrace() {
 		vec3 brdf; vec3 nextDirection;
 		float prob;
 
-		if (hit.material.isPerfectMirror) {
+		if (hit.material.isPerfectMirror > 0) {
 			brdf = perfectMirrorBRDF();
 			prob = perfectMirrorNextDirection(nextDirection, ray.direction, hit.normal);
-		} else if (hit.material.isDiffuse) {
+		} else if (hit.material.isDiffuse > 0) {
 			brdf = diffuseBRDF(hit.material);
 			prob = diffuseNextDirection(nextDirection, hit.normal, -ray.direction, secondsSinceStart + float(j));
 		}
