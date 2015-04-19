@@ -1,6 +1,9 @@
 bower_components
 node_modules
 
+## sourcemaps
+*.js.map
+
 ## OS files
 .DS_Store
 
