@@ -2,7 +2,7 @@
   "name": "raymondjs",
   "version": "0.0.1",
   "description": "Given an html5 ```canvas``` RaymondJS provides an API to run a realtime pathtracing engine with webGL.",
-  "main": "dev/main.js",
+  "main": "server/engine.js",
   "directories": {
     "doc": "docs",
     "example": "example"
@@ -21,7 +21,20 @@
   },
   "homepage": "https://github.com/alnico87/raymond.js",
   "devDependencies": {
+    "brfs": "^1.4.0",
+    "browserify": "^9.0.8",
+    "canvas": "^1.2.1",
     "gulp": "^3.8.11",
-    "gulp-connect": "^2.2.0"
+    "gulp-connect": "^2.2.0",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-util": "^3.0.4",
+    "handlebars": "^3.0.1",
+    "jsdom": "^3.1.2",
+    "lodash.assign": "^3.1.0",
+    "node-webgl": "^0.4.3",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.1.1"
   }
 }

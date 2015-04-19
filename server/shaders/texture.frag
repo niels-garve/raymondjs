@@ -9,8 +9,8 @@
  *
  */
  
-#version 100
-precision mediump float;
+// #version 100
+// precision mediump float;
 
 uniform sampler2D texture0;
 
