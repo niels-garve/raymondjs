@@ -30,10 +30,10 @@ define([
     'stage',
     'mesh',
     'Config',
-    'hgn!../shaders/pathtracing.vert',
-    'hgn!../shaders/pathtracing.frag',
-    'hgn!../shaders/texture.vert',
-    'hgn!../shaders/texture.frag'
+    'hgn!../server/shaders/pathtracing.vert',
+    'hgn!../server/shaders/pathtracing.frag',
+    'hgn!../server/shaders/texture.vert',
+    'hgn!../server/shaders/texture.frag'
 ], function(glmatrix, Program, SceneNode, Texture, light, material, Stage, Mesh, Config, pathtracingVert, pathtracingFrag, textureVert, textureFrag) {
 
     'use strict';

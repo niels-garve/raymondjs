@@ -3,15 +3,15 @@
  *
  * @author Niels Garve, niels.garve.yahoo.de
  */
-#version 100
-precision mediump float;
+// #version 100
+// precision mediump float;
 
-attribute vec3 vertexPosition;
-attribute vec2 vertexTexCoords;
+// attribute vec3 vertexPosition;
+// attribute vec2 vertexTexCoords;
 
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-uniform vec3 eyePosition;
+// uniform mat4 modelViewMatrix;
+// uniform mat4 projectionMatrix;
+// uniform vec3 eyePosition;
 
 varying vec3 rayDirection;
 varying vec2 texCoords;
@@ -76,10 +76,14 @@ mat4 inverse(mat4 mat) {
 }
 
 void main() {
-	gl_Position = projectionMatrix *
-			  // modelViewMatrix *
-			  vec4(vertexPosition, 1.0);
+	// don't transform the position to view space, the plane shouldn't move
+	gl_Position = projectionMatrix * modelMatrix * vec4(position, 1.0);
 
-	rayDirection = (vec4(vertexPosition - eyePosition, 1.0) * inverse(modelViewMatrix)).xyz;
-	texCoords = vertexTexCoords;
+	// ray casting happens in view space
+	vec4 positionView = modelViewMatrix * vec4(position, 1.0);
+
+	// in view space the camera position is set at the origin. Therefore changing the forth component of positionView
+	// to zero results in the ray direction (homogeneous coordinates). Finally convert the ray direction to world space.
+	rayDirection = (vec4(positionView.xyz, 0.0) * inverse(viewMatrix)).xyz;
+	texCoords = uv;
 }
