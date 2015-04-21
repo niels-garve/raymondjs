@@ -17,6 +17,9 @@
     });
 
     engine.setControls(controls);
+    engine.setRenderCallback(function() {
+        controls.update();
+    });
 
     document.body.appendChild(engine.renderer.domElement);
 
