@@ -35,13 +35,6 @@
     <pre id="error" class="alert alert-danger"></pre>
 
     <div class="stage text-center">
-        <div class="stage__controls">
-            <label class="checkbox-inline">
-                <input type="checkbox" id="anim_Toggle">
-                Start animation
-            </label>
-        </div>
-
         <canvas id="drawing_area" class="stage__canvas" width="256" height="256">If you see this text, your browser
             probably does not support HTML5.
         </canvas>
@@ -81,6 +74,9 @@
         });
 
         engine.setControls(controls);
+        engine.setRenderCallback(function() {
+            controls.update();
+        });
 
         function animate() {
             requestAnimationFrame(animate);
