@@ -48,15 +48,8 @@
 <script type="text/javascript">
     (function( Raymond ) {
         var canvas = document.getElementById('drawing_area');
-        var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
-        if (!gl) {
-            throw "could not create WebGL rendering context";
-        }
-
         var engine = new Raymond({
-            canvas: canvas,
-            context: gl
+            canvas: canvas
         });
 
         var controls = new THREE.TrackballControls(engine.getCamera());
