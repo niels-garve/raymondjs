@@ -1,6 +1,10 @@
 # RaymondJS
 
-Given an html5 ```canvas``` RaymondJS provides an API to run a realtime pathtracing engine with webGL.
+RaymondJS is a realtime pathtracing (basically raytracing) engine that runs on GPU via WebGL. I'm currently working on a headless version (no canvas) that runs on Node.js and streams its generated pixel arrays to clients in the hope of increasing performance.
+
+At present the engine is based on THREE.js which works fine on browsers. 
+
+Once the streaming engine is set up correctly, I dream of a distributed backend implementation: many RaymondJS instances could render small parts of the same scene (somehow connected via websockets), which should further increase performance.
 
 ## For users - the API
 
