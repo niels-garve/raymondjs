@@ -130,9 +130,7 @@ var now;
 var sampleCounter = 0;
 
 function render() {
-    if (this.controls) {
-        this.controls.update();
-    }
+    this.onRender();
 
     now = new Date().getTime();
     material.uniforms.secondsSinceStart.value = (now - time) * 0.001;
@@ -156,6 +154,8 @@ var Engine = function( options ) {
     this.renderer = new THREE.WebGLRenderer(options);
     this.renderer.setSize(256, 256);
     this.renderer.autoClear = false;
+
+    this.onRender = function() {};
 };
 
 /**
@@ -163,6 +163,14 @@ var Engine = function( options ) {
  * @type {render}
  */
 Engine.prototype.render = render;
+
+/**
+ * @todo
+ * @param callback
+ */
+Engine.prototype.setRenderCallback = function( callback ) {
+    this.onRender = callback;
+};
 
 /**
  * @todo
