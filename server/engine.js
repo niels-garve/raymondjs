@@ -50,7 +50,7 @@ var material = new THREE.ShaderMaterial({
 
         // left
         'cornellBox.planes[0].n': { type: 'v3', value: new THREE.Vector3(1, 0, 0) },
-        'cornellBox.planes[0].p': { type: 'v3', value: new THREE.Vector3(-15, 0, 0) },
+        'cornellBox.planes[0].d': { type: 'f', value: 15 },
         'cornellBox.materials[0].isPerfectMirror': { type: 'i', value: 0 },
         'cornellBox.materials[0].isDiffuse': { type: 'i', value: 1 },
         'cornellBox.materials[0].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
@@ -58,7 +58,7 @@ var material = new THREE.ShaderMaterial({
 
         // right
         'cornellBox.planes[1].n': { type: 'v3', value: new THREE.Vector3(-1, 0, 0) },
-        'cornellBox.planes[1].p': { type: 'v3', value: new THREE.Vector3(15, 0, 0) },
+        'cornellBox.planes[1].d': { type: 'f', value: 15 },
         'cornellBox.materials[1].isPerfectMirror': { type: 'i', value: 0 },
         'cornellBox.materials[1].isDiffuse': { type: 'i', value: 1 },
         'cornellBox.materials[1].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
@@ -66,7 +66,7 @@ var material = new THREE.ShaderMaterial({
 
         // top
         'cornellBox.planes[2].n': { type: 'v3', value: new THREE.Vector3(0, -1, 0) },
-        'cornellBox.planes[2].p': { type: 'v3', value: new THREE.Vector3(0, 5, 0) },
+        'cornellBox.planes[2].d': { type: 'f', value: 5 },
         'cornellBox.materials[2].isPerfectMirror': { type: 'i', value: 0 },
         'cornellBox.materials[2].isDiffuse': { type: 'i', value: 1 },
         'cornellBox.materials[2].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
@@ -74,7 +74,7 @@ var material = new THREE.ShaderMaterial({
 
         // bottom
         'cornellBox.planes[3].n': { type: 'v3', value: new THREE.Vector3(0, 1, 0) },
-        'cornellBox.planes[3].p': { type: 'v3', value: new THREE.Vector3(0, -15, 0) },
+        'cornellBox.planes[3].d': { type: 'f', value: 15 },
         'cornellBox.materials[3].isPerfectMirror': { type: 'i', value: 0 },
         'cornellBox.materials[3].isDiffuse': { type: 'i', value: 1 },
         'cornellBox.materials[3].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
@@ -82,7 +82,7 @@ var material = new THREE.ShaderMaterial({
 
         // near
         'cornellBox.planes[4].n': { type: 'v3', value: new THREE.Vector3(0, 0, -1) },
-        'cornellBox.planes[4].p': { type: 'v3', value: new THREE.Vector3(0, 0, 1) },
+        'cornellBox.planes[4].d': { type: 'f', value: 1 },
         'cornellBox.materials[4].isPerfectMirror': { type: 'i', value: 0 },
         'cornellBox.materials[4].isDiffuse': { type: 'i', value: 1 },
         'cornellBox.materials[4].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
@@ -90,7 +90,7 @@ var material = new THREE.ShaderMaterial({
 
         // far
         'cornellBox.planes[5].n': { type: 'v3', value: new THREE.Vector3(0, 0, 1) },
-        'cornellBox.planes[5].p': { type: 'v3', value: new THREE.Vector3(0, 0, -29) },
+        'cornellBox.planes[5].d': { type: 'f', value: 29 },
         'cornellBox.materials[5].isPerfectMirror': { type: 'i', value: 0 },
         'cornellBox.materials[5].isDiffuse': { type: 'i', value: 1 },
         'cornellBox.materials[5].Le': { type: 'v3', value: new THREE.Vector3(0.0, 0.0, 0.0) },
