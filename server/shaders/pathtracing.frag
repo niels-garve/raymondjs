@@ -101,7 +101,7 @@ void hitSphere(Ray ray, Sphere sphere, float tMin, inout Hit firstHit, Material 
 //{{#hasCornellBox}}
 struct Plane { // Hessesche Normalform
 	vec3 n;
-	vec3 p;
+	float d;
 };
 
 struct CornellBox {
@@ -119,11 +119,11 @@ uniform CornellBox cornellBox;
  * Sonst: nichts. material gehört zu plane.
  */
 void hitPlane(Ray ray, Plane plane, float tMin, inout Hit firstHit, Material material) {
-	float denominator = dot(ray.direction, plane.n); // z. dt. Nenner
+	float denominator = dot(plane.n, ray.direction); // z. dt. Nenner
 
 	if (denominator == 0.0) return;
 
-	float t = dot((plane.p - ray.start), plane.n) / denominator;
+	float t = -(plane.d + dot(plane.n, ray.start)) / denominator;
 
 	if (tMin < t && t < firstHit.t) {
 		vec3 hitPoint = ray.start + t * ray.direction;
