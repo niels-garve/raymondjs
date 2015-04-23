@@ -34,51 +34,14 @@
 <section class="container">
     <pre id="error" class="alert alert-danger"></pre>
 
-    <div class="stage text-center">
-        <canvas id="drawing_area" class="stage__canvas" width="256" height="256">If you see this text, your browser
-            probably does not support HTML5.
-        </canvas>
-    </div>
+    <div id="canvas" class="stage text-center"></div>
 
     {{ content }}
 </section>
 
 <script src="client/server/engine.js"></script>
 <script src="client/vendor/TrackballControls.js"></script>
-<script type="text/javascript">
-    (function( Raymond ) {
-        var canvas = document.getElementById('drawing_area');
-        var engine = new Raymond({
-            canvas: canvas
-        });
-
-        var controls = new THREE.TrackballControls(engine.getCamera());
-        controls.target = new THREE.Vector3(0, 0, -2);
-        controls.rotateSpeed = 1.0;
-        controls.zoomSpeed = 1.2;
-        controls.panSpeed = 0.8;
-        controls.noZoom = false;
-        controls.noPan = false;
-        controls.staticMoving = true;
-        controls.dynamicDampingFactor = 0.3;
-        controls.keys = [ 65, 83, 68 ];
-        controls.addEventListener('change', function() {
-            engine.resetSampleCounter();
-        });
-
-        engine.setControls(controls);
-        engine.setRenderCallback(function() {
-            controls.update();
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            engine.render();
-        }
-
-        animate();
-    })(window.Raymond);
-</script>
+<script src="client/app.js"></script>
 
 <script id="mesh" type="text/plain">
 # Blender v2.67 (sub 0) OBJ File: 'myCrane.blend'
@@ -192,4 +155,13 @@ f 24//30 23//30 28//30
 f 27//31 30//31 32//31
 f 25//32 35//32 24//32
 f 36//33 24//33 37//33
+
+
+
+
+
+
+
+
+
 </script>
