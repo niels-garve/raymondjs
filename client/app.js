@@ -1,4 +1,4 @@
-(function( Raymond ) {
+(function( Raymond, undefined ) {
 
     var engine = new Raymond();
 
@@ -21,7 +21,9 @@
         controls.update();
     });
 
-    document.body.appendChild(engine.renderer.domElement);
+    var element = document.getElementById('canvas');
+
+    element.appendChild(engine.renderer.domElement);
 
     function animate() {
         requestAnimationFrame(animate);
