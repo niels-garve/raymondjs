@@ -1,3 +1,5 @@
+![A hello-world-scene rendered by RaymondJS](/raymondjs.png?raw=true "A hello world scene")
+
 # RaymondJS
 
 RaymondJS is a realtime pathtracing (basically a raytracing) engine that runs on GPU. It is built on WebGL and [three.js](https://github.com/mrdoob/three.js/) so you can use it on your website as described [below](#user-content-for-users---the-window-api). I'm currently working on a **headless** version (with no canvas) that runs on Node.js. The RaymondJS server will generate pixel arrays and **streams** them (encoded or not?) to its clients in the hope to increase performance.
