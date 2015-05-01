@@ -6,42 +6,42 @@ RaymondJS is a realtime pathtracing (basically a raytracing) engine that runs on
 
 Once the streaming engine is set up correctly, I will try to implement a distributed engine: many RaymondJS instances (somehow connected via websockets) could render small parts of the same scene, which could once again increase performance.
 
-# For users - the ```window```-API
+## For users - the ```window```-API
 
-## Constructor
+### Constructor
 
-### ```Raymond()```
+#### ```Raymond()```
 This constructor sets the following properties:
 
 - ```context``` This is the webgl context (optional)
 - ```canvas``` This is the canvas (optional, RaymondJS will create one and, for now, append it to ```<body>```)
 
-## Methods
+### Methods
 
-### ```.render()```
+#### ```.render()```
 Draws the result of the first bunch of rays on the ```canvas```
 
-### ```.setRenderCallback( callback )```
+#### ```.setRenderCallback( callback )```
 
 - ```callback``` This function gets called at the beginning of a render pass
 
-### ```.setControls( controls )```
+#### ```.setControls( controls )```
 
 - ```controls``` This is the camera manipulating object
 
-### ```.getCamera()```
+#### ```.getCamera()```
 Returns a camera of type ```THREE.Camera```. This could be usefull to initialize your controls
 
-### ```.resetSampleCounter()```
+#### ```.resetSampleCounter()```
 This method resets the sample counter to zero, which tells the engine to ignore the result of former rays and restart the blending process. This is especially interessting on camera movements.
 
-# For developers - upcoming features
+## For developers - upcoming features
 The scene definition is currently hard coded. The next step will be to provide one or more setter methods allowing to render different scenes. I think the OBJ format is good enough to kick things off. But still, providing a scene API is quite challenging for I have to load different parts of shader code depending on what's given in the scene definition. So I think putting OBJ definitions into one JSON file would do a good job. I'll start a discussion in time.
 
-# Example
+## Example
 
 ```
-(function( Raymond ) {
+(function( Raymond, undefined ) {
 
     var engine = new Raymond();
 
@@ -64,7 +64,9 @@ The scene definition is currently hard coded. The next step will be to provide o
         controls.update();
     });
 
-    document.body.appendChild(engine.renderer.domElement);
+    var element = document.getElementById('canvas');
+
+    element.appendChild(engine.renderer.domElement);
 
     function animate() {
         requestAnimationFrame(animate);
@@ -75,7 +77,7 @@ The scene definition is currently hard coded. The next step will be to provide o
 })(window.Raymond);
 ```
 
-# Developing
+## Developing
 First run ```$ npm install```.
 
 ```$ gulp js``` will bundle the node modules and place one minified javascript-file and a seperate sourcemaps-file into the ```client/server``` folder. With ```$ gulp connect``` you'll start a small local webserver pointing to ```client```.
