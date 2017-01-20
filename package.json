@@ -22,6 +22,7 @@
   "homepage": "https://github.com/alnico87/raymond.js",
   "devDependencies": {
     "brfs": "^1.4.0",
+    "browser-sync": "^2.18.6",
     "browserify": "^9.0.8",
     "canvas": "^1.2.1",
     "gl": "0.0.5",

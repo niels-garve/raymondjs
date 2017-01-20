@@ -11,3 +11,5 @@ github_username: niels-garve
 
 # Build settings
 markdown: kramdown
+
+exclude: [node_modules, gulpfile.js, package.json, README.md, server, docs, deprecated]

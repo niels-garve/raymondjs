@@ -10,10 +10,12 @@ var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 var assign = require('lodash.assign');
 var connect = require('gulp-connect');
+var spawn = require('child_process').spawn;
+var browserSync = require('browser-sync');
 
 // add custom browserify options here
 var customOpts = {
-    entries: [ './server/engine.js' ],
+    entries: ['./server/engine.js'],
     debug: true,
     standalone: 'Raymond'
 };
@@ -47,4 +49,31 @@ gulp.task('connect', function() {
         root: 'client',
         livereload: true
     });
+});
+
+/*
+ * jekyll build
+ */
+
+gulp.task('jekyll-build', function( done ) {
+    // TODO spawn uses wrong executable
+    spawn('jekyll', ['build'], { stdio: 'inherit' })
+        .on('close', done);
+});
+
+gulp.task('jekyll-rebuild', ['jekyll-build'], browserSync.reload);
+
+gulp.task('serve', ['jekyll-build'], function() {
+    browserSync({
+        server: {
+            baseDir: '_site'
+        },
+        open: false
+    });
+
+    gulp.watch([
+        'index.md',
+        '_layouts/*.html',
+        '_sass/**/*.scss'
+    ], ['jekyll-rebuild']);
 });
